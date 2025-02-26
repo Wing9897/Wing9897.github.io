@@ -18,15 +18,12 @@
         #video {
             width: 100%;
             height: auto;
-            display: none; /* 隱藏原始視頻，僅顯示canvas */
+            display: none; /* 隱藏原始視頻 */
         }
         #overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            pointer-events: none;
+            height: auto;
+            border: 1px solid #ccc; /* 添加邊框以確認canvas顯示 */
         }
         #result {
             font-size: 18px;
@@ -174,10 +171,10 @@
         }
 
         function adjustZoom() {
-            if (scanning) return; // 掃描成功時不調整
+            if (scanning) return;
             zoomLevel += zoomStep;
             if (zoomLevel > maxZoom) {
-                zoomLevel = 1.5; // 重置到初始縮放1.5x
+                zoomLevel = 1.5; // 重置到1.5x
             }
             console.log('當前縮放級別:', zoomLevel);
         }
@@ -190,7 +187,7 @@
             const destWidth = overlay.width;
             const destHeight = overlay.height;
 
-            // 計算縮放後的裁剪區域
+            // 計算縮放區域
             const zoomWidth = srcWidth / zoomLevel;
             const zoomHeight = srcHeight / zoomLevel;
             const offsetX = (srcWidth - zoomWidth) / 2;
@@ -221,14 +218,15 @@
                         scanning = true;
                         setTimeout(() => {
                             scanning = false;
-                            zoomLevel = 1.5; // 掃描成功後重置到1.5x
+                            zoomLevel = 1.5; // 重置到1.5x
                             requestAnimationFrame(() => captureFrame(video));
                         }, 3000);
                     } else {
                         requestAnimationFrame(() => captureFrame(video));
                     }
                 })
-                .catch(() => {
+                .catch(error => {
+                    console.error('掃描錯誤:', error);
                     requestAnimationFrame(() => captureFrame(video));
                 });
         }

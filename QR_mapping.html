@@ -18,6 +18,7 @@
         #video {
             width: 100%;
             height: auto;
+            display: none; /* 隱藏原始視頻，僅顯示canvas */
         }
         #overlay {
             position: absolute;
@@ -66,8 +67,7 @@
         </div>
         <div class="mb-3 text-center">
             <button class="btn btn-primary me-2" id="batch-submit">批量添加</button>
-            <button class="btn btn-secondary me-2" id="add-row">單行添加</button>
-            <button class="btn btn-info" id="focus-btn">手動對焦</button>
+            <button class="btn btn-secondary" id="add-row">單行添加</button>
         </div>
 
         <!-- 表格區 -->
@@ -106,7 +106,9 @@
         const resultDiv = document.getElementById('result');
         const overlay = document.getElementById('overlay');
         const context = overlay.getContext('2d');
-        let videoTrack = null;
+        let zoomLevel = 1.0; // 初始縮放級別
+        const maxZoom = 3.0; // 最大縮放級別
+        const zoomStep = 0.5; // 每次縮放步長
 
         // 表格相關函數
         function addRow(correspondingValue = '', qrCodeNumber = '') {
@@ -152,63 +154,54 @@
         async function startCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: "environment",
-                        advanced: [{ focusMode: "continuous" }] // 嘗試連續對焦
-                    }
+                    video: { facingMode: "environment" }
                 });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 video.play();
 
-                // 儲存軌道以便手動對焦
-                videoTrack = stream.getVideoTracks()[0];
-
                 video.addEventListener('loadedmetadata', () => {
                     overlay.width = video.videoWidth;
                     overlay.height = video.videoHeight;
                     requestAnimationFrame(() => captureFrame(video));
+                    setInterval(() => adjustZoom(), 2000); // 每2秒調整一次縮放
                 });
-
-                // 檢查對焦能力
-                const capabilities = videoTrack.getCapabilities();
-                console.log('攝像頭能力:', capabilities);
-                if (!capabilities.focusMode) {
-                    console.warn('此設備不支援 focusMode');
-                    resultDiv.textContent = '此設備可能不支援自動對焦，使用默認模式';
-                }
             } catch (error) {
-                console.error('無法訪問相機或設置自動對焦:', error);
-                resultDiv.textContent = '無法啟動攝像頭或自動對焦，請檢查設備支援或權限';
+                console.error('無法訪問相機:', error);
+                resultDiv.textContent = '無法啟動攝像頭，請檢查權限或設備';
                 resultDiv.className = 'alert alert-danger text-center';
             }
         }
 
-        // 手動對焦功能
-        document.getElementById('focus-btn').addEventListener('click', async () => {
-            if (videoTrack) {
-                try {
-                    await videoTrack.applyConstraints({
-                        advanced: [{ focusMode: "continuous" }]
-                    });
-                    resultDiv.textContent = '已嘗試手動對焦';
-                    resultDiv.className = 'alert alert-info text-center';
-                } catch (error) {
-                    console.error('手動對焦失敗:', error);
-                    resultDiv.textContent = '手動對焦失敗，設備可能不支援';
-                    resultDiv.className = 'alert alert-warning text-center';
-                }
-            } else {
-                resultDiv.textContent = '攝像頭未啟動，無法對焦';
-                resultDiv.className = 'alert alert-warning text-center';
+        function adjustZoom() {
+            if (scanning) return; // 掃描成功時不調整
+            zoomLevel += zoomStep;
+            if (zoomLevel > maxZoom) {
+                zoomLevel = 1.0; // 重置到初始縮放
             }
-        });
+            console.log('當前縮放級別:', zoomLevel);
+        }
 
         function captureFrame(video) {
             if (scanning) return;
 
-            context.clearRect(0, 0, overlay.width, overlay.height);
-            context.drawImage(video, 0, 0, overlay.width, overlay.height);
+            const srcWidth = video.videoWidth;
+            const srcHeight = video.videoHeight;
+            const destWidth = overlay.width;
+            const destHeight = overlay.height;
+
+            // 計算縮放後的裁剪區域
+            const zoomWidth = srcWidth / zoomLevel;
+            const zoomHeight = srcHeight / zoomLevel;
+            const offsetX = (srcWidth - zoomWidth) / 2;
+            const offsetY = (srcHeight - zoomHeight) / 2;
+
+            context.clearRect(0, 0, destWidth, destHeight);
+            context.drawImage(
+                video,
+                offsetX, offsetY, zoomWidth, zoomHeight, // 源區域
+                0, 0, destWidth, destHeight              // 目標區域
+            );
 
             QrScanner.scanImage(overlay, { returnDetailedScanResult: true })
                 .then(result => {
@@ -228,6 +221,7 @@
                         scanning = true;
                         setTimeout(() => {
                             scanning = false;
+                            zoomLevel = 1.0; // 掃描成功後重置縮放
                             requestAnimationFrame(() => captureFrame(video));
                         }, 3000);
                     } else {

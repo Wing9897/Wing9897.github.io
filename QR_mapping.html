@@ -18,12 +18,14 @@
         #video {
             width: 100%;
             height: auto;
-            display: none; /* 隱藏原始視頻 */
         }
         #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: auto;
-            border: 1px solid #ccc;
+            height: 100%;
+            pointer-events: none;
         }
         #result {
             font-size: 18px;
@@ -34,6 +36,7 @@
             max-height: 300px;
             overflow-y: auto;
         }
+        /* 手機適配 */
         @media (max-width: 576px) {
             #video-container {
                 max-width: 100%;
@@ -88,7 +91,7 @@
 
         <!-- 結果顯示區 -->
         <div id="result" class="alert alert-info text-center" role="alert">
-            掃描結果將顯示在這裡（若模糊，請調整QR碼與攝像頭距離）
+            掃描結果將顯示在這裡
         </div>
     </div>
 
@@ -103,9 +106,6 @@
         const resultDiv = document.getElementById('result');
         const overlay = document.getElementById('overlay');
         const context = overlay.getContext('2d');
-        let zoomLevel = 1.5; // 預設縮放級別
-        const maxZoom = 3.0;  // 最大縮放級別
-        const zoomStep = 0.5; // 縮放步長
 
         // 表格相關函數
         function addRow(correspondingValue = '', qrCodeNumber = '') {
@@ -147,43 +147,13 @@
         document.getElementById('add-row').addEventListener('click', () => addRow());
         tableBody.addEventListener('input', updateQrCodeData);
 
-        // 簡單圖像銳化函數
-        function sharpenImage(ctx, width, height) {
-            const imageData = ctx.getImageData(0, 0, width, height);
-            const data = imageData.data;
-            const sharpened = new Uint8ClampedArray(data.length);
-
-            const weights = [0, -1, 0, -1, 5, -1, 0, -1, 0]; // 簡單銳化濾鏡
-            for (let y = 1; y < height - 1; y++) {
-                for (let x = 1; x < width - 1; x++) {
-                    let r = 0, g = 0, b = 0;
-                    for (let ky = -1; ky <= 1; ky++) {
-                        for (let kx = -1; kx <= 1; kx++) {
-                            const idx = ((y + ky) * width + (x + kx)) * 4;
-                            const weight = weights[(ky + 1) * 3 + (kx + 1)];
-                            r += data[idx] * weight;
-                            g += data[idx + 1] * weight;
-                            b += data[idx + 2] * weight;
-                        }
-                    }
-                    const i = (y * width + x) * 4;
-                    sharpened[i] = Math.min(Math.max(r, 0), 255);
-                    sharpened[i + 1] = Math.min(Math.max(g, 0), 255);
-                    sharpened[i + 2] = Math.min(Math.max(b, 0), 255);
-                    sharpened[i + 3] = data[i + 3]; // alpha保持不變
-                }
-            }
-            ctx.putImageData(new ImageData(sharpened, width, height), 0, 0);
-        }
-
         // QR 掃描相關
         async function startCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        facingMode: "environment",
-                        width: { ideal: 1280 }, // 提高解析度
-                        height: { ideal: 720 }
+                    video: {
+                        facingMode: "environment", // 使用後置攝影機
+                        advanced: [{ focusMode: "continuous" }] // 啟用連續自動對焦
                     }
                 });
                 const video = document.getElementById('video');
@@ -194,47 +164,19 @@
                     overlay.width = video.videoWidth;
                     overlay.height = video.videoHeight;
                     requestAnimationFrame(() => captureFrame(video));
-                    setInterval(() => adjustZoom(), 2000); // 每2秒調整縮放
                 });
             } catch (error) {
                 console.error('無法訪問相機:', error);
-                resultDiv.textContent = '無法啟動攝像頭，請檢查權限或設備';
+                resultDiv.textContent = '無法啟動攝像頭，請檢查權限或設備。可能不支援自動對焦。';
                 resultDiv.className = 'alert alert-danger text-center';
             }
-        }
-
-        function adjustZoom() {
-            if (scanning) return;
-            zoomLevel += zoomStep;
-            if (zoomLevel > maxZoom) {
-                zoomLevel = 1.5; // 重置到1.5x
-            }
-            console.log('當前縮放級別:', zoomLevel);
         }
 
         function captureFrame(video) {
             if (scanning) return;
 
-            const srcWidth = video.videoWidth;
-            const srcHeight = video.videoHeight;
-            const destWidth = overlay.width;
-            const destHeight = overlay.height;
-
-            // 計算縮放區域
-            const zoomWidth = srcWidth / zoomLevel;
-            const zoomHeight = srcHeight / zoomLevel;
-            const offsetX = (srcWidth - zoomWidth) / 2;
-            const offsetY = (srcHeight - zoomHeight) / 2;
-
-            context.clearRect(0, 0, destWidth, destHeight);
-            context.drawImage(
-                video,
-                offsetX, offsetY, zoomWidth, zoomHeight,
-                0, 0, destWidth, destHeight
-            );
-
-            // 應用圖像銳化
-            sharpenImage(context, destWidth, destHeight);
+            context.clearRect(0, 0, overlay.width, overlay.height);
+            context.drawImage(video, 0, 0, overlay.width, overlay.height);
 
             QrScanner.scanImage(overlay, { returnDetailedScanResult: true })
                 .then(result => {
@@ -254,15 +196,13 @@
                         scanning = true;
                         setTimeout(() => {
                             scanning = false;
-                            zoomLevel = 1.5;
                             requestAnimationFrame(() => captureFrame(video));
                         }, 3000);
                     } else {
                         requestAnimationFrame(() => captureFrame(video));
                     }
                 })
-                .catch(error => {
-                    console.error('掃描錯誤:', error);
+                .catch(() => {
                     requestAnimationFrame(() => captureFrame(video));
                 });
         }

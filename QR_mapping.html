@@ -139,11 +139,12 @@
         async function startCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: "environment", // 使用後置攝影機
-                        // 可選：添加對焦約束（若設備支援）
-                        advanced: [{ focusMode: "continuous" }]
-                    }
+                      video: {
+                        width: { ideal: 1920 },  // 提高分辨率
+                        height: { ideal: 1080 },
+                        facingMode: 'environment', // 使用後置鏡頭（通常對焦更好）
+                        focusMode: 'continuous'    // 啟用連續自動對焦
+                      }
                 });
                 const video = document.getElementById('video');
                 video.srcObject = stream;

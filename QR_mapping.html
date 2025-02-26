@@ -18,14 +18,12 @@
         #video {
             width: 100%;
             height: auto;
+            display: none; /* 隱藏原始視頻 */
         }
         #overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            pointer-events: none;
+            height: auto;
+            border: 1px solid #ccc; /* 添加邊框以確認canvas顯示 */
         }
         #result {
             font-size: 18px;
@@ -36,7 +34,6 @@
             max-height: 300px;
             overflow-y: auto;
         }
-        /* 手機適配 */
         @media (max-width: 576px) {
             #video-container {
                 max-width: 100%;
@@ -106,6 +103,9 @@
         const resultDiv = document.getElementById('result');
         const overlay = document.getElementById('overlay');
         const context = overlay.getContext('2d');
+        let zoomLevel = 1.5; // 預設縮放級別為1.5x
+        const maxZoom = 3.0;  // 最大縮放級別
+        const zoomStep = 0.5; // 每次縮放步長
 
         // 表格相關函數
         function addRow(correspondingValue = '', qrCodeNumber = '') {
@@ -151,10 +151,7 @@
         async function startCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        facingMode: "environment",
-                        focusMode: "continuous" // 啟用連續自動對焦
-                    }
+                    video: { facingMode: "environment" }
                 });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
@@ -164,6 +161,7 @@
                     overlay.width = video.videoWidth;
                     overlay.height = video.videoHeight;
                     requestAnimationFrame(() => captureFrame(video));
+                    setInterval(() => adjustZoom(), 2000); // 每2秒調整縮放
                 });
             } catch (error) {
                 console.error('無法訪問相機:', error);
@@ -172,11 +170,35 @@
             }
         }
 
+        function adjustZoom() {
+            if (scanning) return;
+            zoomLevel += zoomStep;
+            if (zoomLevel > maxZoom) {
+                zoomLevel = 1.5; // 重置到1.5x
+            }
+            console.log('當前縮放級別:', zoomLevel);
+        }
+
         function captureFrame(video) {
             if (scanning) return;
 
-            context.clearRect(0, 0, overlay.width, overlay.height);
-            context.drawImage(video, 0, 0, overlay.width, overlay.height);
+            const srcWidth = video.videoWidth;
+            const srcHeight = video.videoHeight;
+            const destWidth = overlay.width;
+            const destHeight = overlay.height;
+
+            // 計算縮放區域
+            const zoomWidth = srcWidth / zoomLevel;
+            const zoomHeight = srcHeight / zoomLevel;
+            const offsetX = (srcWidth - zoomWidth) / 2;
+            const offsetY = (srcHeight - zoomHeight) / 2;
+
+            context.clearRect(0, 0, destWidth, destHeight);
+            context.drawImage(
+                video,
+                offsetX, offsetY, zoomWidth, zoomHeight, // 源區域
+                0, 0, destWidth, destHeight              // 目標區域
+            );
 
             QrScanner.scanImage(overlay, { returnDetailedScanResult: true })
                 .then(result => {
@@ -196,13 +218,15 @@
                         scanning = true;
                         setTimeout(() => {
                             scanning = false;
+                            zoomLevel = 1.5; // 重置到1.5x
                             requestAnimationFrame(() => captureFrame(video));
                         }, 3000);
                     } else {
                         requestAnimationFrame(() => captureFrame(video));
                     }
                 })
-                .catch(() => {
+                .catch(error => {
+                    console.error('掃描錯誤:', error);
                     requestAnimationFrame(() => captureFrame(video));
                 });
         }

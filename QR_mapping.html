@@ -6,8 +6,8 @@
     <title>QR碼對應數值查詢</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- QR Scanner -->
-    <script type="module" src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js"></script>
+    <!-- ZXing Library -->
+    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
     <style>
         #video-container {
             position: relative;
@@ -18,14 +18,7 @@
         #video {
             width: 100%;
             height: auto;
-        }
-        #overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
+            border: 2px solid #ddd; /* 添加邊框以突出顯示視訊區域 */
         }
         #result {
             font-size: 18px;
@@ -86,7 +79,6 @@
         <!-- 攝像頭區 -->
         <div id="video-container">
             <video id="video" class="img-fluid" muted playsinline></video>
-            <canvas id="overlay"></canvas>
         </div>
 
         <!-- 結果顯示區 -->
@@ -97,15 +89,11 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module">
-        import QrScanner from 'https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js';
-
+    <script>
         let qrCodeData = [];
         let scanning = false;
         const tableBody = document.getElementById('data-table');
         const resultDiv = document.getElementById('result');
-        const overlay = document.getElementById('overlay');
-        const context = overlay.getContext('2d');
 
         // 表格相關函數
         function addRow(correspondingValue = '', qrCodeNumber = '') {
@@ -153,37 +141,20 @@
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: "environment", // 使用後置攝影機
-                        advanced: [{ focusMode: "continuous" }] // 啟用連續自動對焦
+                        // 可選：添加對焦約束（若設備支援）
+                        advanced: [{ focusMode: "continuous" }]
                     }
                 });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 video.play();
 
-                video.addEventListener('loadedmetadata', () => {
-                    overlay.width = video.videoWidth;
-                    overlay.height = video.videoHeight;
-                    requestAnimationFrame(() => captureFrame(video));
-                });
-            } catch (error) {
-                console.error('無法訪問相機:', error);
-                resultDiv.textContent = '無法啟動攝像頭，請檢查權限或設備。可能不支援自動對焦。';
-                resultDiv.className = 'alert alert-danger text-center';
-            }
-        }
-
-        function captureFrame(video) {
-            if (scanning) return;
-
-            context.clearRect(0, 0, overlay.width, overlay.height);
-            context.drawImage(video, 0, 0, overlay.width, overlay.height);
-
-            QrScanner.scanImage(overlay, { returnDetailedScanResult: true })
-                .then(result => {
-                    if (result) {
-                        const scannedQrCodeNumber = result.data;
+                const codeReader = new ZXing.BrowserQRCodeReader();
+                codeReader.decodeFromVideoElement(video, (result, error) => {
+                    if (result && !scanning) {
+                        const scannedQrCodeNumber = result.text;
                         const matchedItem = qrCodeData.find(item => item.qrCodeNumber === scannedQrCodeNumber);
-                        
+
                         if (matchedItem) {
                             resultDiv.textContent = `找到匹配！對應數值: ${matchedItem.correspondingValue}, QRcode number: ${matchedItem.qrCodeNumber}`;
                             resultDiv.className = 'alert alert-success text-center';
@@ -192,32 +163,18 @@
                             resultDiv.className = 'alert alert-warning text-center';
                         }
 
-                        drawHighlight(result);
                         scanning = true;
-                        setTimeout(() => {
-                            scanning = false;
-                            requestAnimationFrame(() => captureFrame(video));
-                        }, 3000);
-                    } else {
-                        requestAnimationFrame(() => captureFrame(video));
+                        setTimeout(() => (scanning = false), 3000); // 3秒後重啟掃描
                     }
-                })
-                .catch(() => {
-                    requestAnimationFrame(() => captureFrame(video));
+                    if (error && !scanning) {
+                        // 忽略掃描錯誤，繼續運行
+                        console.log('掃描錯誤:', error);
+                    }
                 });
-        }
-
-        function drawHighlight(result) {
-            if (result.cornerPoints && result.cornerPoints.length === 4) {
-                context.beginPath();
-                context.lineWidth = 4;
-                context.strokeStyle = 'red';
-                context.moveTo(result.cornerPoints[0].x, result.cornerPoints[0].y);
-                for (let i = 1; i < result.cornerPoints.length; i++) {
-                    context.lineTo(result.cornerPoints[i].x, result.cornerPoints[i].y);
-                }
-                context.closePath();
-                context.stroke();
+            } catch (error) {
+                console.error('無法訪問相機:', error);
+                resultDiv.textContent = '無法啟動攝像頭，請檢查權限或設備';
+                resultDiv.className = 'alert alert-danger text-center';
             }
         }
 

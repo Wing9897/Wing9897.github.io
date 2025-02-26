@@ -36,7 +36,6 @@
             max-height: 300px;
             overflow-y: auto;
         }
-        /* 手機適配 */
         @media (max-width: 576px) {
             #video-container {
                 max-width: 100%;
@@ -67,7 +66,8 @@
         </div>
         <div class="mb-3 text-center">
             <button class="btn btn-primary me-2" id="batch-submit">批量添加</button>
-            <button class="btn btn-secondary" id="add-row">單行添加</button>
+            <button class="btn btn-secondary me-2" id="add-row">單行添加</button>
+            <button class="btn btn-info" id="focus-btn">手動對焦</button>
         </div>
 
         <!-- 表格區 -->
@@ -106,6 +106,7 @@
         const resultDiv = document.getElementById('result');
         const overlay = document.getElementById('overlay');
         const context = overlay.getContext('2d');
+        let videoTrack = null;
 
         // 表格相關函數
         function addRow(correspondingValue = '', qrCodeNumber = '') {
@@ -151,26 +152,57 @@
         async function startCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
+                    video: {
                         facingMode: "environment",
-                        focusMode: "continuous" // 啟用連續自動對焦
+                        advanced: [{ focusMode: "continuous" }] // 嘗試連續對焦
                     }
                 });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 video.play();
 
+                // 儲存軌道以便手動對焦
+                videoTrack = stream.getVideoTracks()[0];
+
                 video.addEventListener('loadedmetadata', () => {
                     overlay.width = video.videoWidth;
                     overlay.height = video.videoHeight;
                     requestAnimationFrame(() => captureFrame(video));
                 });
+
+                // 檢查對焦能力
+                const capabilities = videoTrack.getCapabilities();
+                console.log('攝像頭能力:', capabilities);
+                if (!capabilities.focusMode) {
+                    console.warn('此設備不支援 focusMode');
+                    resultDiv.textContent = '此設備可能不支援自動對焦，使用默認模式';
+                }
             } catch (error) {
-                console.error('無法訪問相機:', error);
-                resultDiv.textContent = '無法啟動攝像頭，請檢查權限或設備';
+                console.error('無法訪問相機或設置自動對焦:', error);
+                resultDiv.textContent = '無法啟動攝像頭或自動對焦，請檢查設備支援或權限';
                 resultDiv.className = 'alert alert-danger text-center';
             }
         }
+
+        // 手動對焦功能
+        document.getElementById('focus-btn').addEventListener('click', async () => {
+            if (videoTrack) {
+                try {
+                    await videoTrack.applyConstraints({
+                        advanced: [{ focusMode: "continuous" }]
+                    });
+                    resultDiv.textContent = '已嘗試手動對焦';
+                    resultDiv.className = 'alert alert-info text-center';
+                } catch (error) {
+                    console.error('手動對焦失敗:', error);
+                    resultDiv.textContent = '手動對焦失敗，設備可能不支援';
+                    resultDiv.className = 'alert alert-warning text-center';
+                }
+            } else {
+                resultDiv.textContent = '攝像頭未啟動，無法對焦';
+                resultDiv.className = 'alert alert-warning text-center';
+            }
+        });
 
         function captureFrame(video) {
             if (scanning) return;

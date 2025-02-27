@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自訂參數批量 HTTP 請求系統</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container-fluid {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .table-container, .request-status {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .request-config, .request-status, .table-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+        .table-card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .progress {
+            height: 20px;
+            margin-bottom: 10px;
+        }
+        .status-item {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            transition: background-color 0.3s;
+        }
+        .status-success {
+            background-color: #d4edda;
+        }
+        .status-error {
+            background-color: #f8d7da;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        .step-guide {
+            margin-bottom: 20px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .step-item {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .step-item::before {
+            content: "•";
+            position: absolute;
+            left: 5px;
+            color: #007bff;
+        }
+        .tooltip-custom {
+            font-size: 0.9rem;
+        }
+        .btn-custom {
+            margin: 5px;
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        /* 表格美化 */
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table th {
+            background-color: #007bff;
+            color: #ffffff;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .table input.form-control {
+            border-radius: 4px;
+            border-color: #ced4da;
+        }
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        /* 回應文字優化 */
+        .result {
+            word-wrap: break-word;
+            max-width: 100%;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            padding: 5px 10px;
+            background-color: #f1f3f5;
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow-x: auto;
+        }
+        .result.success {
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .result.error {
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        /* 優化 d-flex 區域 */
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 5px 0;
+        }
+        .status-number {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1rem;
+        }
+        .status-url {
+            font-size: 0.9rem;
+            color: #343a40;
+            word-break: break-all;
+            max-width: 70%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        @media (max-width: 768px) {
+            .table-container, .request-status {
+                max-height: 200px;
+            }
+            .request-config, .request-status, .table-card {
+                padding: 15px;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            .btn-custom {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            textarea, input {
+                font-size: 0.9rem;
+            }
+            .step-guide {
+                padding: 10px;
+            }
+            .step-item {
+                padding-left: 15px;
+            }
+            .table-title {
+                font-size: 1rem;
+            }
+            .result {
+                font-size: 0.8rem;
+                padding: 3px 8px;
+            }
+            .status-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .status-number {
+                font-size: 0.9rem;
+            }
+            .status-url {
+                max-width: 100%;
+                white-space: normal;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                <h2 class="mb-4 text-center text-primary">自訂參數批量 HTTP 請求系統</h2>
+
+                <!-- 操作步驟指南 -->
+                <div class="card mb-3 step-guide">
+                    <div class="card-body">
+                        <h5 class="card-title">操作步驟</h5>
+                        <div class="step-item">1. 在批量輸入區輸入數據，每行用空格分隔多個參數。</div>
+                        <div class="step-item">2. 點擊「批量添加」或「單行添加」生成表格數據。</div>
+                        <div class="step-item">3. 選擇請求方法（GET 或 POST），輸入 URL 模板和（若為 POST）JSON 模板。</div>
+                        <div class="step-item">4. 點擊「發送請求」，查看請求狀態和回應結果。</div>
+                    </div>
+                </div>
+
+                <!-- 批量輸入區 -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <textarea class="form-control" id="batch-input" rows="4" placeholder="批量輸入格式：每行一組數據，用空格分隔多項
+例如：
+value1 value2 value3 value4
+或
+data1 data2" data-bs-toggle="tooltip" data-bs-placement="top" title="輸入每行數據，空格分隔參數。例如：value1 value2"></textarea>
+                        <div class="d-flex justify-content-center mt-3">
+                            <button class="btn btn-primary btn-custom" id="batch-submit" data-bs-toggle="tooltip" data-bs-placement="top" title="將批量輸入的數據添加到表格">批量添加</button>
+                            <button class="btn btn-secondary btn-custom" id="add-row" data-bs-toggle="tooltip" data-bs-placement="top" title="手動添加一空行到表格">單行添加</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 表格區 -->
+                <div class="card table-card mb-3">
+                    <div class="card-body table-container">
+                        <h5 class="table-title">參數表格</h5>
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark sticky-top">
+                                <tr id="table-header"></tr>
+                            </thead>
+                            <tbody id="data-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 請求配置區 -->
+                <div class="card mb-3 request-config">
+                    <div class="card-body">
+                        <h4 class="card-title">請求配置</h4>
+                        <div class="mb-3">
+                            <label for="request-method" class="form-label">請求方法</label>
+                            <select class="form-select" id="request-method" data-bs-toggle="tooltip" data-bs-placement="top" title="選擇 HTTP 請求方法：GET 或 POST (JSON)">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST (JSON)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="get-config">
+                            <label for="get-url-template" class="form-label">GET URL 模板 (使用 {Parameter1}, {Parameter2} 等)</label>
+                            <input type="text" class="form-control" id="get-url-template" placeholder="例如: {Parameter1}.example.com/{Parameter2}" data-bs-toggle="tooltip" data-bs-placement="top" title="輸入 GET 請求的 URL 模板，使用 {Parameter1}, {Parameter2} 等占位符">
+                        </div>
+                        <div id="post-config" style="display: none;">
+                            <div class="mb-3">
+                                <label for="post-url-template" class="form-label">POST URL 模板 (使用 {Parameter1}, {Parameter2} 等)</label>
+                                <input type="text" class="form-control" id="post-url-template" placeholder="例如: https://api.example.com/{Parameter1}" data-bs-toggle="tooltip" data-bs-placement="top" title="輸入 POST 請求的 URL 模板，使用 {Parameter1}, {Parameter2} 等占位符">
+                            </div>
+                            <div class="mb-3">
+                                <label for="post-body-template" class="form-label">POST JSON 模板 (使用 {Parameter1}, {Parameter2} 等)</label>
+                                <textarea class="form-control" id="post-body-template" rows="4" placeholder='例如:
+{
+    "key1": "{Parameter1}",
+    "key2": "{Parameter2}"
+}' data-bs-toggle="tooltip" data-bs-placement="top" title="輸入 POST 請求的 JSON 模板，使用 {Parameter1}, {Parameter2} 等占位符"></textarea>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <button class="btn btn-success btn-custom" id="send-requests" data-bs-toggle="tooltip" data-bs-placement="top" title="發送所有表格中的請求，查看狀態和回應">發送請求</button>
+                        </div>
+                        <div id="error-message" class="error-message"></div>
+                    </div>
+                </div>
+
+                <!-- 請求狀態區 -->
+                <div class="card request-status">
+                    <div class="card-body">
+                        <h4 class="card-title">請求狀態</h4>
+                        <div id="status-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS 和 Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 初始化工具提示
+        document.addEventListener('DOMContentLoaded', () => {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        });
+
+        const tableBody = document.getElementById('data-table');
+        const tableHeader = document.getElementById('table-header');
+        const statusContainer = document.getElementById('status-container');
+        const errorMessage = document.getElementById('error-message');
+        let maxParams = 0;
+
+        function updateTableHeader(paramCount) {
+            if (paramCount > maxParams) {
+                tableHeader.innerHTML = '';
+                for (let i = 1; i <= paramCount; i++) {
+                    const th = document.createElement('th');
+                    th.textContent = `Parameter${i}`;
+                    th.setAttribute('title', `第 ${i} 個參數欄位`);
+                    tableHeader.appendChild(th);
+                }
+                maxParams = paramCount;
+
+                const rows = tableBody.getElementsByTagName('tr');
+                for (let row of rows) {
+                    const currentCells = row.getElementsByTagName('td');
+                    const currentLength = currentCells.length;
+                    if (currentLength < paramCount) {
+                        for (let i = currentLength; i < paramCount; i++) {
+                            const td = document.createElement('td');
+                            td.innerHTML = '<input type="text" class="form-control" value="" title="輸入參數值">';
+                            row.appendChild(td);
+                        }
+                    } else if (currentLength > paramCount) {
+                        for (let i = currentLength - 1; i >= paramCount; i--) {
+                            row.removeChild(currentCells[i].parentNode);
+                        }
+                    }
+                }
+            }
+        }
+
+        function addRow(data = []) {
+            const row = document.createElement('tr');
+            const columnCount = data.length || maxParams;
+            updateTableHeader(columnCount);
+
+            let cells = '';
+            for (let i = 0; i < columnCount; i++) {
+                const value = data[i] || '';
+                cells += `<td><input type="text" class="form-control" value="${value}" title="輸入參數值"></td>`;
+            }
+            row.innerHTML = cells;
+            tableBody.appendChild(row);
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => errorMessage.style.display = 'none', 5000);
+        }
+
+        function formatResponse(text, isSuccess) {
+            const maxLength = 200; // 最大顯示長度，過長時截斷
+            let formattedText = text.trim();
+            if (formattedText.length > maxLength) {
+                formattedText = `${formattedText.substring(0, maxLength)} ... (點擊展開)`;
+            }
+            return `
+                <div class="result ${isSuccess ? 'success' : 'error'}">
+                    ${formattedText}
+                </div>
+            `;
+        }
+
+        document.getElementById('batch-submit').addEventListener('click', () => {
+            const input = document.getElementById('batch-input').value;
+            const lines = input.trim().split('\n').map(line => line.trim().split(/\s+/).filter(Boolean));
+            if (lines.length === 0) {
+                showError('請輸入有效數據！');
+                return;
+            }
+            lines.forEach(values => addRow(values));
+            document.getElementById('batch-input').value = '';
+        });
+
+        document.getElementById('add-row').addEventListener('click', () => {
+            addRow([]);
+        });
+
+        document.getElementById('request-method').addEventListener('change', (e) => {
+            const method = e.target.value;
+            document.getElementById('get-config').style.display = method === 'GET' ? 'block' : 'none';
+            document.getElementById('post-config').style.display = method === 'POST' ? 'block' : 'none';
+        });
+
+        document.getElementById('send-requests').addEventListener('click', async () => {
+            const method = document.getElementById('request-method').value;
+            const getUrlTemplate = document.getElementById('get-url-template').value;
+            const postUrlTemplate = document.getElementById('post-url-template').value;
+            let postBodyTemplate = document.getElementById('post-body-template').value.trim();
+            const rows = tableBody.getElementsByTagName('tr');
+
+            statusContainer.innerHTML = '';
+            const totalRequests = rows.length;
+
+            for (let i = 0; i < rows.length; i++) {
+                const inputs = rows[i].getElementsByTagName('input');
+                const params = {};
+                for (let j = 0; j < inputs.length; j++) {
+                    const value = inputs[j].value.trim() || '';
+                    params[`Parameter${j + 1}`] = value;
+                }
+
+                const statusItem = document.createElement('div');
+                statusItem.className = 'status-item';
+                statusItem.innerHTML = `
+                    <div class="status-header">
+                        <span class="status-number">請求 ${i + 1}/${totalRequests}</span>
+                        <span class="status-url"></span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="result-container mt-2"></div>
+                `;
+                statusContainer.appendChild(statusItem);
+                const urlSpan = statusItem.querySelector('.status-url');
+                const progressBar = statusItem.querySelector('.progress-bar');
+                const resultContainer = statusItem.querySelector('.result-container');
+
+                if (method === 'GET') {
+                    let url = getUrlTemplate;
+                    for (const [key, value] of Object.entries(params)) {
+                        url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(value));
+                    }
+                    urlSpan.textContent = url;
+                    progressBar.style.width = '50%';
+                    await sendRequest('GET', url, statusItem, progressBar, resultContainer);
+                } else if (method === 'POST') {
+                    let url = postUrlTemplate;
+                    let bodyStr = postBodyTemplate;
+                    for (const [key, value] of Object.entries(params)) {
+                        url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(value));
+                        bodyStr = bodyStr.replace(new RegExp(`{${key}}`, 'g'), value);
+                    }
+                    // 移除可能的尾部逗號和多餘空白
+                    bodyStr = bodyStr.replace(/,\s*}$/, '}').replace(/^\s+|\s+$/g, '');
+                    // 試圖修復不完整的 JSON（如果需要）
+                    if (!bodyStr.match(/^\s*\{/)) {
+                        bodyStr = `{${bodyStr}}`;
+                    }
+                    urlSpan.textContent = `${url} (Body: ${bodyStr})`;
+                    progressBar.style.width = '50%';
+                    try {
+                        const body = JSON.parse(bodyStr);
+                        await sendRequest('POST', url, statusItem, progressBar, resultContainer, body);
+                    } catch (e) {
+                        resultContainer.innerHTML = formatResponse(`JSON 格式錯誤: ${e.message}`, false);
+                        statusItem.classList.add('status-error');
+                        progressBar.style.width = '100%';
+                        progressBar.classList.add('bg-danger');
+                        showError(`行 ${i + 1} JSON 解析失敗：${e.message}`);
+                    }
+                }
+            }
+        });
+
+        async function sendRequest(method, url, statusItem, progressBar, resultContainer, body = null) {
+            try {
+                const options = { method };
+                if (method === 'POST' && body) {
+                    options.headers = { 'Content-Type': 'application/json' };
+                    options.body = JSON.stringify(body);
+                }
+                const response = await fetch(url, options);
+                const data = await response.text();
+                progressBar.style.width = '100%';
+                progressBar.classList.add('bg-success');
+                statusItem.classList.add('status-success');
+                resultContainer.innerHTML = formatResponse(`成功：${data}`, true);
+            } catch (error) {
+                progressBar.style.width = '100%';
+                progressBar.classList.add('bg-danger');
+                statusItem.classList.add('status-error');
+                resultContainer.innerHTML = formatResponse(`失敗：${error.message}`, false);
+                showError(`請求 ${method} ${url} 失敗：${error.message}`);
+            }
+        }
+
+        function formatResponse(text, isSuccess) {
+            const maxLength = 200; // 最大顯示長度，過長時截斷
+            let formattedText = text.trim();
+            if (formattedText.length > maxLength) {
+                formattedText = `${formattedText.substring(0, maxLength)} ... (點擊展開)`;
+            }
+            return `
+                <div class="result ${isSuccess ? 'success' : 'error'}">
+                    ${formattedText}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

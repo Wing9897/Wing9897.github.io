@@ -69,7 +69,7 @@
                             <div class="step-item">導入配置（可選）：點擊「匯入配置」載入已有設置。</div>
                             <div class="step-item">設置請求：配置請求方法和模板。</div>
                             <div class="step-item">輸入參數：在參數管理區輸入或批量添加數據。</div>
-                            <div class="step-item">輸入值並發送：輸入值並點擊「發送請求」執行批量請求。</div>
+                            <div class="step-item">批量輸入並發送：在輸入區輸入多行值，點擊「發送請求」執行批量請求。</div>
                         </div>
                     </div>
                 </div>
@@ -156,13 +156,16 @@ data1 data2 data3"></textarea>
                     </div>
                 </div>
 
-                <!-- 輸入區 -->
+                <!-- 批量輸入區 -->
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">輸入值</h5>
+                        <h5 class="card-title">批量輸入值</h5>
                         <div class="mb-3">
-                            <label for="input-value" class="form-label">輸入值</label>
-                            <input type="text" class="form-control" id="input-value" placeholder="請輸入值">
+                            <label for="input-values" class="form-label">輸入值（每行一個）</label>
+                            <textarea class="form-control" id="input-values" rows="4" placeholder="例如：
+value1
+value2
+value3"></textarea>
                         </div>
                         <div class="btn-group-custom">
                             <button class="btn btn-success" id="send-request">發送請求</button>
@@ -389,15 +392,15 @@ data1 data2 data3"></textarea>
         }
 
         document.getElementById('send-request').addEventListener('click', async () => {
-            let InputValue = document.getElementById('input-value').value.trim();
-            if (!InputValue) {
-                statusContainer.innerHTML = '<div class="alert alert-warning">請輸入值</div>';
+            const inputValuesText = document.getElementById('input-values').value.trim();
+            const inputValues = inputValuesText.split('\n').map(line => line.trim()).filter(Boolean);
+            if (inputValues.length === 0) {
+                statusContainer.innerHTML = '<div class="alert alert-warning">請輸入至少一個值</div>';
                 return;
             }
 
             const preModifyRemoveRule = document.getElementById('input-pre-modify-remove').value.trim();
             const preModifyAddRule = document.getElementById('input-pre-modify-add').value.trim();
-            InputValue = preModifyInput(InputValue, preModifyRemoveRule, preModifyAddRule);
             const method = document.getElementById('request-method').value;
             const rows = tableBody.getElementsByTagName('tr');
             const interval = parseInt(document.getElementById('request-interval').value) || 0;
@@ -409,81 +412,89 @@ data1 data2 data3"></textarea>
                 return;
             }
 
-            for (let i = 0; i < rows.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, interval * i));
+            let requestCount = 0;
+            const totalRequests = inputValues.length * rows.length;
 
-                const inputs = rows[i].getElementsByTagName('input');
-                const params = { InputValue };
-                for (let j = 0; j < inputs.length; j++) {
-                    params[`Parameter${j + 1}`] = inputs[j].value.trim() || '';
-                }
+            for (let inputIdx = 0; inputIdx < inputValues.length; inputIdx++) {
+                let InputValue = preModifyInput(inputValues[inputIdx], preModifyRemoveRule, preModifyAddRule);
 
-                const statusItem = document.createElement('div');
-                statusItem.className = 'status-item';
-                statusItem.innerHTML = `
-                    <div class="status-header">
-                        <span class="status-number">請求 ${i + 1}/${rows.length}</span>
-                        <span class="status-url"></span>
-                    </div>
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <div class="result-container mt-2"></div>
-                `;
-                statusContainer.appendChild(statusItem);
-                const urlSpan = statusItem.querySelector('.status-url');
-                const progressBar = statusItem.querySelector('.progress-bar');
-                const resultContainer = statusItem.querySelector('.result-container');
+                for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
+                    await new Promise(resolve => setTimeout(resolve, interval * requestCount));
 
-                if (method === 'GET') {
-                    let url = document.getElementById('get-url-template').value;
-                    for (const [key, value] of Object.entries(params)) {
-                        url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(value));
+                    const inputs = rows[rowIdx].getElementsByTagName('input');
+                    const params = { InputValue };
+                    for (let j = 0; j < inputs.length; j++) {
+                        params[`Parameter${j + 1}`] = inputs[j].value.trim() || '';
                     }
-                    urlSpan.textContent = url;
-                    const response = await sendRequest('GET', url);
-                    if (response.success) {
-                        progressBar.style.width = '100%';
-                        progressBar.classList.add('bg-success');
-                        statusItem.classList.add('status-success');
-                        resultContainer.innerHTML = formatResponse(`成功：${response.data}`, true);
-                    } else {
-                        progressBar.style.width = '100%';
-                        progressBar.classList.add('bg-danger');
-                        statusItem.classList.add('status-error');
-                        resultContainer.innerHTML = formatResponse(`失敗：${response.error}`, false);
-                    }
-                } else if (method === 'POST') {
-                    let url = document.getElementById('post-url-template').value;
-                    let bodyStr = document.getElementById('post-body-template').value.trim();
-                    for (const [key, value] of Object.entries(params)) {
-                        url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(value));
-                        bodyStr = bodyStr.replace(new RegExp(`{${key}}`, 'g'), value);
-                    }
-                    bodyStr = bodyStr.replace(/,\s*}/g, '}').replace(/\s+/g, ' ');
-                    urlSpan.textContent = `${url} (Body: ${bodyStr})`;
-                    try {
-                        const body = JSON.parse(bodyStr);
-                        const formattedBody = JSON.stringify(body, null, 2);
-                        resultContainer.innerHTML = formatResponse(`生成的 JSON:\n${formattedBody}`, true);
-                        const response = await sendRequest('POST', url, body);
+
+                    const statusItem = document.createElement('div');
+                    statusItem.className = 'status-item';
+                    statusItem.innerHTML = `
+                        <div class="status-header">
+                            <span class="status-number">請求 ${requestCount + 1}/${totalRequests} (Input ${inputIdx + 1}, Row ${rowIdx + 1})</span>
+                            <span class="status-url"></span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="result-container mt-2"></div>
+                    `;
+                    statusContainer.appendChild(statusItem);
+                    const urlSpan = statusItem.querySelector('.status-url');
+                    const progressBar = statusItem.querySelector('.progress-bar');
+                    const resultContainer = statusItem.querySelector('.result-container');
+
+                    if (method === 'GET') {
+                        let url = document.getElementById('get-url-template').value;
+                        for (const [key, value] of Object.entries(params)) {
+                            url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(value));
+                        }
+                        urlSpan.textContent = url;
+                        const response = await sendRequest('GET', url);
                         if (response.success) {
                             progressBar.style.width = '100%';
                             progressBar.classList.add('bg-success');
                             statusItem.classList.add('status-success');
-                            resultContainer.innerHTML += formatResponse(`成功：${response.data}`, true);
+                            resultContainer.innerHTML = formatResponse(`成功：${response.data}`, true);
                         } else {
                             progressBar.style.width = '100%';
                             progressBar.classList.add('bg-danger');
                             statusItem.classList.add('status-error');
-                            resultContainer.innerHTML += formatResponse(`失敗：${response.error}`, false);
+                            resultContainer.innerHTML = formatResponse(`失敗：${response.error}`, false);
                         }
-                    } catch (e) {
-                        progressBar.style.width = '100%';
-                        progressBar.classList.add('bg-danger');
-                        statusItem.classList.add('status-error');
-                        resultContainer.innerHTML = formatResponse(`JSON 格式錯誤: ${e.message}`, false);
+                    } else if (method === 'POST') {
+                        let url = document.getElementById('post-url-template').value;
+                        let bodyStr = document.getElementById('post-body-template').value.trim();
+                        for (const [key, value] of Object.entries(params)) {
+                            url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(value));
+                            bodyStr = bodyStr.replace(new RegExp(`{${key}}`, 'g'), value);
+                        }
+                        bodyStr = bodyStr.replace(/,\s*}/g, '}').replace(/\s+/g, ' ');
+                        urlSpan.textContent = `${url} (Body: ${bodyStr})`;
+                        try {
+                            const body = JSON.parse(bodyStr);
+                            const formattedBody = JSON.stringify(body, null, 2);
+                            resultContainer.innerHTML = formatResponse(`生成的 JSON:\n${formattedBody}`, true);
+                            const response = await sendRequest('POST', url, body);
+                            if (response.success) {
+                                progressBar.style.width = '100%';
+                                progressBar.classList.add('bg-success');
+                                statusItem.classList.add('status-success');
+                                resultContainer.innerHTML += formatResponse(`成功：${response.data}`, true);
+                            } else {
+                                progressBar.style.width = '100%';
+                                progressBar.classList.add('bg-danger');
+                                statusItem.classList.add('status-error');
+                                resultContainer.innerHTML += formatResponse(`失敗：${response.error}`, false);
+                            }
+                        } catch (e) {
+                            progressBar.style.width = '100%';
+                            progressBar.classList.add('bg-danger');
+                            statusItem.classList.add('status-error');
+                            resultContainer.innerHTML = formatResponse(`JSON 格式錯誤: ${e.message}`, false);
+                        }
                     }
+                    requestCount++;
                 }
             }
         });

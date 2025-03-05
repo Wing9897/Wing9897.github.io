@@ -135,11 +135,19 @@
                                         <option value="Basic">Basic</option>
                                         <option value="Bearer">Bearer</option>
                                     </select>
+                                    <small class="form-text text-muted">Basic: 使用用戶名和密碼；Bearer: 使用令牌（Token）。</small>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="auth-value" class="form-label">Authorization 值</label>
-                                    <input type="text" class="form-control" id="auth-value" placeholder="例如: Basic 的 base64 編碼或 Bearer 的 token">
-                                    <small class="form-text text-muted">Basic 需要 base64(username:password)，Bearer 需要 token</small>
+                                <div id="basic-auth-fields" class="mb-3" style="display: none;">
+                                    <label for="auth-username" class="form-label">用戶名</label>
+                                    <input type="text" class="form-control" id="auth-username" placeholder="輸入用戶名">
+                                    <label for="auth-password" class="form-label mt-2">密碼</label>
+                                    <input type="password" class="form-control" id="auth-password" placeholder="輸入密碼">
+                                    <small class="form-text text-muted">輸入原始用戶名和密碼，系統會自動轉換為 Basic Authorization。</small>
+                                </div>
+                                <div id="bearer-auth-field" class="mb-3" style="display: none;">
+                                    <label for="auth-token" class="form-label">Bearer Token</label>
+                                    <input type="text" class="form-control" id="auth-token" placeholder="輸入 API 提供的 Token">
+                                    <small class="form-text text-muted">輸入完整的 Bearer Token，例如 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."。</small>
                                 </div>
                             </div>
                         </div>
@@ -271,7 +279,9 @@ value3"></textarea>
                 requestInterval: document.getElementById('request-interval').value,
                 enableAuth: document.getElementById('enable-auth').checked,
                 authType: document.getElementById('auth-type').value,
-                authValue: document.getElementById('auth-value').value
+                authUsername: document.getElementById('auth-username').value,
+                authPassword: document.getElementById('auth-password').value,
+                authToken: document.getElementById('auth-token').value
             };
             
             localStorage.setItem('requestConfig', JSON.stringify(config));
@@ -297,10 +307,14 @@ value3"></textarea>
             document.getElementById('request-interval').value = config.requestInterval || '3000';
             document.getElementById('enable-auth').checked = config.enableAuth || false;
             document.getElementById('auth-type').value = config.authType || 'Basic';
-            document.getElementById('auth-value').value = config.authValue || '';
+            document.getElementById('auth-username').value = config.authUsername || '';
+            document.getElementById('auth-password').value = config.authPassword || '';
+            document.getElementById('auth-token').value = config.authToken || '';
             document.getElementById('get-config').style.display = config.requestMethod === 'GET' ? 'block' : 'none';
             document.getElementById('post-config').style.display = config.requestMethod === 'POST' ? 'block' : 'none';
             document.getElementById('auth-config').style.display = config.enableAuth ? 'block' : 'none';
+            document.getElementById('basic-auth-fields').style.display = config.authType === 'Basic' && config.enableAuth ? 'block' : 'none';
+            document.getElementById('bearer-auth-field').style.display = config.authType === 'Bearer' && config.enableAuth ? 'block' : 'none';
             saveToLocalStorage();
         }
 
@@ -319,10 +333,14 @@ value3"></textarea>
                 document.getElementById('request-interval').value = '3000';
                 document.getElementById('enable-auth').checked = false;
                 document.getElementById('auth-type').value = 'Basic';
-                document.getElementById('auth-value').value = '';
+                document.getElementById('auth-username').value = '';
+                document.getElementById('auth-password').value = '';
+                document.getElementById('auth-token').value = '';
                 document.getElementById('get-config').style.display = 'block';
                 document.getElementById('post-config').style.display = 'none';
                 document.getElementById('auth-config').style.display = 'none';
+                document.getElementById('basic-auth-fields').style.display = 'none';
+                document.getElementById('bearer-auth-field').style.display = 'none';
                 statusContainer.innerHTML = '<div class="alert alert-success">已清空所有儲存數據</div>';
             }
         }
@@ -379,7 +397,7 @@ value3"></textarea>
         });
 
         ['get-url-template', 'post-url-template', 'post-body-template', 'input-pre-modify-remove', 
-         'input-pre-modify-add', 'request-interval', 'auth-value'].forEach(id => {
+         'input-pre-modify-add', 'request-interval', 'auth-username', 'auth-password', 'auth-token'].forEach(id => {
             document.getElementById(id).addEventListener('change', saveToLocalStorage);
         });
 
@@ -389,11 +407,20 @@ value3"></textarea>
         });
 
         document.getElementById('enable-auth').addEventListener('change', (e) => {
-            document.getElementById('auth-config').style.display = e.target.checked ? 'block' : 'none';
+            const authConfig = document.getElementById('auth-config');
+            authConfig.style.display = e.target.checked ? 'block' : 'none';
+            const authType = document.getElementById('auth-type').value;
+            document.getElementById('basic-auth-fields').style.display = e.target.checked && authType === 'Basic' ? 'block' : 'none';
+            document.getElementById('bearer-auth-field').style.display = e.target.checked && authType === 'Bearer' ? 'block' : 'none';
             saveToLocalStorage();
         });
 
-        document.getElementById('auth-type').addEventListener('change', saveToLocalStorage);
+        document.getElementById('auth-type').addEventListener('change', (e) => {
+            const enableAuth = document.getElementById('enable-auth').checked;
+            document.getElementById('basic-auth-fields').style.display = enableAuth && e.target.value === 'Basic' ? 'block' : 'none';
+            document.getElementById('bearer-auth-field').style.display = enableAuth && e.target.value === 'Bearer' ? 'block' : 'none';
+            saveToLocalStorage();
+        });
 
         async function sendRequest(method, url, body = null) {
             try {
@@ -401,9 +428,22 @@ value3"></textarea>
                 const enableAuth = document.getElementById('enable-auth').checked;
                 if (enableAuth) {
                     const authType = document.getElementById('auth-type').value;
-                    const authValue = document.getElementById('auth-value').value.trim();
                     options.headers = options.headers || {};
-                    options.headers['Authorization'] = `${authType} ${authValue}`;
+                    if (authType === 'Basic') {
+                        const username = document.getElementById('auth-username').value.trim();
+                        const password = document.getElementById('auth-password').value.trim();
+                        if (!username || !password) {
+                            throw new Error('啟用 Basic Authorization 時，必須輸入用戶名和密碼');
+                        }
+                        const authValue = btoa(`${username}:${password}`);
+                        options.headers['Authorization'] = `Basic ${authValue}`;
+                    } else if (authType === 'Bearer') {
+                        const token = document.getElementById('auth-token').value.trim();
+                        if (!token) {
+                            throw new Error('啟用 Bearer Authorization 時，必須輸入 Token');
+                        }
+                        options.headers['Authorization'] = `Bearer ${token}`;
+                    }
                 }
                 if (method === 'POST' && body) {
                     options.headers = options.headers || {};

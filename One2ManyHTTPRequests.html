@@ -121,6 +121,27 @@
                                 <input type="number" class="form-control" id="request-interval" min="0" value="3000" step="100">
                                 <small class="form-text text-muted">設置為 0 表示無間隔，建議 500ms 或以上</small>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label">啟用 HTTP Authorization</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="enable-auth" value="">
+                                    <label class="form-check-label" for="enable-auth">啟用</label>
+                                </div>
+                            </div>
+                            <div id="auth-config" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="auth-type" class="form-label">Authorization 類型</label>
+                                    <select class="form-select" id="auth-type">
+                                        <option value="Basic">Basic</option>
+                                        <option value="Bearer">Bearer</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="auth-value" class="form-label">Authorization 值</label>
+                                    <input type="text" class="form-control" id="auth-value" placeholder="例如: Basic 的 base64 編碼或 Bearer 的 token">
+                                    <small class="form-text text-muted">Basic 需要 base64(username:password)，Bearer 需要 token</small>
+                                </div>
+                            </div>
                         </div>
                         <div class="btn-group-custom mt-4">
                             <button class="btn btn-warning" id="clear-storage">清空儲存</button>
@@ -247,7 +268,10 @@ value3"></textarea>
                 postBodyTemplate: document.getElementById('post-body-template').value,
                 inputPreModifyRemove: document.getElementById('input-pre-modify-remove').value,
                 inputPreModifyAdd: document.getElementById('input-pre-modify-add').value,
-                requestInterval: document.getElementById('request-interval').value
+                requestInterval: document.getElementById('request-interval').value,
+                enableAuth: document.getElementById('enable-auth').checked,
+                authType: document.getElementById('auth-type').value,
+                authValue: document.getElementById('auth-value').value
             };
             
             localStorage.setItem('requestConfig', JSON.stringify(config));
@@ -271,8 +295,12 @@ value3"></textarea>
             document.getElementById('input-pre-modify-remove').value = config.inputPreModifyRemove || 'IMEI=';
             document.getElementById('input-pre-modify-add').value = config.inputPreModifyAdd || '';
             document.getElementById('request-interval').value = config.requestInterval || '3000';
+            document.getElementById('enable-auth').checked = config.enableAuth || false;
+            document.getElementById('auth-type').value = config.authType || 'Basic';
+            document.getElementById('auth-value').value = config.authValue || '';
             document.getElementById('get-config').style.display = config.requestMethod === 'GET' ? 'block' : 'none';
             document.getElementById('post-config').style.display = config.requestMethod === 'POST' ? 'block' : 'none';
+            document.getElementById('auth-config').style.display = config.enableAuth ? 'block' : 'none';
             saveToLocalStorage();
         }
 
@@ -289,8 +317,12 @@ value3"></textarea>
                 document.getElementById('input-pre-modify-remove').value = 'IMEI=';
                 document.getElementById('input-pre-modify-add').value = '';
                 document.getElementById('request-interval').value = '3000';
+                document.getElementById('enable-auth').checked = false;
+                document.getElementById('auth-type').value = 'Basic';
+                document.getElementById('auth-value').value = '';
                 document.getElementById('get-config').style.display = 'block';
                 document.getElementById('post-config').style.display = 'none';
+                document.getElementById('auth-config').style.display = 'none';
                 statusContainer.innerHTML = '<div class="alert alert-success">已清空所有儲存數據</div>';
             }
         }
@@ -347,7 +379,7 @@ value3"></textarea>
         });
 
         ['get-url-template', 'post-url-template', 'post-body-template', 'input-pre-modify-remove', 
-         'input-pre-modify-add', 'request-interval'].forEach(id => {
+         'input-pre-modify-add', 'request-interval', 'auth-value'].forEach(id => {
             document.getElementById(id).addEventListener('change', saveToLocalStorage);
         });
 
@@ -356,11 +388,26 @@ value3"></textarea>
             advancedSettings.classList.toggle('show');
         });
 
+        document.getElementById('enable-auth').addEventListener('change', (e) => {
+            document.getElementById('auth-config').style.display = e.target.checked ? 'block' : 'none';
+            saveToLocalStorage();
+        });
+
+        document.getElementById('auth-type').addEventListener('change', saveToLocalStorage);
+
         async function sendRequest(method, url, body = null) {
             try {
                 const options = { method };
+                const enableAuth = document.getElementById('enable-auth').checked;
+                if (enableAuth) {
+                    const authType = document.getElementById('auth-type').value;
+                    const authValue = document.getElementById('auth-value').value.trim();
+                    options.headers = options.headers || {};
+                    options.headers['Authorization'] = `${authType} ${authValue}`;
+                }
                 if (method === 'POST' && body) {
-                    options.headers = { 'Content-Type': 'application/json' };
+                    options.headers = options.headers || {};
+                    options.headers['Content-Type'] = 'application/json';
                     options.body = JSON.stringify(body);
                 }
                 const response = await fetch(url, options);

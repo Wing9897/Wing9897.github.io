@@ -4,72 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>自訂參數批量 HTTP 請求系統</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .container-fluid {
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --danger: #dc3545;
+            --light-bg: #f8f9fa;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        body {
+            background: var(--light-bg);
+            font-family: 'Segoe UI', sans-serif;
             padding: 20px;
-            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+        .section-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            background: #fff;
+            padding: 20px;
+        }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .step-number {
+            display: inline-flex;
+            width: 30px;
+            height: 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+        .flow-arrow {
+            font-size: 2rem;
+            color: var(--primary);
+            text-align: center;
+            margin: 15px 0;
         }
         .table-container, .request-status {
             max-height: 300px;
             overflow-y: auto;
-            margin-bottom: 20px;
         }
-        .request-config, .request-status, .table-card {
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            transition: box-shadow 0.3s ease-in-out;
-        }
-        .table-card:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        .progress {
-            height: 20px;
-            margin-bottom: 10px;
-        }
-        .status-item {
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-            transition: background-color 0.3s;
-        }
-        .status-success {
-            background-color: #d4edda;
-        }
-        .status-error {
-            background-color: #f8d7da;
-        }
-        .error-message {
-            color: #dc3545;
-            font-size: 0.9rem;
-            margin-top: 5px;
-            display: none;
-        }
-        .step-guide {
-            margin-bottom: 20px;
-            background-color: #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
-        }
-        .step-item {
-            margin-bottom: 10px;
-            padding-left: 25px;
-            position: relative;
-            font-size: 0.95rem;
-        }
-        .step-item::before {
-            content: counters(step, ".") ".";
-            counter-increment: step;
-            position: absolute;
-            left: 0;
-            color: #007bff;
-            font-weight: 600;
+        .table th {
+            background: var(--primary);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            min-width: 120px;
         }
         .btn-group-custom {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
             margin-top: 15px;
@@ -81,221 +82,224 @@
         }
         .btn-custom:hover {
             transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
         .form-label {
             font-weight: bold;
+            margin-bottom: 5px;
         }
-        .table {
-            border-radius: 8px;
-            overflow: hidden;
+        .description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
         }
-        .table th {
-            background-color: #007bff;
-            color: #ffffff;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 1;
+        .status-item {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
         }
-        .table td {
-            vertical-align: middle;
+        .status-success {
+            background: #d4edda;
         }
-        .table input.form-control {
-            border-radius: 4px;
-            border-color: #ced4da;
-        }
-        .table-title {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: #007bff;
-            text-align: center;
-            margin-bottom: 15px;
+        .status-error {
+            background: #f8d7da;
         }
         .result {
-            word-wrap: break-word;
-            max-width: 100%;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            padding: 5px 10px;
-            background-color: #f1f3f5;
+            font-size: 0.85rem;
+            padding: 6px 10px;
+            background: #f1f3f5;
             border-radius: 4px;
             margin-top: 5px;
-            overflow-x: auto;
+            cursor: pointer;
+            word-wrap: break-word;
         }
         .result.success {
             color: #155724;
-            border-left: 4px solid #28a745;
+            border-left: 4px solid var(--success);
         }
         .result.error {
             color: #721c24;
-            border-left: 4px solid #dc3545;
+            border-left: 4px solid var(--danger);
         }
-        .status-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 5px 0;
-        }
-        .status-number {
-            font-weight: bold;
-            color: #007bff;
-            font-size: 1rem;
-        }
-        .status-url {
+        .error-message {
+            color: var(--danger);
             font-size: 0.9rem;
-            color: #343a40;
-            word-break: break-all;
-            max-width: 70%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            margin-top: 10px;
+            display: none;
+        }
+        .advanced-settings {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f1f3f5;
+            border-radius: 6px;
+        }
+        .advanced-settings.show {
+            display: block;
         }
         @media (max-width: 768px) {
-            .table-container, .request-status {
-                max-height: 200px;
-            }
-            .request-config, .request-status, .table-card {
+            .section-card {
                 padding: 15px;
             }
-            h2 {
-                font-size: 1.5rem;
+            .section-title {
+                font-size: 1.1rem;
             }
             .btn-custom {
                 width: 100%;
                 margin-bottom: 10px;
             }
-            textarea, input {
-                font-size: 0.9rem;
-            }
-            .step-guide {
-                padding: 10px;
-            }
-            .step-item {
-                padding-left: 20px;
-            }
-            .table-title {
-                font-size: 1rem;
-            }
-            .result {
-                font-size: 0.8rem;
-                padding: 3px 8px;
-            }
-            .status-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .status-number {
-                font-size: 0.9rem;
-            }
-            .status-url {
-                max-width: 100%;
-                white-space: normal;
-                margin-top: 5px;
+            .table-container, .request-status {
+                max-height: 200px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-10 col-lg-8">
-                <h2 class="mb-4 text-center text-primary">自訂參數批量 HTTP 請求系統</h2>
+    <div class="container">
+        <h1 class="text-center text-primary mb-4">自訂參數批量 HTTP 請求系統</h1>
 
-                <!-- 操作步驟指南 -->
-                <div class="card mb-3 step-guide">
-                    <div class="card-body" style="counter-reset: step;">
-                        <h5 class="card-title">操作步驟</h5>
-                        <div class="step-item">導入配置（可選）：點擊「匯入配置」載入已有設置。</div>
-                        <div class="step-item">設置請求：配置請求方法和模板。</div>
-                        <div class="step-item">輸入參數：在參數管理區輸入或批量添加數據。</div>
-                        <div class="step-item">發送請求：點擊「發送請求」並查看結果。</div>
+        <!-- 步驟 1：設置請求配置 -->
+        <div class="section-card">
+            <h2 class="section-title"><span class="step-number">1</span>設置請求配置</h2>
+            <p class="description">選擇請求類型並設置 URL 和（若為 POST）JSON 模板，使用 {Parameter1}, {Parameter2} 等作為占位符。</p>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="request-method" class="form-label">請求方法</label>
+                    <select class="form-select" id="request-method">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST (JSON)</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3 d-flex align-items-end">
+                    <div class="btn-group" role="group" aria-label="Configuration Buttons">
+                        <button class="btn btn-info btn-custom" id="export-config" data-bs-toggle="tooltip" data-bs-placement="top" title="匯出當前配置">
+                            匯出配置
+                        </button>
+                        <button class="btn btn-primary btn-custom" id="import-config-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="從 JSON 文件匯入配置">
+                            匯入配置
+                        </button>
+                        <button class="btn btn-danger btn-custom" id="clear-storage" data-bs-toggle="tooltip" data-bs-placement="top" title="清空儲存的所有數據">
+                            清空儲存
+                        </button>
+                        <input type="file" id="import-config" accept=".json" style="display: none;">
                     </div>
                 </div>
-
-                <!-- 批量輸入區 -->
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <textarea class="form-control" id="batch-input" rows="4" placeholder="批量輸入格式：每行一組數據，用空格分隔多項
-例如：
-value1 value2 value3 value4
-或
-data1 data2"></textarea>
-                        <div class="btn-group-custom">
-                            <button class="btn btn-primary btn-custom" id="batch-submit">批量添加</button>
-                            <button class="btn btn-secondary btn-custom" id="add-row">單行添加</button>
-                        </div>
-                    </div>
+            </div>
+            <div class="mb-3" id="get-config">
+                <label for="get-url-template" class="form-label">GET URL 模板</label>
+                <input type="text" class="form-control" id="get-url-template" placeholder="例如: https://api.example.com/{Parameter1}">
+                <p class="description">輸入帶有占位符的 URL，例如：https://api.example.com/{Parameter1}</p>
+            </div>
+            <div id="post-config" style="display: none;">
+                <div class="mb-3">
+                    <label for="post-url-template" class="form-label">POST URL 模板</label>
+                    <input type="text" class="form-control" id="post-url-template" placeholder="例如: https://api.example.com/{Parameter1}">
+                    <p class="description">輸入 POST 請求的目標 URL</p>
                 </div>
-
-                <!-- 表格區 -->
-                <div class="card table-card mb-3">
-                    <div class="card-body table-container">
-                        <h5 class="table-title">參數表格</h5>
-                        <table class="table table-bordered table-striped">
-                            <thead class="table-dark sticky-top">
-                                <tr id="table-header"></tr>
-                            </thead>
-                            <tbody id="data-table"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- 請求配置區 -->
-                <div class="card mb-3 request-config">
-                    <div class="card-body">
-                        <h4 class="card-title">請求配置</h4>
-                        <div class="mb-3">
-                            <label for="request-method" class="form-label">請求方法</label>
-                            <select class="form-select" id="request-method">
-                                <option value="GET">GET</option>
-                                <option value="POST">POST (JSON)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3" id="get-config">
-                            <label for="get-url-template" class="form-label">GET URL 模板 <span class="text-muted">(使用 {Parameter1}, {Parameter2} 等)</span></label>
-                            <input type="text" class="form-control" id="get-url-template" placeholder="例如: {Parameter1}.example.com/{Parameter2}">
-                        </div>
-                        <div id="post-config" style="display: none;">
-                            <div class="mb-3">
-                                <label for="post-url-template" class="form-label">POST URL 模板 <span class="text-muted">(使用 {Parameter1}, {Parameter2} 等)</span></label>
-                                <input type="text" class="form-control" id="post-url-template" placeholder="例如: https://api.example.com/{Parameter1}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="post-body-template" class="form-label">POST JSON 模板 <span class="text-muted">(使用 {Parameter1}, {Parameter2} 等)</span></label>
-                                <textarea class="form-control" id="post-body-template" rows="4" placeholder='例如:
+                <div class="mb-3">
+                    <label for="post-body-template" class="form-label">POST JSON 模板</label>
+                    <textarea class="form-control" id="post-body-template" rows="4" placeholder='例如:
 {
     "key1": "{Parameter1}",
     "key2": "{Parameter2}"
 }'></textarea>
-                            </div>
-                        </div>
-                        <div class="btn-group-custom">
-                            <button class="btn btn-success btn-custom" id="send-requests">發送請求</button>
-                            <button class="btn btn-warning btn-custom" id="clear-storage">清空儲存</button>
-                            <button class="btn btn-info btn-custom" id="export-config">匯出配置</button>
-                            <input type="file" id="import-config" accept=".json" style="display: none;">
-                            <button class="btn btn-primary btn-custom" id="import-config-btn">匯入配置</button>
-                        </div>
-                        <div id="error-message" class="error-message"></div>
-                    </div>
+                    <p class="description">輸入 JSON 格式的請求體，使用占位符替換數據</p>
                 </div>
-
-                <!-- 請求狀態區 -->
-                <div class="card request-status">
-                    <div class="card-body">
-                        <h4 class="card-title">請求狀態</h4>
-                        <div id="status-container"></div>
+            </div>
+            <button class="btn btn-outline-secondary btn-custom" id="toggle-advanced">進階設置</button>
+            <div class="advanced-settings" id="advanced-settings">
+                <div class="mb-3">
+                    <label for="request-delay" class="form-label">每次請求間隔 (毫秒)</label>
+                    <input type="number" class="form-control" id="request-delay" min="0" value="3000" step="100">
+                    <p class="description">設置為 0 表示無間隔，建議 500ms 或以上以避免伺服器過載</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">啟用 HTTP Authorization</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="enable-auth">
+                        <label class="form-check-label" for="enable-auth">啟用</label>
+                    </div>
+                    <p class="description">啟用後可設置認證頭，用於需要身份驗證的 API</p>
+                </div>
+                <div id="auth-config" style="display: none;">
+                    <div class="mb-3">
+                        <label for="auth-type" class="form-label">Authorization 類型</label>
+                        <select class="form-select" id="auth-type">
+                            <option value="Basic">Basic</option>
+                            <option value="Bearer">Bearer</option>
+                        </select>
+                    </div>
+                    <div id="basic-auth-fields" style="display: none;">
+                        <div class="mb-3">
+                            <label for="auth-username" class="form-label">用戶名</label>
+                            <input type="text" class="form-control" id="auth-username" placeholder="輸入用戶名">
+                        </div>
+                        <div class="mb-3">
+                            <label for="auth-password" class="form-label">密碼</label>
+                            <input type="password" class="form-control" id="auth-password" placeholder="輸入密碼">
+                        </div>
+                    </div>
+                    <div id="bearer-auth-field" style="display: none;">
+                        <div class="mb-3">
+                            <label for="auth-token" class="form-label">Bearer Token</label>
+                            <input type="text" class="form-control" id="auth-token" placeholder="輸入 API Token">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <!-- 步驟 2：輸入參數數據 -->
+        <div class="section-card">
+            <h2 class="section-title"><span class="step-number">2</span>輸入參數數據</h2>
+            <p class="description">輸入多組參數數據，每組將生成一個獨立的請求。</p>
+            <div class="mb-3">
+                <label for="batch-input" class="form-label">批量輸入參數</label>
+                <textarea class="form-control" id="batch-input" rows="4" placeholder="每行一組數據，用空格分隔，例如：
+value1 value2 value3
+data1 data2"></textarea>
+                <p class="description">每行代表一組參數，空格分隔不同值</p>
+            </div>
+            <div class="btn-group-custom">
+                <button class="btn btn-primary btn-custom" id="batch-submit">批量添加</button>
+                <button class="btn btn-secondary btn-custom" id="add-row">單行添加</button>
+            </div>
+            <div class="table-container mt-3">
+                <table class="table table-bordered table-striped">
+                    <thead><tr id="table-header"></tr></thead>
+                    <tbody id="data-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <!-- 步驟 3：發送請求並查看結果 -->
+        <div class="section-card">
+            <h2 class="section-title"><span class="step-number">3</span>發送請求並查看結果</h2>
+            <p class="description">點擊「發送請求」以執行所有請求，並在下方查看結果。</p>
+            <div class="btn-group-custom">
+                <button class="btn btn-success btn-custom" id="send-requests">發送請求</button>
+            </div>
+            <div id="error-message" class="error-message"></div>
+            <div class="request-status mt-3">
+                <div id="status-container"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- Bootstrap JS 和 Popper.js -->
+    <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Tooltip Initialization -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+              return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
     <script>
         const tableBody = document.getElementById('data-table');
         const tableHeader = document.getElementById('table-header');
@@ -320,7 +324,7 @@ data1 data2"></textarea>
                     if (currentLength < paramCount) {
                         for (let i = currentLength; i < paramCount; i++) {
                             const td = document.createElement('td');
-                            td.innerHTML = '<input type="text" class="form-control" value="">';
+                            td.innerHTML = '<input type="text" class="form-control" value="" oninput="saveToLocalStorage()">';
                             row.appendChild(td);
                         }
                     }
@@ -330,13 +334,13 @@ data1 data2"></textarea>
 
         function addRow(data = []) {
             const row = document.createElement('tr');
-            const columnCount = data.length || maxParams;
+            const columnCount = data.length || maxParams || 1;
             updateTableHeader(columnCount);
 
             let cells = '';
             for (let i = 0; i < columnCount; i++) {
                 const value = data[i] || '';
-                cells += `<td><input type="text" class="form-control" value="${value}"></td>`;
+                cells += `<td><input type="text" class="form-control" value="${value}" oninput="saveToLocalStorage()"></td>`;
             }
             row.innerHTML = cells;
             tableBody.appendChild(row);
@@ -355,7 +359,13 @@ data1 data2"></textarea>
                 requestMethod: document.getElementById('request-method').value,
                 getUrlTemplate: document.getElementById('get-url-template').value,
                 postUrlTemplate: document.getElementById('post-url-template').value,
-                postBodyTemplate: document.getElementById('post-body-template').value
+                postBodyTemplate: document.getElementById('post-body-template').value,
+                requestDelay: document.getElementById('request-delay').value,
+                enableAuth: document.getElementById('enable-auth').checked,
+                authType: document.getElementById('auth-type').value,
+                authUsername: document.getElementById('auth-username').value,
+                authPassword: document.getElementById('auth-password').value,
+                authToken: document.getElementById('auth-token').value
             };
 
             localStorage.setItem('httpRequestConfig', JSON.stringify(config));
@@ -371,13 +381,24 @@ data1 data2"></textarea>
 
         function applyConfig(config) {
             tableBody.innerHTML = '';
-            config.tableData.forEach(values => addRow(values));
+            if (config.tableData && config.tableData.length > 0) {
+                config.tableData.forEach(values => addRow(values));
+            }
             document.getElementById('request-method').value = config.requestMethod || 'GET';
             document.getElementById('get-url-template').value = config.getUrlTemplate || '';
             document.getElementById('post-url-template').value = config.postUrlTemplate || '';
             document.getElementById('post-body-template').value = config.postBodyTemplate || '';
+            document.getElementById('request-delay').value = config.requestDelay || '3000';
+            document.getElementById('enable-auth').checked = config.enableAuth || false;
+            document.getElementById('auth-type').value = config.authType || 'Basic';
+            document.getElementById('auth-username').value = config.authUsername || '';
+            document.getElementById('auth-password').value = config.authPassword || '';
+            document.getElementById('auth-token').value = config.authToken || '';
             document.getElementById('get-config').style.display = config.requestMethod === 'GET' ? 'block' : 'none';
             document.getElementById('post-config').style.display = config.requestMethod === 'POST' ? 'block' : 'none';
+            document.getElementById('auth-config').style.display = config.enableAuth ? 'block' : 'none';
+            document.getElementById('basic-auth-fields').style.display = config.enableAuth && config.authType === 'Basic' ? 'block' : 'none';
+            document.getElementById('bearer-auth-field').style.display = config.enableAuth && config.authType === 'Bearer' ? 'block' : 'none';
             saveToLocalStorage();
         }
 
@@ -391,8 +412,17 @@ data1 data2"></textarea>
                 document.getElementById('get-url-template').value = '';
                 document.getElementById('post-url-template').value = '';
                 document.getElementById('post-body-template').value = '';
+                document.getElementById('request-delay').value = '3000';
+                document.getElementById('enable-auth').checked = false;
+                document.getElementById('auth-type').value = 'Basic';
+                document.getElementById('auth-username').value = '';
+                document.getElementById('auth-password').value = '';
+                document.getElementById('auth-token').value = '';
                 document.getElementById('get-config').style.display = 'block';
                 document.getElementById('post-config').style.display = 'none';
+                document.getElementById('auth-config').style.display = 'none';
+                document.getElementById('basic-auth-fields').style.display = 'none';
+                document.getElementById('bearer-auth-field').style.display = 'none';
                 statusContainer.innerHTML = '<div class="alert alert-success">已清空所有儲存數據</div>';
             }
         }
@@ -444,10 +474,47 @@ data1 data2"></textarea>
             return `<div class="result ${isSuccess ? 'success' : 'error'}">${formattedText}</div>`;
         }
 
+        async function sendRequest(method, url, statusItem, progressBar, resultContainer, body = null) {
+            try {
+                const options = { method };
+                if (document.getElementById('enable-auth').checked) {
+                    const authType = document.getElementById('auth-type').value;
+                    options.headers = options.headers || {};
+                    if (authType === 'Basic') {
+                        const username = document.getElementById('auth-username').value.trim();
+                        const password = document.getElementById('auth-password').value.trim();
+                        if (!username || !password) throw new Error('Basic Auth 需要用戶名和密碼');
+                        options.headers['Authorization'] = `Basic ${btoa(`${username}:${password}`)}`;
+                    } else if (authType === 'Bearer') {
+                        const token = document.getElementById('auth-token').value.trim();
+                        if (!token) throw new Error('Bearer Auth 需要 Token');
+                        options.headers['Authorization'] = `Bearer ${token}`;
+                    }
+                }
+                if (method === 'POST' && body) {
+                    options.headers = options.headers || {};
+                    options.headers['Content-Type'] = 'application/json';
+                    options.body = JSON.stringify(body);
+                }
+                const response = await fetch(url, options);
+                const data = await response.text();
+                progressBar.style.width = '100%';
+                progressBar.classList.add('bg-success');
+                statusItem.classList.add('status-success');
+                resultContainer.innerHTML = formatResponse(`成功：${data}`, true);
+            } catch (error) {
+                progressBar.style.width = '100%';
+                progressBar.classList.add('bg-danger');
+                statusItem.classList.add('status-error');
+                resultContainer.innerHTML = formatResponse(`失敗：${error.message}`, false);
+                showError(`請求 ${method} ${url} 失敗：${error.message}`);
+            }
+        }
+
         document.getElementById('batch-submit').addEventListener('click', () => {
             const input = document.getElementById('batch-input').value;
             const lines = input.trim().split('\n').map(line => line.trim().split(/\s+/).filter(Boolean));
-            if (lines.length === 0) {
+            if (lines.length === 0 || (lines.length === 1 && lines[0].length === 0)) {
                 showError('請輸入有效數據！');
                 return;
             }
@@ -466,8 +533,31 @@ data1 data2"></textarea>
             saveToLocalStorage();
         });
 
-        ['get-url-template', 'post-url-template', 'post-body-template'].forEach(id => {
-            document.getElementById(id).addEventListener('change', saveToLocalStorage);
+        ['get-url-template', 'post-url-template', 'post-body-template', 'request-delay', 'auth-username', 'auth-password', 'auth-token'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', saveToLocalStorage);
+            }
+        });
+
+        document.getElementById('toggle-advanced').addEventListener('click', () => {
+            document.getElementById('advanced-settings').classList.toggle('show');
+        });
+
+        document.getElementById('enable-auth').addEventListener('change', (e) => {
+            const authConfig = document.getElementById('auth-config');
+            authConfig.style.display = e.target.checked ? 'block' : 'none';
+            const authType = document.getElementById('auth-type').value;
+            document.getElementById('basic-auth-fields').style.display = e.target.checked && authType === 'Basic' ? 'block' : 'none';
+            document.getElementById('bearer-auth-field').style.display = e.target.checked && authType === 'Bearer' ? 'block' : 'none';
+            saveToLocalStorage();
+        });
+
+        document.getElementById('auth-type').addEventListener('change', (e) => {
+            const enableAuth = document.getElementById('enable-auth').checked;
+            document.getElementById('basic-auth-fields').style.display = enableAuth && e.target.value === 'Basic' ? 'block' : 'none';
+            document.getElementById('bearer-auth-field').style.display = enableAuth && e.target.value === 'Bearer' ? 'block' : 'none';
+            saveToLocalStorage();
         });
 
         document.getElementById('send-requests').addEventListener('click', async () => {
@@ -476,6 +566,7 @@ data1 data2"></textarea>
             const postUrlTemplate = document.getElementById('post-url-template').value;
             let postBodyTemplate = document.getElementById('post-body-template').value.trim();
             const rows = tableBody.getElementsByTagName('tr');
+            const delay = parseInt(document.getElementById('request-delay').value) || 0;
 
             if (rows.length === 0) {
                 showError('表格中無數據，請先添加參數！');
@@ -496,7 +587,7 @@ data1 data2"></textarea>
                 const statusItem = document.createElement('div');
                 statusItem.className = 'status-item';
                 statusItem.innerHTML = `
-                    <div class="status-header">
+                    <div class="d-flex justify-content-between">
                         <span class="status-number">請求 ${i + 1}/${totalRequests}</span>
                         <span class="status-url"></span>
                     </div>
@@ -525,7 +616,8 @@ data1 data2"></textarea>
                         url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(value));
                         bodyStr = bodyStr.replace(new RegExp(`{${key}}`, 'g'), value);
                     }
-                    bodyStr = bodyStr.replace(/,\s*}$/, '}').replace(/^\s+|\s+$/g, '');
+                    // Clean up JSON string
+                    bodyStr = bodyStr.replace(/,\s*}/g, '}').replace(/^\s+|\s+$/g, '');
                     if (!bodyStr.match(/^\s*\{/)) {
                         bodyStr = `{${bodyStr}}`;
                     }
@@ -542,30 +634,9 @@ data1 data2"></textarea>
                         showError(`行 ${i + 1} JSON 解析失敗：${e.message}`);
                     }
                 }
+                if (delay) await new Promise(resolve => setTimeout(resolve, delay));
             }
         });
-
-        async function sendRequest(method, url, statusItem, progressBar, resultContainer, body = null) {
-            try {
-                const options = { method };
-                if (method === 'POST' && body) {
-                    options.headers = { 'Content-Type': 'application/json' };
-                    options.body = JSON.stringify(body);
-                }
-                const response = await fetch(url, options);
-                const data = await response.text();
-                progressBar.style.width = '100%';
-                progressBar.classList.add('bg-success');
-                statusItem.classList.add('status-success');
-                resultContainer.innerHTML = formatResponse(`成功：${data}`, true);
-            } catch (error) {
-                progressBar.style.width = '100%';
-                progressBar.classList.add('bg-danger');
-                statusItem.classList.add('status-error');
-                resultContainer.innerHTML = formatResponse(`失敗：${error.message}`, false);
-                showError(`請求 ${method} ${url} 失敗：${error.message}`);
-            }
-        }
 
         document.getElementById('clear-storage').addEventListener('click', clearStorage);
         document.getElementById('export-config').addEventListener('click', exportConfig);

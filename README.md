@@ -36,7 +36,6 @@
 
 ## 聯繫方式
 - GitHub: [Wing9897](https://github.com/Wing9897)
-- 其他方式：（可自行填寫）
 
 ---
 

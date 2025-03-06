@@ -6,16 +6,18 @@
     <title>QR碼掃描與自訂參數批量請求系統</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <!-- QR Scanner -->
     <script type="module" src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js"></script>
     <style>
         :root {
-            --primary-color: #007bff;
+            --primary-color: #0d6efd;
             --secondary-color: #6c757d;
-            --success-color: #28a745;
+            --success-color: #198754;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
-            --info-color: #17a2b8;
+            --info-color: #0dcaf0;
             --light-bg: #f8f9fa;
             --card-bg: #ffffff;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -32,8 +34,8 @@
         .table-container { max-height: 300px; overflow-y: auto; margin-top: 20px; }
         .request-status { max-height: 300px; overflow-y: auto; }
         .step-guide { background-color: #e9ecef; }
-        .step-item { margin-bottom: 8px; padding-left: 25px; position: relative; font-size: 0.95rem; }
-        .step-item::before { content: counters(step, ".") "."; counter-increment: step; position: absolute; left: 0; color: var(--primary-color); font-weight: 600; }
+        .step-item { display: flex; align-items: center; margin-bottom: 15px; }
+        .step-item .step-number { width: 30px; height: 30px; background-color: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; flex-shrink: 0; }
         .form-label { font-weight: 500; color: #343a40; }
         .table th { background-color: var(--primary-color); color: white; font-weight: 600; position: sticky; top: 0; z-index: 1; }
         .btn { padding: 8px 16px; border-radius: 6px; transition: all 0.2s ease; }
@@ -52,19 +54,94 @@
         .divider { border-top: 1px solid #e9ecef; margin: 20px 0; }
         .advanced-settings { display: none; }
         .advanced-settings.show { display: block; }
+        /* Stepper Styles */
+        .stepper {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            counter-reset: step;
+        }
+        .stepper .step {
+            text-align: center;
+            position: relative;
+            flex: 1;
+        }
+        .stepper .step::before {
+            counter-increment: step;
+            content: counter(step);
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            border: 2px solid var(--primary-color);
+            display: block;
+            text-align: center;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            background-color: white;
+            z-index: 1;
+            position: relative;
+        }
+        .stepper .step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+            z-index: 0;
+        }
+        .stepper .step:last-child::after {
+            display: none;
+        }
+        .stepper .step.active::before {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .stepper .step.active::after {
+            background-color: var(--primary-color);
+        }
         @media (max-width: 768px) {
             .container-fluid { padding: 15px; }
             #video-container { max-width: 100%; }
             .table-container, .request-status { max-height: 200px; }
             .card-body { padding: 15px; }
             .btn { padding: 6px 12px; }
+            .stepper { flex-direction: column; }
+            .stepper .step::after {
+                top: 50%;
+                left: 30px;
+                width: 2px;
+                height: calc(100% - 30px);
+                transform: translateX(-50%);
+            }
+            .stepper .step:last-child::after {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container-fluid">
+        <!-- Stepper -->
+        <div class="stepper">
+            <div class="step active">
+                <div class="step-title">配置請求</div>
+            </div>
+            <div class="step">
+                <div class="step-title">管理參數</div>
+            </div>
+            <div class="step">
+                <div class="step-title">掃描 QR 碼</div>
+            </div>
+            <div class="step">
+                <div class="step-title">查看狀態</div>
+            </div>
+        </div>
+
         <div class="row justify-content-center">
             <div class="col-12">
+
                 <h2 class="mb-4 text-center text-primary">QR碼掃描與自訂參數批量請求系統</h2>
 
                 <!-- 操作步驟指南 -->
@@ -72,10 +149,22 @@
                     <div class="card-body">
                         <h5 class="card-title">操作說明</h5>
                         <div style="counter-reset: step;">
-                            <div class="step-item">導入配置（可選）：點擊「匯入配置」載入已有設置。</div>
-                            <div class="step-item">設置請求：配置請求方法和模板。</div>
-                            <div class="step-item">輸入參數：在參數管理區輸入或批量添加數據。</div>
-                            <div class="step-item">掃描 QR 碼：啟動攝像頭掃描並查看結果。</div>
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div>導入配置（可選）：點擊「匯入配置」載入已有設置。</div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div>設置請求：配置請求方法、URL 模板、授權方式等。</div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div>輸入參數：在參數管理區輸入或批量添加數據。</div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div>掃描 QR 碼：啟動攝像頭掃描並查看結果。</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -103,13 +192,49 @@
                             <div class="mb-3">
                                 <label for="post-body-template" class="form-label">POST JSON 模板 <span class="text-muted">(使用 {Parameter1}, {Parameter_qrcode} 等)</span></label>
                                 <textarea class="form-control" id="post-body-template" rows="4" placeholder='{
-"CmdCode": "{Parameter1}",
-"Params": "{Parameter2}",
-"IMEI": "{Parameter_qrcode}",
-"CheckCode": "{Parameter3}"
-}'></textarea>
+    "CmdCode": "{Parameter1}",
+    "Params": "{Parameter2}",
+    "IMEI": "{Parameter_qrcode}",
+    "CheckCode": "{Parameter3}"
+    }'></textarea>
                             </div>
                         </div>
+
+                        <!-- Authorization 配置 -->
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="enable-auth">
+                                <label class="form-check-label" for="enable-auth">啟用 Authorization</label>
+                            </div>
+                        </div>
+                        <div class="mb-3" id="auth-config" style="display: none;">
+                            <label for="auth-type" class="form-label">選擇授權類型</label>
+                            <select class="form-select" id="auth-type">
+                                <option value="">-- 選擇授權方式 --</option>
+                                <option value="bearer">Bearer Token</option>
+                                <option value="basic">Basic Authentication</option>
+                                <option value="apikey">API Key</option>
+                            </select>
+                        </div>
+                        <!-- Bearer Token -->
+                        <div class="mb-3 auth-fields" id="auth-bearer" style="display: none;">
+                            <label for="auth-token" class="form-label">Bearer Token</label>
+                            <input type="text" class="form-control" id="auth-token" placeholder="輸入您的 Bearer Token">
+                        </div>
+                        <!-- Basic Authentication -->
+                        <div class="mb-3 auth-fields" id="auth-basic" style="display: none;">
+                            <label class="form-label">Basic Authentication</label>
+                            <input type="text" class="form-control mb-2" id="auth-username" placeholder="用戶名">
+                            <input type="password" class="form-control" id="auth-password" placeholder="密碼">
+                        </div>
+                        <!-- API Key -->
+                        <div class="mb-3 auth-fields" id="auth-apikey" style="display: none;">
+                            <label for="auth-apikey-key" class="form-label">API Key 名稱</label>
+                            <input type="text" class="form-control mb-2" id="auth-apikey-key" placeholder="例如: X-API-KEY">
+                            <label for="auth-apikey-value" class="form-label">API Key 值</label>
+                            <input type="text" class="form-control" id="auth-apikey-value" placeholder="輸入您的 API Key">
+                        </div>
+
                         <button class="btn btn-outline-secondary mb-3" id="toggle-advanced">進階設置</button>
                         <div class="advanced-settings" id="advanced-settings">
                             <div class="mb-3">
@@ -129,10 +254,10 @@
                             </div>
                         </div>
                         <div class="btn-group-custom mt-4">
-                            <button class="btn btn-warning" id="clear-storage">清空儲存</button>
-                            <button class="btn btn-info" id="export-config">匯出配置</button>
+                            <button class="btn btn-warning" id="clear-storage"><i class="bi bi-trash"></i> 清空儲存</button>
+                            <button class="btn btn-info" id="export-config"><i class="bi bi-download"></i> 匯出配置</button>
                             <input type="file" id="import-config" accept=".json" style="display: none;">
-                            <button class="btn btn-primary" id="import-config-btn">匯入配置</button>
+                            <button class="btn btn-primary" id="import-config-btn"><i class="bi bi-upload"></i> 匯入配置</button>
                         </div>
                     </div>
                 </div>
@@ -147,8 +272,8 @@ value1 value2 value3
 或
 data1 data2 data3"></textarea>
                         <div class="btn-group-custom mt-3">
-                            <button class="btn btn-primary" id="batch-submit">批量添加</button>
-                            <button class="btn btn-secondary" id="add-row">單行添加</button>
+                            <button class="btn btn-primary" id="batch-submit"><i class="bi bi-plus-circle"></i> 批量添加</button>
+                            <button class="btn btn-secondary" id="add-row"><i class="bi bi-file-earmark-plus"></i> 單行添加</button>
                         </div>
                         <div class="divider"></div>
                         <div class="table-container">
@@ -171,8 +296,8 @@ data1 data2 data3"></textarea>
                             <canvas id="overlay"></canvas>
                         </div>
                         <div class="btn-group-custom">
-                            <button class="btn btn-success" id="start-scanning" disabled>開始掃描</button>
-                            <button class="btn btn-danger" id="stop-scanning">停止掃描</button>
+                            <button class="btn btn-success" id="start-scanning" disabled><i class="bi bi-play-circle"></i> 開始掃描</button>
+                            <button class="btn btn-danger" id="stop-scanning"><i class="bi bi-stop-circle"></i> 停止掃描</button>
                         </div>
                     </div>
                 </div>
@@ -200,6 +325,17 @@ data1 data2 data3"></textarea>
         const tableHeader = document.getElementById('table-header');
         const statusContainer = document.getElementById('status-container');
         let maxParams = 0;
+
+        function updateStepper(currentStep) {
+            const steps = document.querySelectorAll('.stepper .step');
+            steps.forEach((step, index) => {
+                if (index < currentStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
 
         function updateTableHeader(paramCount) {
             if (paramCount > maxParams) {
@@ -248,6 +384,8 @@ data1 data2 data3"></textarea>
                 return Array.from(inputs).map(input => input.value.trim());
             });
             
+            const authConfig = getAuthConfig();
+
             const config = {
                 tableData: tableData,
                 requestMethod: document.getElementById('request-method').value,
@@ -256,10 +394,34 @@ data1 data2 data3"></textarea>
                 postBodyTemplate: document.getElementById('post-body-template').value,
                 qrcodePreModifyRemove: document.getElementById('qrcode-pre-modify-remove').value,
                 qrcodePreModifyAdd: document.getElementById('qrcode-pre-modify-add').value,
-                requestInterval: document.getElementById('request-interval').value
+                requestInterval: document.getElementById('request-interval').value,
+                enableAuth: document.getElementById('enable-auth').checked,
+                authConfig: authConfig
             };
             
             localStorage.setItem('qrScannerConfig', JSON.stringify(config));
+        }
+
+        function getAuthConfig() {
+            if (!document.getElementById('enable-auth').checked) return null;
+            const type = document.getElementById('auth-type').value;
+            let data = { type };
+            switch(type) {
+                case 'bearer':
+                    data.token = document.getElementById('auth-token').value;
+                    break;
+                case 'basic':
+                    data.username = document.getElementById('auth-username').value;
+                    data.password = document.getElementById('auth-password').value;
+                    break;
+                case 'apikey':
+                    data.keyName = document.getElementById('auth-apikey-key').value;
+                    data.keyValue = document.getElementById('auth-apikey-value').value;
+                    break;
+                default:
+                    break;
+            }
+            return data;
         }
 
         function loadFromLocalStorage() {
@@ -267,6 +429,7 @@ data1 data2 data3"></textarea>
             if (savedConfig) {
                 const config = JSON.parse(savedConfig);
                 applyConfig(config);
+                updateStepper(2); // Assuming steps 1 and 2 are completed
             }
         }
 
@@ -280,8 +443,34 @@ data1 data2 data3"></textarea>
             document.getElementById('qrcode-pre-modify-remove').value = config.qrcodePreModifyRemove || 'IMEI=';
             document.getElementById('qrcode-pre-modify-add').value = config.qrcodePreModifyAdd || '';
             document.getElementById('request-interval').value = config.requestInterval || '3000';
+
+            // Set request method visibility
             document.getElementById('get-config').style.display = config.requestMethod === 'GET' ? 'block' : 'none';
             document.getElementById('post-config').style.display = config.requestMethod === 'POST' ? 'block' : 'none';
+
+            // Apply Authorization settings
+            if (config.enableAuth && config.authConfig && config.authConfig.type) {
+                document.getElementById('enable-auth').checked = true;
+                document.getElementById('auth-config').style.display = 'block';
+                document.getElementById('auth-type').value = config.authConfig.type;
+                showAuthFields(config.authConfig.type);
+                switch(config.authConfig.type) {
+                    case 'bearer':
+                        document.getElementById('auth-token').value = config.authConfig.token || '';
+                        break;
+                    case 'basic':
+                        document.getElementById('auth-username').value = config.authConfig.username || '';
+                        document.getElementById('auth-password').value = config.authConfig.password || '';
+                        break;
+                    case 'apikey':
+                        document.getElementById('auth-apikey-key').value = config.authConfig.keyName || '';
+                        document.getElementById('auth-apikey-value').value = config.authConfig.keyValue || '';
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             saveToLocalStorage();
         }
 
@@ -298,9 +487,15 @@ data1 data2 data3"></textarea>
                 document.getElementById('qrcode-pre-modify-remove').value = 'IMEI=';
                 document.getElementById('qrcode-pre-modify-add').value = '';
                 document.getElementById('request-interval').value = '3000';
-                document.getElementById('get-config').style.display = 'block';
-                document.getElementById('post-config').style.display = 'none';
+
+                // Reset Authorization
+                document.getElementById('enable-auth').checked = false;
+                document.getElementById('auth-config').style.display = 'none';
+                document.getElementById('auth-type').value = '';
+                hideAllAuthFields();
+
                 statusContainer.innerHTML = '<div class="alert alert-success">已清空所有儲存數據</div>';
+                updateStepper(1);
             }
         }
 
@@ -328,6 +523,7 @@ data1 data2 data3"></textarea>
                     const config = JSON.parse(e.target.result);
                     applyConfig(config);
                     statusContainer.innerHTML = '<div class="alert alert-success">配置已成功匯入</div>';
+                    updateStepper(4);
                 } catch (error) {
                     statusContainer.innerHTML = `<div class="alert alert-danger">匯入失敗：無效的 JSON 格式 (${error.message})</div>`;
                 }
@@ -342,10 +538,12 @@ data1 data2 data3"></textarea>
             if (lines.length === 0) return;
             lines.forEach(values => addRow(values));
             document.getElementById('batch-input').value = '';
+            updateStepper(2);
         });
 
         document.getElementById('add-row').addEventListener('click', () => {
             addRow([]);
+            updateStepper(2);
         });
 
         document.getElementById('request-method').addEventListener('change', (e) => {
@@ -353,6 +551,7 @@ data1 data2 data3"></textarea>
             document.getElementById('get-config').style.display = method === 'GET' ? 'block' : 'none';
             document.getElementById('post-config').style.display = method === 'POST' ? 'block' : 'none';
             saveToLocalStorage();
+            updateStepper(2);
         });
 
         ['get-url-template', 'post-url-template', 'post-body-template', 'qrcode-pre-modify-remove', 
@@ -364,6 +563,40 @@ data1 data2 data3"></textarea>
             const advancedSettings = document.getElementById('advanced-settings');
             advancedSettings.classList.toggle('show');
         });
+
+        // Authorization Toggle
+        document.getElementById('enable-auth').addEventListener('change', (e) => {
+            const enabled = e.target.checked;
+            document.getElementById('auth-config').style.display = enabled ? 'block' : 'none';
+            if (!enabled) {
+                document.getElementById('auth-type').value = '';
+                hideAllAuthFields();
+            }
+            saveToLocalStorage();
+        });
+
+        // Authorization Type Change
+        document.getElementById('auth-type').addEventListener('change', (e) => {
+            const type = e.target.value;
+            showAuthFields(type);
+            saveToLocalStorage();
+        });
+
+        function showAuthFields(type) {
+            hideAllAuthFields();
+            if (type === 'bearer') {
+                document.getElementById('auth-bearer').style.display = 'block';
+            } else if (type === 'basic') {
+                document.getElementById('auth-basic').style.display = 'block';
+            } else if (type === 'apikey') {
+                document.getElementById('auth-apikey').style.display = 'block';
+            }
+        }
+
+        function hideAllAuthFields() {
+            const authFields = document.querySelectorAll('.auth-fields');
+            authFields.forEach(field => field.style.display = 'none');
+        }
 
         async function startCamera() {
             try {
@@ -394,6 +627,7 @@ data1 data2 data3"></textarea>
 
                 document.getElementById('start-scanning').disabled = true;
                 document.getElementById('stop-scanning').disabled = false;
+                updateStepper(3);
             } catch (error) {
                 console.error('無法訪問相機:', error);
                 statusContainer.innerHTML = '<div class="alert alert-danger">無法啟動攝像頭，請檢查權限或設備</div>';
@@ -410,14 +644,15 @@ data1 data2 data3"></textarea>
                 scanning = false;
                 document.getElementById('start-scanning').disabled = false;
                 document.getElementById('stop-scanning').disabled = true;
+                updateStepper(4);
             }
         }
 
-        async function sendRequest(method, url, body = null) {
+        async function sendRequest(method, url, body = null, headers = {}) {
             try {
-                const options = { method };
+                const options = { method, headers };
                 if (method === 'POST' && body) {
-                    options.headers = { 'Content-Type': 'application/json' };
+                    options.headers['Content-Type'] = 'application/json';
                     options.body = JSON.stringify(body);
                 }
                 const response = await fetch(url, options);
@@ -496,6 +731,37 @@ data1 data2 data3"></textarea>
                             return;
                         }
 
+                        // Prepare Authorization headers if enabled
+                        let authHeaders = {};
+                        if (document.getElementById('enable-auth').checked) {
+                            const authType = document.getElementById('auth-type').value;
+                            switch(authType) {
+                                case 'bearer':
+                                    const token = document.getElementById('auth-token').value.trim();
+                                    if (token) {
+                                        authHeaders['Authorization'] = `Bearer ${token}`;
+                                    }
+                                    break;
+                                case 'basic':
+                                    const username = document.getElementById('auth-username').value.trim();
+                                    const password = document.getElementById('auth-password').value.trim();
+                                    if (username && password) {
+                                        const credentials = btoa(`${username}:${password}`);
+                                        authHeaders['Authorization'] = `Basic ${credentials}`;
+                                    }
+                                    break;
+                                case 'apikey':
+                                    const keyName = document.getElementById('auth-apikey-key').value.trim();
+                                    const keyValue = document.getElementById('auth-apikey-value').value.trim();
+                                    if (keyName && keyValue) {
+                                        authHeaders[keyName] = keyValue;
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
                         for (let i = 0; i < rows.length; i++) {
                             await new Promise(resolve => setTimeout(resolve, interval * i));
 
@@ -513,7 +779,7 @@ data1 data2 data3"></textarea>
                                     <span class="status-url"></span>
                                 </div>
                                 <div class="progress">
-                                    <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                                 <div class="result-container mt-2"></div>
                             `;
@@ -528,14 +794,14 @@ data1 data2 data3"></textarea>
                                     url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(value));
                                 }
                                 urlSpan.textContent = url;
-                                const response = await sendRequest('GET', url);
+                                progressBar.style.width = '50%';
+                                const response = await sendRequest('GET', url, null, authHeaders);
+                                progressBar.style.width = '100%';
                                 if (response.success) {
-                                    progressBar.style.width = '100%';
                                     progressBar.classList.add('bg-success');
                                     statusItem.classList.add('status-success');
                                     resultContainer.innerHTML = formatResponse(`成功：${response.data}`, true);
                                 } else {
-                                    progressBar.style.width = '100%';
                                     progressBar.classList.add('bg-danger');
                                     statusItem.classList.add('status-error');
                                     resultContainer.innerHTML = formatResponse(`失敗：${response.error}`, false);
@@ -549,27 +815,30 @@ data1 data2 data3"></textarea>
                                 }
                                 bodyStr = bodyStr.replace(/,\s*}/g, '}').replace(/\s+/g, ' ');
                                 urlSpan.textContent = `${url} (Body: ${bodyStr})`;
+
+                                let bodyObj = {};
                                 try {
-                                    const body = JSON.parse(bodyStr);
-                                    const formattedBody = JSON.stringify(body, null, 2);
+                                    bodyObj = JSON.parse(bodyStr);
+                                    const formattedBody = JSON.stringify(bodyObj, null, 2);
                                     resultContainer.innerHTML = formatResponse(`生成的 JSON:\n${formattedBody}`, true);
-                                    const response = await sendRequest('POST', url, body);
-                                    if (response.success) {
-                                        progressBar.style.width = '100%';
-                                        progressBar.classList.add('bg-success');
-                                        statusItem.classList.add('status-success');
-                                        resultContainer.innerHTML += formatResponse(`成功：${response.data}`, true);
-                                    } else {
-                                        progressBar.style.width = '100%';
-                                        progressBar.classList.add('bg-danger');
-                                        statusItem.classList.add('status-error');
-                                        resultContainer.innerHTML += formatResponse(`失敗：${response.error}`, false);
-                                    }
                                 } catch (e) {
-                                    progressBar.style.width = '100%';
                                     progressBar.classList.add('bg-danger');
                                     statusItem.classList.add('status-error');
                                     resultContainer.innerHTML = formatResponse(`JSON 格式錯誤: ${e.message}`, false);
+                                    continue;
+                                }
+
+                                progressBar.style.width = '50%';
+                                const response = await sendRequest('POST', url, bodyObj, authHeaders);
+                                progressBar.style.width = '100%';
+                                if (response.success) {
+                                    progressBar.classList.add('bg-success');
+                                    statusItem.classList.add('status-success');
+                                    resultContainer.innerHTML += formatResponse(`成功：${response.data}`, true);
+                                } else {
+                                    progressBar.classList.add('bg-danger');
+                                    statusItem.classList.add('status-error');
+                                    resultContainer.innerHTML += formatResponse(`失敗：${response.error}`, false);
                                 }
                             }
                         }

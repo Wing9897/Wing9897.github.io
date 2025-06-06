@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>TSV / Excel 圖表產生器</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      resize: horizontal;
+      white-space: pre;
+      overflow: auto;
+      font-family: monospace;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: max-content;
+      min-width: 100%;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 4px 8px;
+      white-space: nowrap;
+    }
+
+    #dataTable {
+      overflow: auto;
+      max-height: 300px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+
+    select, button, input[type="file"] {
+      margin: 8px 5px;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #myChart {
+      width: 100%;
+      height: 450px;
+      min-height: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>📥 資料來源</h2>
+    <label>
+      <input type="radio" name="inputMode" value="text" checked onchange="toggleInputMode()"> 輸入 TSV
+    </label>
+    <label>
+      <input type="radio" name="inputMode" value="excel" onchange="toggleInputMode()"> 上傳 Excel (.xlsx)
+    </label>
+
+    <div id="textInputSection">
+      <textarea id="tsvInput" placeholder="貼上 TSV 內容..."></textarea><br>
+      <button onclick="parseTSV()">解析 TSV</button>
+    </div>
+
+    <div id="excelInputSection" style="display:none;">
+      <input type="file" id="excelFile" accept=".xlsx" onchange="handleExcelFile(event)">
+    </div>
+  </div>
+
+  <div class="card" id="dataSection" style="display:none;">
+    <h3>📊 資料預覽</h3>
+    <div id="dataTable"></div>
+  </div>
+
+  <div class="card" id="chartSection" style="display:none;">
+    <h3>📈 圖表設定</h3>
+    <label>圖表類型:</label>
+    <select id="chartType" onchange="updateChartOptions()">
+      <option value="line">Line</option>
+      <option value="bar">Bar</option>
+      <option value="pie">Pie</option>
+      <option value="scatter">Scatter</option>
+    </select>
+
+    <label>表達方式:</label>
+    <select id="displayMode" onchange="updateFieldUI()">
+      <option value="mapping">對應分析</option>
+      <option value="category">分類統計</option>
+      <option value="timeline">時間-類別分布</option>
+    </select><br>
+
+    <label>X軸欄位:</label>
+    <select id="xField"></select>
+
+    <label id="yFieldLabel">Y軸欄位:</label>
+    <select id="yField"></select>
+
+    <button onclick="drawChart()">繪製圖表</button><br><br>
+
+    <div id="myChart"></div>
+  </div>
+
+  <script>
+    let rows = [];
+    let columns = [];
+    let chart = echarts.init(document.getElementById('myChart'));
+
+    function toggleInputMode() {
+      const mode = document.querySelector('input[name="inputMode"]:checked').value;
+      document.getElementById('textInputSection').style.display = (mode === 'text') ? 'block' : 'none';
+      document.getElementById('excelInputSection').style.display = (mode === 'excel') ? 'block' : 'none';
+    }
+
+    function handleExcelFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        const tsv = json.map(row => row.join('\t')).join('\n');
+        document.getElementById('tsvInput').value = tsv;
+        parseTSV();
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function parseTSV() {
+      const text = document.getElementById('tsvInput').value.trim();
+      const lines = text.split('\n').map(l => l.split('\t'));
+      if (lines.length < 2) return alert("請輸入正確的 TSV");
+
+      columns = lines[0];
+      rows = lines.slice(1);
+
+      const table = [`<table><thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`];
+      rows.forEach(r => {
+        table.push(`<tr>${r.map(cell => `<td>${cell}</td>`).join('')}</tr>`);
+      });
+      table.push(`</tbody></table>`);
+      document.getElementById('dataTable').innerHTML = table.join('');
+      document.getElementById('dataSection').style.display = 'block';
+
+      const xSel = document.getElementById('xField');
+      const ySel = document.getElementById('yField');
+      xSel.innerHTML = ySel.innerHTML = '';
+      columns.forEach(col => {
+        xSel.add(new Option(col, col));
+        ySel.add(new Option(col, col));
+      });
+
+      document.getElementById('chartSection').style.display = 'block';
+      updateFieldUI();
+    }
+
+    function updateFieldUI() {
+      const mode = document.getElementById('displayMode').value;
+      const chartType = document.getElementById('chartType').value;
+      const yField = document.getElementById('yField');
+      const yFieldLabel = document.getElementById('yFieldLabel');
+
+      if (mode === 'category' || (chartType === 'pie' && mode !== 'timeline')) {
+        yField.style.display = 'none';
+        yFieldLabel.style.display = 'none';
+      } else {
+        yField.style.display = 'inline';
+        yFieldLabel.style.display = 'inline';
+      }
+    }
+
+    function updateChartOptions() {
+      const chartType = document.getElementById('chartType').value;
+      const displayMode = document.getElementById('displayMode').value;
+      const yField = document.getElementById('yField');
+      const yFieldLabel = document.getElementById('yFieldLabel');
+
+      if (chartType === 'pie') {
+        yField.style.display = 'none';
+        yFieldLabel.style.display = 'none';
+      } else {
+        yField.style.display = (displayMode === 'category') ? 'none' : 'inline';
+        yFieldLabel.style.display = (displayMode === 'category') ? 'none' : 'inline';
+      }
+    }
+
+    function drawChart() {
+      const type = document.getElementById('chartType').value;
+      const mode = document.getElementById('displayMode').value;
+
+      if (rows.length === 0) {
+        alert("請先載入資料");
+        return;
+      }
+
+      try {
+        if (type === 'pie') {
+          drawCategoryChart(type);
+        } else if (mode === 'mapping') {
+          drawMappingChart(type);
+        } else if (mode === 'category') {
+          drawCategoryChart(type);
+        } else if (mode === 'timeline') {
+          if (type !== 'scatter') {
+            alert("時間-類別分布僅支援散點圖");
+            return;
+          }
+          drawTimelineChart();
+        }
+        chart.resize(); // 保證圖表滿版顯示
+      } catch (error) {
+        console.error("繪製圖表時發生錯誤:", error);
+        alert("繪製圖表失敗，請檢查數據或選擇其他表達方式");
+      }
+    }
+
+    function drawMappingChart(type) {
+      const xCol = document.getElementById('xField').value;
+      const yCol = document.getElementById('yField').value;
+      const xIdx = columns.indexOf(xCol);
+      const yIdx = columns.indexOf(yCol);
+
+      const xData = rows.map(r => r[xIdx]);
+      const yData = rows.map(r => parseFloat(r[yIdx]) || 0);
+
+      chart.setOption({
+        title: { text: `${yCol} vs ${xCol}` },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: xData },
+        yAxis: { type: 'value' },
+        series: [{
+          type,
+          data: type === 'scatter' 
+            ? rows.map(r => [parseFloat(r[xIdx]) || 0, parseFloat(r[yIdx]) || 0])
+            : yData,
+          smooth: type === 'line',
+        }],
+        dataZoom: [
+          { type: 'inside', xAxisIndex: 0 },
+          { type: 'slider', xAxisIndex: 0 },
+          { type: 'inside', yAxisIndex: 0 },
+          { type: 'slider', yAxisIndex: 0 }
+        ],
+      });
+    }
+
+    function drawCategoryChart(type) {
+      const xCol = document.getElementById('xField').value;
+      const xIdx = columns.indexOf(xCol);
+      const counts = {};
+      rows.forEach(r => {
+        const val = r[xIdx];
+        counts[val] = (counts[val] || 0) + 1;
+      });
+      const labels = Object.keys(counts);
+      const values = Object.values(counts);
+
+      if (type === 'pie') {
+        chart.setOption({
+          title: { text: `${xCol} 頻率統計` },
+          tooltip: { trigger: 'item' },
+          series: [{
+            type: 'pie',
+            data: labels.map((name, i) => ({ name, value: values[i] }))
+          }]
+        });
+      } else {
+        chart.setOption({
+          title: { text: `${xCol} 頻率統計` },
+          tooltip: { trigger: 'axis' },
+          xAxis: { type: 'category', data: labels },
+          yAxis: { type: 'value' },
+          series: [{
+            type,
+            data: values,
+            smooth: type === 'line'
+          }],
+          dataZoom: [
+            { type: 'inside', xAxisIndex: 0 },
+            { type: 'slider', xAxisIndex: 0 },
+            { type: 'inside', yAxisIndex: 0 },
+            { type: 'slider', yAxisIndex: 0 }
+          ]
+        });
+      }
+    }
+
+	function drawTimelineChart() {
+	  const xCol = document.getElementById('xField').value;
+	  const yCol = document.getElementById('yField').value;
+	  const xIdx = columns.indexOf(xCol);
+	  const yIdx = columns.indexOf(yCol);
+
+	  // 提取唯一的類別（Y 軸）
+	  const categories = [...new Set(rows.map(r => r[yIdx]).filter(val => val != null))];
+	  if (categories.length === 0) {
+		alert("Y 軸類別數據無效，請選擇有效的類別欄位");
+		return;
+	  }
+
+	  // 準備散點圖數據，過濾無效數據並轉換日期時間
+	  const seriesData = rows
+		.map(r => {
+		  const time = r[xIdx];
+		  const category = r[yIdx];
+		  if (time == null || category == null) return null;
+		  const parsedTime = Date.parse(time); // 解析日期時間
+		  if (isNaN(parsedTime)) return null; // 過濾無效日期時間
+		  const yValue = categories.indexOf(category);
+		  return yValue >= 0 ? [parsedTime, yValue] : null;
+		})
+		.filter(item => item != null);
+
+	  if (seriesData.length === 0) {
+		alert("無有效的時間-類別數據，請檢查數據內容（確保時間格式正確，例如 '2023-01-01 14:30:00'）");
+		return;
+	  }
+
+	  // 按時間排序（從最早到最晚）
+	  seriesData.sort((a, b) => a[0] - b[0]);
+
+	  const option = {
+		title: {
+		  text: `${yCol} 隨時間分布`
+		},
+		tooltip: {
+		  trigger: 'item',
+		  formatter: params => {
+			if (!params.data || !Array.isArray(params.data)) {
+			  return '無有效數據';
+			}
+			const [time, catIdx] = params.data;
+			const dateTime = new Date(time).toLocaleString('zh-TW', {
+			  year: 'numeric',
+			  month: '2-digit',
+			  day: '2-digit',
+			  hour: '2-digit',
+			  minute: '2-digit',
+			  second: '2-digit'
+			}); // 格式化為 "2023/01/01 14:30:00"
+			return `時間: ${dateTime}<br>類別: ${categories[catIdx] || '未知'}`;
+		  }
+		},
+		toolbox: {
+		  feature: {
+			restore: {},
+			saveAsImage: {}
+		  }
+		},
+		xAxis: {
+		  type: 'time', // 使用 time 類型以處理日期時間
+		  name: xCol,
+		  axisLabel: {
+			rotate: 45, // 旋轉標籤以避免重疊
+			formatter: value => {
+			  return new Date(value).toLocaleString('zh-TW', {
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit',
+				hour: '2-digit',
+				minute: '2-digit'
+			  }); // 顯示 "2023/01/01 14:30"
+			}
+		  }
+		},
+		yAxis: {
+		  type: 'category',
+		  name: yCol,
+		  data: categories // Y 軸顯示類別名稱
+		},
+		dataZoom: [
+		  { type: 'inside', xAxisIndex: 0 }, // X 軸內部縮放
+		  { type: 'slider', xAxisIndex: 0 }, // X 軸滑塊
+		  { type: 'inside', yAxisIndex: 0 }, // Y 軸內部縮放
+		  { type: 'slider', yAxisIndex: 0 }  // Y 軸滑塊
+		],
+		series: [{
+		  type: 'scatter',
+		  data: seriesData,
+		  symbolSize: 10,
+		  itemStyle: {
+			color: 'rgba(75,192,192,0.8)'
+		  }
+		}]
+	  };
+
+	  chart.setOption(option);
+	}
+	function drawTimelineChart() {
+	  const xCol = document.getElementById('xField').value;
+	  const yCol = document.getElementById('yField').value;
+	  const xIdx = columns.indexOf(xCol);
+	  const yIdx = columns.indexOf(yCol);
+
+	  // 提取唯一的類別（Y 軸）
+	  const categories = [...new Set(rows.map(r => r[yIdx]).filter(val => val != null))];
+	  if (categories.length === 0) {
+		alert("Y 軸類別數據無效，請選擇有效的類別欄位");
+		return;
+	  }
+
+	  // 準備散點圖數據，過濾無效數據並轉換日期時間
+	  const seriesData = rows
+		.map(r => {
+		  const time = r[xIdx];
+		  const category = r[yIdx];
+		  if (time == null || category == null) return null;
+		  const parsedTime = Date.parse(time); // 解析日期時間
+		  if (isNaN(parsedTime)) return null; // 過濾無效日期時間
+		  const yValue = categories.indexOf(category);
+		  return yValue >= 0 ? [parsedTime, yValue] : null;
+		})
+		.filter(item => item != null);
+
+	  if (seriesData.length === 0) {
+		alert("無有效的時間-類別數據，請檢查數據內容（確保時間格式正確，例如 '2023-01-01 14:30:00'）");
+		return;
+	  }
+
+	  // 按時間排序（從最早到最晚）
+	  seriesData.sort((a, b) => a[0] - b[0]);
+
+	  const option = {
+		title: {
+		  text: `${yCol} 隨時間分布`
+		},
+		tooltip: {
+		  trigger: 'item',
+		  formatter: params => {
+			if (!params.data || !Array.isArray(params.data)) {
+			  return '無有效數據';
+			}
+			const [time, catIdx] = params.data;
+			const dateTime = new Date(time).toLocaleString('zh-TW', {
+			  year: 'numeric',
+			  month: '2-digit',
+			  day: '2-digit',
+			  hour: '2-digit',
+			  minute: '2-digit',
+			  second: '2-digit'
+			}); // 格式化為 "2023/01/01 14:30:00"
+			return `時間: ${dateTime}<br>類別: ${categories[catIdx] || '未知'}`;
+		  }
+		},
+		toolbox: {
+		  feature: {
+			restore: {},
+			saveAsImage: {}
+		  }
+		},
+		xAxis: {
+		  type: 'time', // 使用 time 類型以處理日期時間
+		  name: xCol,
+		  axisLabel: {
+			rotate: 45, // 旋轉標籤以避免重疊
+			formatter: value => {
+			  return new Date(value).toLocaleString('zh-TW', {
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit',
+				hour: '2-digit',
+				minute: '2-digit'
+			  }); // 顯示 "2023/01/01 14:30"
+			}
+		  }
+		},
+		yAxis: {
+		  type: 'category',
+		  name: yCol,
+		  data: categories // Y 軸顯示類別名稱
+		},
+		dataZoom: [
+		  { type: 'inside', xAxisIndex: 0 }, // X 軸內部縮放
+		  { type: 'slider', xAxisIndex: 0 }, // X 軸滑塊
+		  { type: 'inside', yAxisIndex: 0 }, // Y 軸內部縮放
+		  { type: 'slider', yAxisIndex: 0 }  // Y 軸滑塊
+		],
+		series: [{
+		  type: 'scatter',
+		  data: seriesData,
+		  symbolSize: 10,
+		  itemStyle: {
+			color: 'rgba(75,192,192,0.8)'
+		  }
+		}]
+	  };
+
+	  chart.setOption(option);
+	}
+
+    window.addEventListener('resize', () => {
+      chart.resize();
+    });
+  </script>
+</body>
+</html>

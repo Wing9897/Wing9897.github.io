@@ -1,73 +1,216 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wing9897 Tools Hub</title>
+    <title>Wing9897 工具集</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f4f8;
-            color: #333;
-        }
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            color: #007bff;
-        }
-        p {
-            font-size: 1.2em;
-            margin-bottom: 30px;
-        }
-        .nav-container {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8f9fa; /* Light grey background */
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        .nav-button {
-            display: inline-block;
-            padding: 15px 30px;
-            background-color: #007bff;
+        .navbar {
+            background-color: #343a40; /* Darker navbar */
+        }
+        .navbar-brand {
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+        .header-section {
+            background: linear-gradient(45deg, #007bff, #6610f2); /* Gradient background */
             color: white;
-            text-decoration: none;
-            border-radius: 8px;
+            padding: 60px 0;
+            text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, transform 0.3s;
-            font-size: 1.1em;
         }
-        .nav-button:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
+        .header-section h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2em;
+        .header-section p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+        .tools-section {
+            padding: 50px 0;
+            flex-grow: 1; /* Allow this section to grow and push footer down */
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%; /* Ensure all cards in a row have same height */
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .card-title {
+            color: #007bff; /* Primary blue for titles */
+            font-weight: bold;
+        }
+        .card-body {
+            display: flex;
+            flex-direction: column;
+        }
+        .card-text {
+            flex-grow: 1; /* Allow description to take available space */
+        }
+        .card-footer {
+            background-color: transparent;
+            border-top: none;
+            padding-top: 0;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto; /* Push footer to the bottom */
+        }
+
+        /* Adjustments for smaller screens */
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 2.5rem;
             }
-            p {
-                font-size: 1em;
-            }
-            .nav-button {
-                padding: 12px 20px;
-                font-size: 0.9em;
+            .header-section p {
+                font-size: 1rem;
             }
         }
     </style>
 </head>
 <body>
-    <h1>歡迎來到 Wing9897 Tools Hub</h1>
-    <p>這是一個簡單的工具包，點擊下方按鈕快速訪問各個工具。</p>
-    
-    <div class="nav-container">
-        <a href="QR_mapping.html" class="nav-button">二維碼Key-Value對照工具</a>
-        <a href="Qrcode_httprequest.html" class="nav-button">二維碼-批量參數HTTP請求工具</a>
-        <a href="batch_http.html" class="nav-button">批量輸入全自訂參數HTTP請求工具</a>
-        <a href="One2ManyHTTPRequests.html" class="nav-button">批量單值-批量參數HTTP請求工具</a>
-        <a href="Find_correct_QRcode.html" class="nav-button">實時 QR Code 快速搜索</a>
-        <a href="https://github.com/Wing9897/Wing9897.github.io" class="nav-button" target="_blank">GitHub 倉庫</a>
-    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Wing9897 工具集</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="index.html">首頁</a>
+                    </li>
+                    </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="header-section">
+        <div class="container">
+            <h1>歡迎來到 Wing9897 的工具箱！</h1>
+            <p>探索我為您準備的實用網頁工具，讓您的工作和生活更高效。</p>
+        </div>
+    </header>
+
+    <section class="tools-section">
+        <div class="container">
+            <h2 class="text-center mb-5">所有工具</h2>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">API 批量發送器 (多重循環)</h5>
+                            <p class="card-text">此工具允許您設定複雜的雙層參數循環，自動生成並批量發送多個 HTTP 請求，適用於需要組合參數的 API 測試或資料提交。</p>
+                            <div class="card-footer text-end">
+                                <a href="Batch_HttpRequest(Double_loop).html" class="btn btn-primary">立即使用</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">QR碼參數化批量請求</h5>
+                            <p class="card-text">結合 QR Code 掃描功能，此工具可讀取 QR Code 內容作為參數，並根據表格數據（TSV 格式）批量發送 HTTP 請求，適合需要快速處理實物數據的場景。</p>
+                            <div class="card-footer text-end">
+                                <a href="Batch_HttpRequest(QRCodeWithTSV_Value).html" class="btn btn-primary">立即使用</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">HTTP 請求批量發送器 (表格數據)</h5>
+                            <p class="card-text">一個通用的批量 HTTP 請求工具，您可以透過輸入表格形式（如 TSV）的參數數據，為每個數據行自動生成並發送獨立的請求。</p>
+                            <div class="card-footer text-end">
+                                <a href="Batch_HttpRequest(TSV_Value).html" class="btn btn-primary">立即使用</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">實時 QR Code 搜索掃描器</h5>
+                            <p class="card-text">即時掃描 QR Code 並在畫面中高亮顯示，同時提供文字搜索功能，幫助您快速從多個 QR Code 中找出包含特定內容的目標。</p>
+                            <div class="card-footer text-end">
+                                <a href="RealTimeQRMatchScanner(Singal_Value).html" class="btn btn-primary">立即使用</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">QR 碼對應值匹配器</h5>
+                            <p class="card-text">這是一個 Key-Value 形式的 QR Code 對照工具。您可以輸入一組 QR Code 與其對應的數值清單，掃描 QR Code 後即可即時顯示其關聯的數值，快速進行資料比對。</p>
+                            <div class="card-footer text-end">
+                                <a href="RealTimeQRMatchScanner(Batch_TSV).html" class="btn btn-primary">立即使用</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">SQLite 資料圖表生成器 (Chart.js)</h5>
+                            <p class="card-text">將 SQLite 資料庫內容轉換為視覺化圖表。透過 Chart.js 庫，您可以上傳 SQLite 檔案並即時生成多種類型的統計圖表。</p>
+                            <div class="card-footer text-end">
+                                <a href="SQLite_to_charts(charts.js).html" class="btn btn-primary">立即使用</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">SQLite 資料圖表生成器 (ECharts)</h5>
+                            <p class="card-text">使用功能強大的 ECharts 庫來視覺化您的 SQLite 資料。上傳您的資料庫檔案，即可生成專業且互動性強的圖表，進行數據分析。</p>
+                            <div class="card-footer text-end">
+                                <a href="SQLite_to_charts(echarts.js).html" class="btn btn-primary">立即使用</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Wing9897. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

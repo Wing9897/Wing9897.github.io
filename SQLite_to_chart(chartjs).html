@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>SQLite Chart Viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
+  <style>
+    #dataTable { max-height: 300px; overflow: auto; border: 1px solid #ccc; margin-top: 10px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 4px; }
+    label { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <h2>📁 載入 SQLite 檔案</h2>
+  <input type="file" id="dbfile" accept=".sqlite,.db"/><br><br>
+
+  <div id="tableSelectContainer" style="display:none;">
+    <label>選擇 Table:</label>
+    <select id="tableSelect"></select>
+    <button onclick="loadTable()">載入資料</button>
+  </div>
+
+  <div id="dataTable"></div>
+
+  <div id="chartSection" style="display:none;">
+    <h3>📊 圖表設定</h3>
+
+    <label>圖表類型:</label>
+    <select id="chartType">
+      <option value="line">Line</option>
+      <option value="bar">Bar</option>
+      <option value="pie">Pie</option>
+    </select>
+
+    <label>表達方式:</label>
+    <select id="displayMode" onchange="updateFieldUI()">
+      <option value="mapping">對應分析</option>
+      <option value="category">分類統計</option>
+    </select><br><br>
+
+    <label>X軸欄位:</label>
+    <select id="xField"></select>
+
+    <label id="yFieldLabel">Y軸欄位:</label>
+    <select id="yField"></select>
+
+    <button onclick="drawChart()">繪製圖表</button><br><br>
+
+    <canvas id="myChart" width="800" height="400"></canvas>
+  </div>
+
+  <script>
+    let db;
+    let rows = [];
+    let columns = [];
+    let chart;
+
+    document.getElementById('dbfile').addEventListener('change', async (evt) => {
+      const file = evt.target.files[0];
+      if (!file) return;
+
+      const buf = await file.arrayBuffer();
+      const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
+      db = new SQL.Database(new Uint8Array(buf));
+
+      const res = db.exec("SELECT name FROM sqlite_master WHERE type='table'");
+      const tables = res[0]?.values.map(row => row[0]) || [];
+
+      const select = document.getElementById('tableSelect');
+      select.innerHTML = '';
+      tables.forEach(t => {
+        const option = document.createElement('option');
+        option.value = option.text = t;
+        select.appendChild(option);
+      });
+
+      document.getElementById('tableSelectContainer').style.display = 'block';
+    });
+
+    function loadTable() {
+      const table = document.getElementById('tableSelect').value;
+      const res = db.exec(`SELECT * FROM "${table}"`);
+      if (res.length === 0) return alert("無資料");
+
+      columns = res[0].columns;
+      rows = res[0].values;
+
+      // 顯示表格
+      const tableHTML = [`<table><thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`];
+      rows.forEach(row => {
+        tableHTML.push(`<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`);
+      });
+      tableHTML.push(`</tbody></table>`);
+      document.getElementById('dataTable').innerHTML = tableHTML.join('');
+
+      // 設定 X/Y 選單
+      const xSel = document.getElementById('xField');
+      const ySel = document.getElementById('yField');
+      xSel.innerHTML = ySel.innerHTML = '';
+      columns.forEach(col => {
+        [xSel, ySel].forEach(sel => {
+          const opt = document.createElement('option');
+          opt.value = opt.text = col;
+          sel.appendChild(opt.cloneNode(true));
+        });
+      });
+
+      document.getElementById('chartSection').style.display = 'block';
+      updateFieldUI(); // 根據模式隱藏/顯示 y 軸
+    }
+
+    function updateFieldUI() {
+      const mode = document.getElementById('displayMode').value;
+      const yField = document.getElementById('yField');
+      const yLabel = document.getElementById('yFieldLabel');
+      if (mode === 'category') {
+        yField.style.display = 'none';
+        yLabel.style.display = 'none';
+      } else {
+        yField.style.display = 'inline';
+        yLabel.style.display = 'inline';
+      }
+    }
+
+    function drawChart() {
+      const type = document.getElementById('chartType').value;
+      const mode = document.getElementById('displayMode').value;
+      const ctx = document.getElementById('myChart').getContext('2d');
+      if (chart) chart.destroy();
+
+      if (mode === 'mapping') {
+        const xCol = document.getElementById('xField').value;
+        const yCol = document.getElementById('yField').value;
+        const xIdx = columns.indexOf(xCol);
+        const yIdx = columns.indexOf(yCol);
+
+        const labels = rows.map(r => r[xIdx]);
+        const data = rows.map(r => parseFloat(r[yIdx]));
+
+        chart = new Chart(ctx, {
+          type: type,
+          data: {
+            labels: labels,
+            datasets: [{
+              label: `${yCol} vs ${xCol}`,
+              data: data,
+              backgroundColor: 'rgba(75,192,192,0.6)',
+              borderColor: 'rgba(75,192,192,1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: type === 'pie' ? {} : {
+              x: { title: { display: true, text: xCol } },
+              y: { title: { display: true, text: yCol } }
+            }
+          }
+        });
+
+      } else if (mode === 'category') {
+        const xCol = document.getElementById('xField').value;
+        const xIdx = columns.indexOf(xCol);
+
+        // 統計出現次數
+        const freq = {};
+        rows.forEach(r => {
+          const val = r[xIdx];
+          freq[val] = (freq[val] || 0) + 1;
+        });
+
+        const labels = Object.keys(freq);
+        const data = Object.values(freq);
+
+        chart = new Chart(ctx, {
+          type: type,
+          data: {
+            labels: labels,
+            datasets: [{
+              label: `${xCol} 頻率統計`,
+              data: data,
+              backgroundColor: labels.map((_, i) =>
+                `hsl(${(i * 360 / labels.length)}, 70%, 60%)`)
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: type === 'pie' ? {} : {
+              x: { title: { display: true, text: xCol } },
+              y: { title: { display: true, text: '出現次數' } }
+            }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

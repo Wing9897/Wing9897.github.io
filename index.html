@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wing9897 工具集</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -55,6 +56,13 @@
         .card-title {
             color: #007bff; /* Primary blue for titles */
             font-weight: bold;
+            display: flex; /* 讓圖示和文字對齊 */
+            align-items: center; /* 垂直置中對齊 */
+            gap: 10px; /* 圖示和文字間距 */
+        }
+        .card-title i { /* 圖示樣式 */
+            font-size: 1.5em; /* 圖示大小 */
+            color: #6610f2; /* 圖示顏色 */
         }
         .card-body {
             display: flex;
@@ -100,7 +108,7 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="index.html">首頁</a>
                     </li>
-                    </ul>
+                </ul>
             </div>
         </div>
     </nav>
@@ -120,7 +128,9 @@
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">API 批量發送器 (多重循環)</h5>
+                            <h5 class="card-title">
+                                <i class="bi bi-arrow-repeat"></i> API 批量發送器 (多重循環)
+                            </h5>
                             <p class="card-text">此工具允許您設定複雜的雙層參數循環，自動生成並批量發送多個 HTTP 請求，適用於需要組合參數的 API 測試或資料提交。</p>
                             <div class="card-footer text-end">
                                 <a href="Batch_HttpRequest(Double_loop).html" class="btn btn-primary">立即使用</a>
@@ -132,7 +142,9 @@
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">QR碼參數化批量請求</h5>
+                            <h5 class="card-title">
+                                <i class="bi bi-qr-code-scan"></i> QR碼參數化批量請求
+                            </h5>
                             <p class="card-text">結合 QR Code 掃描功能，此工具可讀取 QR Code 內容作為參數，並根據表格數據（TSV 格式）批量發送 HTTP 請求，適合需要快速處理實物數據的場景。</p>
                             <div class="card-footer text-end">
                                 <a href="Batch_HttpRequest(QRCodeWithTSV_Value).html" class="btn btn-primary">立即使用</a>
@@ -144,7 +156,9 @@
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">HTTP 請求批量發送器 (表格數據)</h5>
+                            <h5 class="card-title">
+                                <i class="bi bi-table"></i> HTTP 請求批量發送器 (表格數據)
+                            </h5>
                             <p class="card-text">一個通用的批量 HTTP 請求工具，您可以透過輸入表格形式（如 TSV）的參數數據，為每個數據行自動生成並發送獨立的請求。</p>
                             <div class="card-footer text-end">
                                 <a href="Batch_HttpRequest(TSV_Value).html" class="btn btn-primary">立即使用</a>
@@ -156,7 +170,9 @@
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">實時 QR Code 搜索掃描器</h5>
+                            <h5 class="card-title">
+                                <i class="bi bi-search"></i> 實時 QR Code 搜索掃描器
+                            </h5>
                             <p class="card-text">即時掃描 QR Code 並在畫面中高亮顯示，同時提供文字搜索功能，幫助您快速從多個 QR Code 中找出包含特定內容的目標。</p>
                             <div class="card-footer text-end">
                                 <a href="RealTimeQRMatchScanner(Singal_Value).html" class="btn btn-primary">立即使用</a>
@@ -168,7 +184,9 @@
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">QR 碼對應值匹配器</h5>
+                            <h5 class="card-title">
+                                <i class="bi bi-hand-index"></i> QR 碼對應值匹配器
+                            </h5>
                             <p class="card-text">這是一個 Key-Value 形式的 QR Code 對照工具。您可以輸入一組 QR Code 與其對應的數值清單，掃描 QR Code 後即可即時顯示其關聯的數值，快速進行資料比對。</p>
                             <div class="card-footer text-end">
                                 <a href="RealTimeQRMatchScanner(Batch_TSV).html" class="btn btn-primary">立即使用</a>
@@ -180,7 +198,9 @@
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">SQLite 資料圖表生成器 (Chart.js)</h5>
+                            <h5 class="card-title">
+                                <i class="bi bi-bar-chart-line"></i> SQLite 資料圖表生成器 (Chart.js)
+                            </h5>
                             <p class="card-text">將 SQLite 資料庫內容轉換為視覺化圖表。透過 Chart.js 庫，您可以上傳 SQLite 檔案並即時生成多種類型的統計圖表。</p>
                             <div class="card-footer text-end">
                                 <a href="SQLite_to_charts(charts.js).html" class="btn btn-primary">立即使用</a>
@@ -192,7 +212,9 @@
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">SQLite 資料圖表生成器 (ECharts)</h5>
+                            <h5 class="card-title">
+                                <i class="bi bi-pie-chart-fill"></i> SQLite 資料圖表生成器 (ECharts)
+                            </h5>
                             <p class="card-text">使用功能強大的 ECharts 庫來視覺化您的 SQLite 資料。上傳您的資料庫檔案，即可生成專業且互動性強的圖表，進行數據分析。</p>
                             <div class="card-footer text-end">
                                 <a href="SQLite_to_charts(echarts.js).html" class="btn btn-primary">立即使用</a>

@@ -30,17 +30,19 @@
     <h3>📊 圖表設定</h3>
 
     <label>圖表類型:</label>
-    <select id="chartType" onchange="updateChartOptions()">
-      <option value="line">Line</option>
-      <option value="bar">Bar</option>
-      <option value="pie">Pie</option>
-    </select>
+	<select id="chartType" onchange="updateChartOptions()">
+	  <option value="line">Line</option>
+	  <option value="bar">Bar</option>
+	  <option value="pie">Pie</option>
+	  <option value="scatter">Scatter</option>
+	</select>
 
     <label>表達方式:</label>
-    <select id="displayMode" onchange="updateFieldUI()">
-      <option value="mapping">對應分析</option>
-      <option value="category">分類統計</option>
-    </select><br><br>
+	<select id="displayMode" onchange="updateFieldUI()">
+	  <option value="mapping">對應分析</option>
+	  <option value="category">分類統計</option>
+	  <option value="timeline">時間-類別分布</option>
+	</select>
 
     <label>X軸欄位:</label>
     <select id="xField"></select>
@@ -113,18 +115,20 @@
       updateFieldUI();
     }
 
-    function updateFieldUI() {
-      const mode = document.getElementById('displayMode').value;
-      const yField = document.getElementById('yField');
-      const yLabel = document.getElementById('yFieldLabel');
-      if (mode === 'category') {
-        yField.style.display = 'none';
-        yLabel.style.display = 'none';
-      } else {
-        yField.style.display = 'inline';
-        yLabel.style.display = 'inline';
-      }
-    }
+	function updateFieldUI() {
+	  const mode = document.getElementById('displayMode').value;
+	  const yField = document.getElementById('yField');
+	  const yLabel = document.getElementById('yFieldLabel');
+	  const chartType = document.getElementById('chartType').value;
+
+	  if (mode === 'category' || (mode === 'mapping' && chartType === 'pie')) {
+		yField.style.display = 'none';
+		yLabel.style.display = 'none';
+	  } else {
+		yField.style.display = 'inline';
+		yLabel.style.display = 'inline';
+	  }
+	}
 
 	function updateChartOptions() {
 	  const chartType = document.getElementById('chartType').value;
@@ -134,37 +138,43 @@
 	  const displayMode = document.getElementById('displayMode').value;
 
 	  if (chartType === 'pie') {
-		xField.style.display = 'inline'; // Pie 圖仍需要 xField（分類欄位）
+		xField.style.display = 'inline';
 		yField.style.display = 'none';
 		yLabel.style.display = 'none';
 	  } else {
 		xField.style.display = 'inline';
-		yField.style.display = (displayMode === 'mapping') ? 'inline' : 'none';
-		yLabel.style.display = (displayMode === 'mapping') ? 'inline' : 'none';
+		yField.style.display = (displayMode === 'category') ? 'none' : 'inline';
+		yLabel.style.display = (displayMode === 'category') ? 'none' : 'inline';
 	  }
 	}
 
 
-    function drawChart() {
-      const type = document.getElementById('chartType').value;
-      const mode = document.getElementById('displayMode').value;
+	function drawChart() {
+	  const type = document.getElementById('chartType').value;
+	  const mode = document.getElementById('displayMode').value;
 
-      if (rows.length === 0) {
-        alert("請先載入資料");
-        return;
-      }
+	  if (rows.length === 0) {
+		alert("請先載入資料");
+		return;
+	  }
 
-      if (type === 'pie') {
-        drawCategoryChart(type);
-        return;
-      }
+	  if (type === 'pie') {
+		drawCategoryChart(type);
+		return;
+	  }
 
-      if (mode === 'mapping') {
-        drawMappingChart(type);
-      } else if (mode === 'category') {
-        drawCategoryChart(type);
-      }
-    }
+	  if (mode === 'mapping') {
+		drawMappingChart(type);
+	  } else if (mode === 'category') {
+		drawCategoryChart(type);
+	  } else if (mode === 'timeline') {
+		if (type !== 'scatter') {
+		  alert("時間-類別分布僅支援散點圖");
+		  return;
+		}
+		drawTimelineChart();
+	  }
+	}
 
     function drawMappingChart(type) {
       const xCol = document.getElementById('xField').value;
@@ -221,6 +231,88 @@
 
       chart.setOption(option);
     }
+
+	function drawTimelineChart() {
+	  const xCol = document.getElementById('xField').value;
+	  const yCol = document.getElementById('yField').value;
+	  const xIdx = columns.indexOf(xCol);
+	  const yIdx = columns.indexOf(yCol);
+
+	  // 提取唯一的類別（Y 軸）
+	  const categories = [...new Set(rows.map(r => r[yIdx]).filter(val => val != null))];
+	  if (categories.length === 0) {
+		alert("Y 軸類別數據無效，請選擇有效的類別欄位");
+		return;
+	  }
+
+	  // 準備散點圖數據，過濾無效數據
+	  const seriesData = rows
+		.map(r => {
+		  const time = r[xIdx];
+		  const category = r[yIdx];
+		  if (time == null || category == null) return null; // 過濾無效數據
+		  const yValue = categories.indexOf(category);
+		  return yValue >= 0 ? [time, yValue] : null; // 確保類別有效
+		})
+		.filter(item => item != null);
+
+	  if (seriesData.length === 0) {
+		alert("無有效的時間-類別數據，請檢查數據內容");
+		return;
+	  }
+
+	  const option = {
+		title: {
+		  text: `${yCol} 隨時間分布`
+		},
+		tooltip: {
+		  trigger: 'item',
+		  formatter: params => {
+			if (!params.data || !Array.isArray(params.data)) {
+			  return '無有效數據';
+			}
+			const [time, catIdx] = params.data;
+			return `時間: ${time}<br>類別: ${categories[catIdx] || '未知'}`;
+		  }
+		},
+		toolbox: {
+		  feature: {
+			restore: {},
+			saveAsImage: {}
+		  }
+		},
+		xAxis: {
+		  type: 'category', // 如果時間是字符串格式，使用 category
+		  // type: 'time', // 如果時間是日期格式，可使用 time
+		  name: xCol,
+		  data: [...new Set(rows.map(r => r[xIdx]).filter(val => val != null))], // 過濾無效時間
+		  axisLabel: {
+			rotate: 45 // 旋轉標籤以避免重疊
+		  }
+		},
+		yAxis: {
+		  type: 'category',
+		  name: yCol,
+		  data: categories // Y 軸顯示類別名稱
+		},
+		dataZoom: [
+		  { type: 'inside', xAxisIndex: 0 }, // X 軸內部縮放
+		  { type: 'slider', xAxisIndex: 0 }, // X 軸滑塊
+		  { type: 'inside', yAxisIndex: 0 }, // Y 軸內部縮放
+		  { type: 'slider', yAxisIndex: 0 }  // Y 軸滑塊
+		],
+		series: [{
+		  type: 'scatter',
+		  data: seriesData,
+		  symbolSize: 10,
+		  itemStyle: {
+			color: 'rgba(75,192,192,0.8)'
+		  }
+		}]
+	  };
+
+	  chart.setOption(option);
+	}
 
     function drawCategoryChart(type) {
       const xCol = document.getElementById('xField').value;

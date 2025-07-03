@@ -12,167 +12,568 @@
     <script type="module" src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js"></script>
     <style>
         :root {
-            --primary-color: #0d6efd;
-            --secondary-color: #6c757d;
-            --success-color: #198754;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #0dcaf0;
-            --light-bg: #f8f9fa;
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --danger-color: #dc2626;
+            --warning-color: #d97706;
+            --info-color: #0891b2;
+            --light-bg: #f8fafc;
             --card-bg: #ffffff;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            --gradient-warning: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            --gradient-danger: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
         }
-        body { background-color: var(--light-bg); font-family: 'Segoe UI', sans-serif; }
-        .container-fluid { padding: 25px; max-width: 1200px; margin: 0 auto; }
-        .card { background-color: var(--card-bg); border: none; border-radius: 10px; box-shadow: var(--shadow); margin-bottom: 25px; transition: transform 0.2s ease; }
-        .card:hover { transform: translateY(-2px); }
-        .card-body { padding: 20px; }
-        .card-title { font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin-bottom: 15px; }
-        #video-container { position: relative; width: 100%; max-width: 450px; margin: 0 auto 20px; }
-        #video { width: 100%; height: auto; border-radius: 8px; box-shadow: var(--shadow); }
-        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        .table-container { max-height: 300px; overflow-y: auto; margin-top: 20px; }
-        .request-status { max-height: 300px; overflow-y: auto; }
-        .step-guide { background-color: #e9ecef; }
-        .step-item { display: flex; align-items: center; margin-bottom: 15px; }
-        .step-item .step-number { width: 30px; height: 30px; background-color: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; flex-shrink: 0; }
-        .form-label { font-weight: 500; color: #343a40; }
-        .table th { background-color: var(--primary-color); color: white; font-weight: 600; position: sticky; top: 0; z-index: 1; }
-        .btn { padding: 8px 16px; border-radius: 6px; transition: all 0.2s ease; }
-        .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); }
-        .btn-group-custom { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-        .status-item { padding: 15px; border-bottom: 1px solid #e9ecef; transition: background-color 0.3s; }
-        .status-success { background-color: #d4edda; }
-        .status-error { background-color: #f8d7da; }
-        .result { word-wrap: break-word; font-size: 0.9rem; padding: 8px 12px; background-color: #f1f3f5; border-radius: 6px; margin-top: 8px; white-space: pre-wrap; }
-        .result.success { color: #155724; border-left: 4px solid var(--success-color); }
-        .result.error { color: #721c24; border-left: 4px solid var(--danger-color); }
-        .status-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 5px 0; }
-        .status-number { font-weight: 600; color: var(--primary-color); }
-        .status-url { font-size: 0.85rem; color: #495057; word-break: break-all; max-width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .progress { height: 18px; border-radius: 4px; }
-        .divider { border-top: 1px solid #e9ecef; margin: 20px 0; }
-        .advanced-settings { display: none; }
-        .advanced-settings.show { display: block; }
-        /* Stepper Styles */
-        .stepper {
+        body { 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .container-fluid { 
+            padding: 20px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .card { 
+            background-color: var(--card-bg); 
+            border: 1px solid var(--border-color);
+            border-radius: 8px; 
+            box-shadow: var(--shadow); 
+            margin-bottom: 20px; 
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+        .card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: var(--shadow-lg);
+        }
+        .card-body { 
+            padding: 16px; 
+        }
+        .card-title { 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            color: var(--text-primary);
+            margin-bottom: 16px;
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            counter-reset: step;
+            align-items: center;
+            gap: 8px;
         }
-        .stepper .step {
-            text-align: center;
+        #video-container { 
             position: relative;
-            flex: 1;
+            width: 100%; 
+            max-width: 400px; 
+            margin: 0 auto 16px; 
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
-        .stepper .step::before {
-            counter-increment: step;
-            content: counter(step);
-            width: 30px;
-            height: 30px;
-            line-height: 30px;
-            border: 2px solid var(--primary-color);
+        #video { 
+            width: 100%; 
+            height: auto; 
+            border-radius: 8px; 
             display: block;
-            text-align: center;
-            margin: 0 auto 10px;
-            border-radius: 50%;
-            background-color: white;
-            z-index: 1;
-            position: relative;
         }
-        .stepper .step::after {
-            content: '';
+        #overlay { 
             position: absolute;
-            top: 15px;
-            left: 50%;
+            top: 0; 
+            left: 0; 
             width: 100%;
-            height: 2px;
-            background-color: var(--primary-color);
-            z-index: 0;
+            height: 100%; 
+            pointer-events: none; 
+            border-radius: 8px;
         }
-        .stepper .step:last-child::after {
-            display: none;
+        .table-container { 
+            max-height: 300px; 
+            overflow-y: auto; 
+            margin-top: 16px; 
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
         }
-        .stepper .step.active::before {
-            background-color: var(--primary-color);
+        .request-status { 
+            max-height: 300px; 
+            overflow-y: auto; 
+            scroll-behavior: smooth;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .status-item { 
+            padding: 8px; 
+            border-bottom: 1px solid #e9ecef; 
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 6px;
+        }
+        
+        .status-success { 
+            background: #d4edda; 
+        } 
+        
+        .status-error { 
+            background: #f8d7da; 
+        }
+        
+        .result { 
+            font-size: 0.85rem; 
+            padding: 6px; 
+            background: #f1f3f5; 
+            border-radius: 6px; 
+            margin-top: 5px; 
+            cursor: pointer; 
+        }
+        
+        .result.success { 
+            color: #155724; 
+            border-left: 4px solid var(--success-color); 
+        }
+        
+        .result.error { 
+            color: #721c24; 
+            border-left: 4px solid var(--danger-color); 
+        }
+        
+        .request-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .step-guide { 
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border: 1px solid var(--border-color);
+        }
+        .step-item { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 8px; 
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        .step-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(2px);
+        }
+        .step-item .step-number { 
+            width: 24px; 
+            height: 24px; 
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin-right: 8px; 
+            flex-shrink: 0;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .form-label { 
+            font-weight: 600; 
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .table th { 
+            background: var(--primary-color);
+            color: white; 
+            font-weight: 600; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1;
+            border: none;
+            padding: 12px 8px;
+            font-size: 0.85rem;
+        }
+        .btn { 
+            padding: 8px 16px; 
+            border-radius: 6px; 
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.85rem;
+            border: none;
+            background-color: #6c757d;
             color: white;
         }
-        .stepper .step.active::after {
-            background-color: var(--primary-color);
+        .btn:hover { 
+            transform: translateY(-1px); 
+            box-shadow: var(--shadow);
+            background-color: #5a6268;
         }
+        .btn.btn-primary {
+            background-color: #007bff;
+        }
+        .btn.btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn.btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn.btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn.btn-danger {
+            background-color: #dc3545;
+        }
+        .btn.btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn.btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .btn.btn-warning:hover {
+            background-color: #e0a800;
+        }
+        .btn.btn-info {
+            background-color: #17a2b8;
+        }
+        .btn.btn-info:hover {
+            background-color: #138496;
+        }
+        .btn.btn-outline-secondary {
+            background-color: transparent;
+            color: #6c757d;
+            border: 1px solid #6c757d;
+        }
+        .btn.btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-group-custom { 
+            display: flex; 
+            gap: 8px; 
+            justify-content: flex-start; 
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .status-item { 
+            padding: 6px; 
+            border-bottom: 1px solid var(--border-color); 
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            border: 1px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--primary-color);
+            opacity: 0.6;
+        }
+        
+        .status-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-success { 
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-left: 4px solid var(--success-color);
+        }
+        .status-success::before {
+            background: var(--success-color);
+        }
+        .status-error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-left: 4px solid var(--danger-color);
+        }
+        .status-error::before {
+            background: var(--danger-color);
+        }
+        .result { 
+            word-wrap: break-word; 
+            font-size: 0.65rem; 
+            padding: 4px 6px; 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+            border-radius: 3px; 
+            margin-top: 3px; 
+            white-space: pre-wrap;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            line-height: 1.3;
+        }
+        .result.success { 
+            color: var(--success-color); 
+            border-left: 3px solid var(--success-color);
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            box-shadow: 0 1px 4px rgba(34, 197, 94, 0.15);
+        }
+        .result.error { 
+            color: var(--danger-color); 
+            border-left: 3px solid var(--danger-color);
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            box-shadow: 0 1px 4px rgba(239, 68, 68, 0.15);
+        }
+        .status-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 6px; 
+            padding: 2px 0;
+            margin-bottom: 4px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 4px;
+        }
+        .status-number { 
+            font-weight: 600; 
+            color: var(--primary-color);
+            font-size: 0.7rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.15) 100%);
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+        }
+        .status-url { 
+            font-size: 0.65rem; 
+            color: var(--text-secondary);
+            word-break: break-all; 
+            max-width: 100%; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
+            background: linear-gradient(135deg, rgba(100, 116, 139, 0.08) 0%, rgba(100, 116, 139, 0.12) 100%);
+            padding: 2px 4px;
+            border-radius: 3px;
+            border: 1px solid rgba(100, 116, 139, 0.15);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+        .progress { 
+            height: 4px; 
+            border-radius: 2px;
+            background: rgba(100, 116, 139, 0.15);
+            overflow: hidden;
+            margin: 4px 0;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color) 0%, #3b82f6 100%);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 4px rgba(59, 130, 246, 0.3);
+        }
+        .divider { 
+            border-top: 1px solid var(--border-color); 
+            margin: 16px 0;
+            opacity: 0.6;
+        }
+        .advanced-settings { 
+            display: none;
+            background: rgba(248, 250, 252, 0.8);
+            border-radius: 6px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            margin-top: 12px;
+        }
+        .advanced-settings.show { 
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Excel風格表格 */
+        .excel-table {
+            border-collapse: collapse;
+            width: 100%;
+            background: white;
+            box-shadow: var(--shadow);
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .excel-table th {
+            background: var(--primary-color);
+            border: none;
+            padding: 10px 8px;
+            font-weight: 600;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            color: white;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .excel-table td {
+            border: 1px solid var(--border-color);
+            padding: 2px;
+            min-width: 120px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .excel-table input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 8px 6px;
+            background: transparent;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+        
+        .excel-table input:focus {
+            background: #dbeafe;
+            box-shadow: inset 0 0 0 2px var(--primary-color);
+        }
+        
+        .excel-table input:hover {
+            background: rgba(248, 250, 252, 0.8);
+        }
+        
+        .excel-table tr:nth-child(even) {
+            background-color: rgba(248, 250, 252, 0.5);
+        }
+        
+        .excel-table tr:hover {
+            background: #f0f9ff;
+        }
+        
+        .excel-table .selected {
+            background: #dbeafe;
+            box-shadow: inset 0 0 0 2px var(--primary-color);
+        }
+        
+        .excel-table .selected input {
+            background: #dbeafe;
+        }
+        
+        .excel-table .matched-row {
+            background: #dcfce7 !important;
+            animation: highlightRow 2s ease-in-out;
+        }
+        
+        .excel-table .matched-row input {
+            background: #dcfce7;
+            font-weight: 600;
+        }
+        
+        .excel-table .duplicate-row {
+            background: #fef3c7 !important;
+            animation: highlightDuplicate 1s ease-in-out;
+        }
+        
+        .excel-table .duplicate-row input {
+            background: #fef3c7;
+            font-weight: 600;
+        }
+        
+        .excel-table .current-request {
+            background: #dbeafe !important;
+            animation: highlightCurrent 1s ease-in-out;
+        }
+        
+        .excel-table .current-request input {
+            background: #dbeafe;
+            font-weight: 600;
+        }
+        
+        @keyframes highlightRow {
+            0% { background: #fef3c7; }
+            50% { background: #dcfce7; }
+            100% { background: #dcfce7; }
+        }
+        
+        @keyframes highlightDuplicate {
+            0% { background: #fef3c7; }
+            50% { background: #fef3c7; }
+            100% { background: #fef3c7; }
+        }
+        
+        @keyframes highlightCurrent {
+            0% { background: #fef3c7; }
+            50% { background: #dbeafe; }
+            100% { background: #dbeafe; }
+        }
+        
+        /* 表格行號 */
+        .row-number {
+            background: #f1f5f9;
+            border-right: 2px solid var(--border-color);
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            min-width: 35px;
+            max-width: 35px;
+            width: 35px;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+
+
         @media (max-width: 768px) {
-            .container-fluid { padding: 15px; }
+            .container-fluid { padding: 16px; }
             #video-container { max-width: 100%; }
-            .table-container, .request-status { max-height: 200px; }
-            .card-body { padding: 15px; }
-            .btn { padding: 6px 12px; }
-            .stepper { flex-direction: column; }
-            .stepper .step::after {
-                top: 50%;
-                left: 30px;
-                width: 2px;
-                height: calc(100% - 30px);
-                transform: translateX(-50%);
+            .table-container, .request-status { max-height: 250px; }
+            .card-body { padding: 16px; }
+            .btn { padding: 8px 12px; font-size: 0.8rem; }
+            .btn-group-custom { gap: 6px; }
+
+            .excel-table input {
+                padding: 6px 4px;
+                font-size: 0.85rem;
             }
-            .stepper .step:last-child::after {
-                display: none;
+            .card-title {
+                font-size: 1.1rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="container-fluid">
-        <!-- Stepper -->
-        <div class="stepper">
-            <div class="step active">
-                <div class="step-title">配置請求</div>
-            </div>
-            <div class="step">
-                <div class="step-title">管理參數</div>
-            </div>
-            <div class="step">
-                <div class="step-title">掃描 QR 碼</div>
-            </div>
-            <div class="step">
-                <div class="step-title">查看狀態</div>
-            </div>
-        </div>
-
         <div class="row justify-content-center">
             <div class="col-12">
 
-                <h2 class="mb-4 text-center text-primary">批量自訂參數的HTTP請求器(QRcode及TSV格式參數)</h2>
+                <h2 class="mb-4 text-center" style="color: var(--primary-color); font-weight: 700; font-size: 1.5rem;">🚀 批量自訂參數的HTTP請求器</h2>
 
-                <!-- 操作步驟指南 -->
-                <div class="card step-guide">
-                    <div class="card-body">
-                        <h5 class="card-title">操作說明</h5>
-                        <div style="counter-reset: step;">
-                            <div class="step-item">
-                                <div class="step-number">1</div>
-                                <div>導入配置（可選）：點擊「匯入配置」載入已有設置。</div>
-                            </div>
-                            <div class="step-item">
-                                <div class="step-number">2</div>
-                                <div>設置請求：配置請求方法、URL 模板、授權方式等。</div>
-                            </div>
-                            <div class="step-item">
-                                <div class="step-number">3</div>
-                                <div>輸入參數：在參數管理區輸入或批量添加數據。</div>
-                            </div>
-                            <div class="step-item">
-                                <div class="step-number">4</div>
-                                <div>掃描 QR 碼：啟動攝像頭掃描並查看結果。</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
 
                 <!-- 請求配置區 -->
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">請求配置</h5>
+                        <h5 class="card-title">⚙️ 請求配置</h5>
                         <div class="mb-3">
                             <label for="request-method" class="form-label">請求方法</label>
                             <select class="form-select" id="request-method">
@@ -191,12 +592,12 @@
                             </div>
                             <div class="mb-3">
                                 <label for="post-body-template" class="form-label">POST JSON 模板 <span class="text-muted">(使用 {Parameter1}, {Parameter_qrcode} 等)</span></label>
-                                <textarea class="form-control" id="post-body-template" rows="4" placeholder='{
+                                <textarea class="form-control" id="post-body-template" rows="4">{
     "CmdCode": "{Parameter1}",
     "Params": "{Parameter2}",
     "IMEI": "{Parameter_qrcode}",
     "CheckCode": "{Parameter3}"
-    }'></textarea>
+}</textarea>
                             </div>
                         </div>
 
@@ -235,7 +636,7 @@
                             <input type="text" class="form-control" id="auth-apikey-value" placeholder="輸入您的 API Key">
                         </div>
 
-                        <button class="btn btn-outline-secondary mb-3" id="toggle-advanced">進階設置</button>
+                        <button class="btn btn-secondary mb-3" id="toggle-advanced">進階設置</button>
                         <div class="advanced-settings" id="advanced-settings">
                             <div class="mb-3">
                                 <label for="qrcode-pre-modify-remove" class="form-label">Parameter_qrcode 預移除字眼</label>
@@ -254,8 +655,8 @@
                             </div>
                         </div>
                         <div class="btn-group-custom mt-4">
-                            <button class="btn btn-warning" id="clear-storage"><i class="bi bi-trash"></i> 清空儲存</button>
-                            <button class="btn btn-info" id="export-config"><i class="bi bi-download"></i> 匯出配置</button>
+                            <button class="btn btn-secondary" id="clear-storage"><i class="bi bi-trash"></i> 清空儲存</button>
+                            <button class="btn btn-primary" id="export-config"><i class="bi bi-download"></i> 匯出配置</button>
                             <input type="file" id="import-config" accept=".json" style="display: none;">
                             <button class="btn btn-primary" id="import-config-btn"><i class="bi bi-upload"></i> 匯入配置</button>
                         </div>
@@ -265,48 +666,70 @@
                 <!-- 參數管理區 -->
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">參數管理</h5>
-                        <textarea class="form-control" id="batch-input" rows="4" placeholder="批量輸入格式：每行一組數據，用空格分隔多項
-例如：
-value1 value2 value3
-或
-data1 data2 data3"></textarea>
-                        <div class="btn-group-custom mt-3">
-                            <button class="btn btn-primary" id="batch-submit"><i class="bi bi-plus-circle"></i> 批量添加</button>
-                            <button class="btn btn-secondary" id="add-row"><i class="bi bi-file-earmark-plus"></i> 單行添加</button>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">📊 參數管理</h5>
+                            <div class="btn-group-custom">
+                                <button class="btn btn-primary" id="add-row"><i class="bi bi-plus"></i> 新增行</button>
+                                <button class="btn btn-primary" id="add-col"><i class="bi bi-plus-square"></i> 新增列</button>
+                                <button class="btn btn-secondary" id="del-row"><i class="bi bi-dash"></i> 刪除行</button>
+                                <button class="btn btn-secondary" id="del-col"><i class="bi bi-dash-square"></i> 刪除列</button>
+                                <button class="btn btn-secondary" id="clear-table"><i class="bi bi-trash"></i> 清空表格</button>
+                                <button class="btn btn-primary" id="export-table" title="匯出為TSV格式，可用Excel開啟"><i class="bi bi-download"></i> 匯出TSV</button>
+                                <input type="file" id="import-table" accept=".txt,.tsv,.csv,.xlsx,.xls" style="display:none;">
+                                <button class="btn btn-primary" id="import-table-btn" title="支援TSV、CSV、Excel格式"><i class="bi bi-upload"></i> 匯入</button>
                         </div>
-                        <div class="divider"></div>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                💡 匯入格式：TSV (Tab分隔)、CSV (逗號分隔)、Excel (.xlsx/.xls) | 匯出格式：TSV (可用Excel開啟)
+                            </small>
+                        </div>
                         <div class="table-container">
-                            <table class="table table-bordered table-striped">
-                                <thead class="table-dark sticky-top">
-                                    <tr id="table-header"></tr>
+                            <table class="excel-table" id="excel-table">
+                                <thead>
+                                    <tr id="excel-header"></tr>
                                 </thead>
-                                <tbody id="data-table"></tbody>
+                                <tbody id="excel-body"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- 攝像頭區 -->
+                <!-- 攝像頭預覽與請求狀態區 -->
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">攝像頭預覽</h5>
+                        <h5 class="card-title">📷 攝像頭預覽與請求狀態</h5>
+                        <div class="row">
+                            <div class="col-md-6">
                         <div id="video-container">
                             <video id="video" muted playsinline></video>
                             <canvas id="overlay"></canvas>
                         </div>
-                        <div class="btn-group-custom">
-                            <button class="btn btn-success" id="start-scanning" disabled><i class="bi bi-play-circle"></i> 開始掃描</button>
-                            <button class="btn btn-danger" id="stop-scanning"><i class="bi bi-stop-circle"></i> 停止掃描</button>
                         </div>
+                            <div class="col-md-6">
+                                <div class="request-controls">
+                                    <button class="btn btn-sm btn-secondary" id="auto-scroll-toggle" title="自動滾動">
+                                        <i class="bi bi-arrow-down-circle"></i> 自動滾動
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" id="stop-requests" style="display: none;">
+                                        <i class="bi bi-stop-circle"></i> 停止請求
+                                    </button>
                     </div>
-                </div>
-
-                <!-- 請求狀態區 -->
-                <div class="card">
-                    <div class="card-body request-status">
-                        <h5 class="card-title">請求狀態</h5>
-                        <div id="status-container"></div>
+                                <div class="request-status">
+                                    <div id="status-container">
+                                        <div class="status-item">
+                                            <div>📷 等待掃描</div>
+                                            <div class="progress"><div class="progress-bar" style="width: 0%;"></div></div>
+                                            <div class="result-container mt-2">
+                                                <div class="result" style="text-align: center; color: #64748b; font-style: italic;">
+                                                    🎯 請將 QR 碼對準攝像頭進行掃描
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -321,73 +744,25 @@ data1 data2 data3"></textarea>
         let scanning = false;
         let cameraActive = true;
         let videoStream = null;
-        const tableBody = document.getElementById('data-table');
-        const tableHeader = document.getElementById('table-header');
+        let isRequesting = false; // 控制請求狀態
+        let autoScrollEnabled = true; // 控制自動滾動
         const statusContainer = document.getElementById('status-container');
-        let maxParams = 0;
 
-        function updateStepper(currentStep) {
-            const steps = document.querySelectorAll('.stepper .step');
-            steps.forEach((step, index) => {
-                if (index < currentStep) {
-                    step.classList.add('active');
-                } else {
-                    step.classList.remove('active');
-                }
-            });
-        }
+        // Excel表格資料結構
+        let excelData = [["",""]]; // 預設1行2列
+        const excelBody = document.getElementById('excel-body');
+        const excelHeader = document.getElementById('excel-header');
+        let selectedCell = null; // 當前選中的單元格
 
-        function updateTableHeader(paramCount) {
-            if (paramCount > maxParams) {
-                tableHeader.innerHTML = '';
-                for (let i = 1; i <= paramCount; i++) {
-                    const th = document.createElement('th');
-                    th.textContent = `Parameter${i}`;
-                    tableHeader.appendChild(th);
-                }
-                maxParams = paramCount;
 
-                const rows = tableBody.getElementsByTagName('tr');
-                for (let row of rows) {
-                    const currentCells = row.getElementsByTagName('td');
-                    const currentLength = currentCells.length;
-                    if (currentLength < paramCount) {
-                        for (let i = currentLength; i < paramCount; i++) {
-                            const td = document.createElement('td');
-                            td.innerHTML = '<input type="text" class="form-control" value="">';
-                            row.appendChild(td);
-                        }
-                    }
-                }
-            }
-        }
 
-        function addRow(data = []) {
-            const row = document.createElement('tr');
-            const columnCount = data.length || maxParams;
-            updateTableHeader(columnCount);
-
-            let cells = '';
-            for (let i = 0; i < columnCount; i++) {
-                const value = data[i] || '';
-                cells += `<td><input type="text" class="form-control" value="${value}"></td>`;
-            }
-            row.innerHTML = cells;
-            tableBody.appendChild(row);
-            saveToLocalStorage();
-        }
+        // 移除舊的表格相關函數，改用Excel風格表格
 
         function saveToLocalStorage() {
-            const rows = tableBody.getElementsByTagName('tr');
-            const tableData = Array.from(rows).map(row => {
-                const inputs = row.getElementsByTagName('input');
-                return Array.from(inputs).map(input => input.value.trim());
-            });
-            
             const authConfig = getAuthConfig();
 
             const config = {
-                tableData: tableData,
+                excelData: excelData,
                 requestMethod: document.getElementById('request-method').value,
                 getUrlTemplate: document.getElementById('get-url-template').value,
                 postUrlTemplate: document.getElementById('post-url-template').value,
@@ -429,13 +804,14 @@ data1 data2 data3"></textarea>
             if (savedConfig) {
                 const config = JSON.parse(savedConfig);
                 applyConfig(config);
-                updateStepper(2); // Assuming steps 1 and 2 are completed
             }
         }
 
         function applyConfig(config) {
-            tableBody.innerHTML = '';
-            config.tableData.forEach(values => addRow(values));
+            if (config.excelData) {
+                excelData = config.excelData;
+                renderExcelTable();
+            }
             document.getElementById('request-method').value = config.requestMethod || 'GET';
             document.getElementById('get-url-template').value = config.getUrlTemplate || '';
             document.getElementById('post-url-template').value = config.postUrlTemplate || '';
@@ -477,9 +853,8 @@ data1 data2 data3"></textarea>
         function clearStorage() {
             if (confirm('確定要清空所有儲存的數據嗎？此操作無法復原！')) {
                 localStorage.removeItem('qrScannerConfig');
-                tableBody.innerHTML = '';
-                maxParams = 0;
-                tableHeader.innerHTML = '';
+                excelData = [["",""]];
+                renderExcelTable();
                 document.getElementById('request-method').value = 'GET';
                 document.getElementById('get-url-template').value = '';
                 document.getElementById('post-url-template').value = '';
@@ -495,7 +870,6 @@ data1 data2 data3"></textarea>
                 hideAllAuthFields();
 
                 statusContainer.innerHTML = '<div class="alert alert-success">已清空所有儲存數據</div>';
-                updateStepper(1);
             }
         }
 
@@ -523,7 +897,6 @@ data1 data2 data3"></textarea>
                     const config = JSON.parse(e.target.result);
                     applyConfig(config);
                     statusContainer.innerHTML = '<div class="alert alert-success">配置已成功匯入</div>';
-                    updateStepper(4);
                 } catch (error) {
                     statusContainer.innerHTML = `<div class="alert alert-danger">匯入失敗：無效的 JSON 格式 (${error.message})</div>`;
                 }
@@ -532,26 +905,307 @@ data1 data2 data3"></textarea>
             document.getElementById('import-config').value = '';
         }
 
-        document.getElementById('batch-submit').addEventListener('click', () => {
-            const input = document.getElementById('batch-input').value;
-            const lines = input.trim().split('\n').map(line => line.trim().split(/\s+/).filter(Boolean));
-            if (lines.length === 0) return;
-            lines.forEach(values => addRow(values));
-            document.getElementById('batch-input').value = '';
-            updateStepper(2);
+        function renderExcelTable() {
+            // 渲染表頭
+            excelHeader.innerHTML = '<th class="row-number">#</th>' + excelData[0].map((_,i)=>`<th>對應值${i+1}</th>`).join('');
+            // 渲染表身
+            excelBody.innerHTML = excelData.map((row,ri)=>
+                `<tr><td class="row-number">${ri+1}</td>`+
+                row.map((cell,ci)=>`<td><input type="text" value="${cell}" data-row="${ri}" data-col="${ci}" class="form-control excel-input" placeholder="輸入數據"></td>`).join('')+
+                '</tr>'
+            ).join('');
+            // 綁定事件
+            document.querySelectorAll('.excel-input').forEach(input=>{
+                input.addEventListener('input',e=>{
+                    const r=+input.dataset.row,c=+input.dataset.col;
+                    excelData[r][c]=input.value;
+                    saveToLocalStorage();
+                });
+                input.addEventListener('focus',()=>{
+                    selectCell(input);
+                    input.select();
+                });
+            });
+        }
+
+        // 選中單元格
+        function selectCell(input) {
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+            }
+            selectedCell = input;
+            input.classList.add('selected');
+        }
+
+        function addExcelRow() {
+            excelData.push(Array(excelData[0].length).fill(""));
+            renderExcelTable();
+            saveToLocalStorage();
+        }
+
+        function addExcelCol() {
+            excelData.forEach(row=>row.push(""));
+            renderExcelTable();
+            saveToLocalStorage();
+        }
+
+        function delExcelRow() {
+            if(excelData.length>1){excelData.pop();renderExcelTable();saveToLocalStorage();}
+        }
+
+        function delExcelCol() {
+            if(excelData[0].length>2){excelData.forEach(row=>row.pop());renderExcelTable();saveToLocalStorage();}
+        }
+
+        function clearExcelTable() {
+            excelData = [["",""]];
+            renderExcelTable();
+            saveToLocalStorage();
+        }
+
+        function exportExcelTable() {
+            const tsv = excelData.map(row=>row.join('\t')).join('\n');
+            const blob = new Blob([tsv],{type:'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'params.tsv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importExcelTableFile(e) {
+            const file = e.target.files[0];
+            if(!file)return;
+            const reader = new FileReader();
+            reader.onload = function(ev){
+                const lines = ev.target.result.split(/\r?\n/).filter(Boolean);
+                excelData = lines.map(line=>line.split(/\t|,|\s+/));
+                if(excelData.length===0)excelData=[["",""]];
+                renderExcelTable();
+                saveToLocalStorage();
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        }
+
+        document.getElementById('add-row').onclick = addExcelRow;
+        document.getElementById('add-col').onclick = addExcelCol;
+        document.getElementById('del-row').onclick = delExcelRow;
+        document.getElementById('del-col').onclick = delExcelCol;
+        document.getElementById('clear-table').onclick = clearExcelTable;
+        document.getElementById('export-table').onclick = exportExcelTable;
+        document.getElementById('import-table-btn').onclick = ()=>document.getElementById('import-table').click();
+        document.getElementById('import-table').onchange = importExcelTableFile;
+        
+        // 鍵盤事件處理
+        document.addEventListener('keydown', function(e) {
+            if (selectedCell) {
+                const row = parseInt(selectedCell.dataset.row);
+                const col = parseInt(selectedCell.dataset.col);
+                
+                switch(e.key) {
+                    case 'Tab':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            // 向左移動
+                            if (col > 0) {
+                                const inputs = document.querySelectorAll('.excel-input');
+                                const currentIndex = Array.from(inputs).indexOf(selectedCell);
+                                inputs[currentIndex - 1].focus();
+                            } else if (row > 0) {
+                                const inputs = document.querySelectorAll('.excel-input');
+                                const currentIndex = Array.from(inputs).indexOf(selectedCell);
+                                const prevRowIndex = currentIndex - excelData[0].length;
+                                if (prevRowIndex >= 0) {
+                                    inputs[prevRowIndex + excelData[0].length - 1].focus();
+                                }
+                            }
+                        } else {
+                            // 向右移動
+                            if (col < excelData[0].length - 1) {
+                                const inputs = document.querySelectorAll('.excel-input');
+                                const currentIndex = Array.from(inputs).indexOf(selectedCell);
+                                inputs[currentIndex + 1].focus();
+                            } else {
+                                // 如果是最後一列，新增一列
+                                addExcelCol();
+                                // 聚焦到新列的輸入框
+                                setTimeout(() => {
+                                    const inputs = document.querySelectorAll('.excel-input');
+                                    const currentIndex = Array.from(inputs).indexOf(selectedCell);
+                                    inputs[currentIndex + 1].focus();
+                                }, 100);
+                            }
+                        }
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (row < excelData.length - 1) {
+                            const inputs = document.querySelectorAll('.excel-input');
+                            const currentIndex = Array.from(inputs).indexOf(selectedCell);
+                            inputs[currentIndex + excelData[0].length].focus();
+                        } else {
+                            // 如果是最後一行，新增一行
+                            addExcelRow();
+                            // 聚焦到新行的對應列
+                            setTimeout(() => {
+                                const inputs = document.querySelectorAll('.excel-input');
+                                const currentIndex = Array.from(inputs).indexOf(selectedCell);
+                                inputs[currentIndex + excelData[0].length].focus();
+                            }, 100);
+                        }
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (row > 0) {
+                            const inputs = document.querySelectorAll('.excel-input');
+                            const currentIndex = Array.from(inputs).indexOf(selectedCell);
+                            inputs[currentIndex - excelData[0].length].focus();
+                        }
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (row < excelData.length - 1) {
+                            const inputs = document.querySelectorAll('.excel-input');
+                            const currentIndex = Array.from(inputs).indexOf(selectedCell);
+                            inputs[currentIndex + excelData[0].length].focus();
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        if (col > 0) {
+                            const inputs = document.querySelectorAll('.excel-input');
+                            const currentIndex = Array.from(inputs).indexOf(selectedCell);
+                            inputs[currentIndex - 1].focus();
+                        }
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        if (col < excelData[0].length - 1) {
+                            const inputs = document.querySelectorAll('.excel-input');
+                            const currentIndex = Array.from(inputs).indexOf(selectedCell);
+                            inputs[currentIndex + 1].focus();
+                        }
+                        break;
+                }
+            }
         });
 
-        document.getElementById('add-row').addEventListener('click', () => {
-            addRow([]);
-            updateStepper(2);
+        // 複製貼上處理 - 只在Excel表格內生效
+        document.getElementById('excel-table').addEventListener('paste', function(e) {
+            if (selectedCell) {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text');
+                const lines = pastedData.split('\n');
+                
+                let startRow = parseInt(selectedCell.dataset.row);
+                let startCol = parseInt(selectedCell.dataset.col);
+                
+                lines.forEach((line, rowOffset) => {
+                    const cells = line.split('\t');
+                    const currentRow = startRow + rowOffset;
+                    
+                    if (currentRow >= excelData.length) {
+                        addExcelRow();
+                    }
+                    
+                    cells.forEach((cell, colOffset) => {
+                        const currentCol = startCol + colOffset;
+                        
+                        if (currentCol >= excelData[0].length) {
+                            addExcelCol();
+                        }
+                        
+                        if (excelData[currentRow] && excelData[currentRow][currentCol] !== undefined) {
+                            excelData[currentRow][currentCol] = cell.trim();
+                        }
+                    });
+                });
+                
+                renderExcelTable();
+                saveToLocalStorage();
+            }
         });
+        
+        // 高亮所有匹配的行並滾動到第一個匹配的行
+        function highlightAndScrollToRows(matchedRows) {
+            // 清除之前的高亮
+            const allRows = excelBody.getElementsByTagName('tr');
+            for (let i = 0; i < allRows.length; i++) {
+                allRows[i].classList.remove('matched-row');
+                allRows[i].classList.remove('duplicate-row');
+                allRows[i].classList.remove('current-request');
+            }
+            
+            // 高亮所有匹配的行
+            matchedRows.forEach((match, index) => {
+                const rowIndex = match.rowIndex;
+                if (allRows[rowIndex]) {
+                    if (index === 0) {
+                        // 第一個匹配用綠色高亮
+                        allRows[rowIndex].classList.add('matched-row');
+                    } else {
+                        // 後續重複用橙色高亮
+                        allRows[rowIndex].classList.add('duplicate-row');
+                    }
+                }
+            });
+            
+            // 滾動到第一個匹配的行
+            if (matchedRows.length > 0) {
+                const firstMatch = matchedRows[0];
+                const tableContainer = document.querySelector('.table-container');
+                const rowElement = allRows[firstMatch.rowIndex];
+                const rowTop = rowElement.offsetTop;
+                const containerHeight = tableContainer.clientHeight;
+                
+                // 計算滾動位置，讓第一個匹配的行在容器中間
+                const scrollTo = rowTop - containerHeight / 2 + rowElement.offsetHeight / 2;
+                
+                tableContainer.scrollTo({
+                    top: scrollTo,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // 高亮當前請求的行並滾動
+        function highlightCurrentRequest(rowIndex) {
+            // 清除之前的高亮
+            const allRows = excelBody.getElementsByTagName('tr');
+            for (let i = 0; i < allRows.length; i++) {
+                allRows[i].classList.remove('current-request');
+            }
+            
+            // 高亮當前請求的行
+            if (allRows[rowIndex]) {
+                allRows[rowIndex].classList.add('current-request');
+                
+                // 滾動到當前請求的行
+                const tableContainer = document.querySelector('.table-container');
+                const rowElement = allRows[rowIndex];
+                const rowTop = rowElement.offsetTop;
+                const containerHeight = tableContainer.clientHeight;
+                
+                // 計算滾動位置，讓當前請求的行在容器中間
+                const scrollTo = rowTop - containerHeight / 2 + rowElement.offsetHeight / 2;
+                
+                tableContainer.scrollTo({
+                    top: scrollTo,
+                    behavior: 'smooth'
+                });
+            }
+        }
+        
+        // 初始化渲染
+        renderExcelTable();
 
         document.getElementById('request-method').addEventListener('change', (e) => {
             const method = e.target.value;
             document.getElementById('get-config').style.display = method === 'GET' ? 'block' : 'none';
             document.getElementById('post-config').style.display = method === 'POST' ? 'block' : 'none';
             saveToLocalStorage();
-            updateStepper(2);
         });
 
         ['get-url-template', 'post-url-template', 'post-body-template', 'qrcode-pre-modify-remove', 
@@ -620,14 +1274,11 @@ data1 data2 data3"></textarea>
                     const overlay = document.getElementById('overlay');
                     overlay.width = video.videoWidth;
                     overlay.height = video.videoHeight;
-                    if (cameraActive) {
+                    cameraActive = true;
                         requestAnimationFrame(() => captureFrame(video));
-                    }
                 });
 
-                document.getElementById('start-scanning').disabled = true;
-                document.getElementById('stop-scanning').disabled = false;
-                updateStepper(3);
+
             } catch (error) {
                 console.error('無法訪問相機:', error);
                 statusContainer.innerHTML = '<div class="alert alert-danger">無法啟動攝像頭，請檢查權限或設備</div>';
@@ -642,9 +1293,6 @@ data1 data2 data3"></textarea>
                 video.srcObject = null;
                 cameraActive = false;
                 scanning = false;
-                document.getElementById('start-scanning').disabled = false;
-                document.getElementById('stop-scanning').disabled = true;
-                updateStepper(4);
             }
         }
 
@@ -663,14 +1311,7 @@ data1 data2 data3"></textarea>
             }
         }
 
-        function formatResponse(text, isSuccess) {
-            const maxLength = 200;
-            let formattedText = text.trim();
-            if (formattedText.length > maxLength) {
-                formattedText = `${formattedText.substring(0, maxLength)} ... (點擊展開)`;
-            }
-            return `<div class="result ${isSuccess ? 'success' : 'error'}">${formattedText}</div>`;
-        }
+
 
         function preModifyQrcode(qrCode, removeRule, addRule) {
             let modifiedQrcode = qrCode;
@@ -714,21 +1355,59 @@ data1 data2 data3"></textarea>
                         drawHighlight(result);
 
                         let Parameter_qrcode = result.data;
+                        
+                        // 檢查QR碼是否為空值
+                        if (!Parameter_qrcode || Parameter_qrcode.trim() === '') {
+                            setTimeout(() => requestAnimationFrame(() => captureFrame(video)), 500); // 延遲0.5秒後繼續掃描
+                            return;
+                        }
+                        
                         const preModifyRemoveRule = document.getElementById('qrcode-pre-modify-remove').value.trim();
                         const preModifyAddRule = document.getElementById('qrcode-pre-modify-add').value.trim();
                         Parameter_qrcode = preModifyQrcode(Parameter_qrcode, preModifyRemoveRule, preModifyAddRule);
+                        
+                        // 再次檢查修改後的QR碼是否為空值
+                        if (!Parameter_qrcode || Parameter_qrcode.trim() === '') {
+                            setTimeout(() => requestAnimationFrame(() => captureFrame(video)), 500); // 延遲0.5秒後繼續掃描
+                            return;
+                        }
                         const method = document.getElementById('request-method').value;
-                        const rows = tableBody.getElementsByTagName('tr');
                         const interval = parseInt(document.getElementById('request-interval').value) || 0;
 
                         scanning = true;
+                        isRequesting = true;
                         statusContainer.innerHTML = '';
 
-                        if (rows.length === 0) {
+                        // 顯示停止請求按鈕
+                        document.getElementById('stop-requests').style.display = 'inline-block';
+
+                        if (excelData.length === 0 || (excelData.length === 1 && excelData[0].every(cell => !cell))) {
                             statusContainer.innerHTML = '<div class="alert alert-warning">表格中無數據，請先添加參數</div>';
                             scanning = false;
+                            isRequesting = false;
+                            document.getElementById('stop-requests').style.display = 'none';
                             setTimeout(() => requestAnimationFrame(() => captureFrame(video)), 1000); // 延遲1秒後繼續掃描
                             return;
+                        }
+
+                        // 在表格中查找匹配的QR碼
+                        let matchedRows = [];
+                        for (let rowIndex = 0; rowIndex < excelData.length; rowIndex++) {
+                            const row = excelData[rowIndex];
+                            for (let colIndex = 0; colIndex < row.length; colIndex++) {
+                                if (row[colIndex] === Parameter_qrcode) {
+                                    matchedRows.push({
+                                        row: row,
+                                        col: colIndex,
+                                        rowIndex: rowIndex
+                                    });
+                                }
+                            }
+                        }
+                        
+                        // 高亮匹配的行
+                        if (matchedRows.length > 0) {
+                            highlightAndScrollToRows(matchedRows);
                         }
 
                         // Prepare Authorization headers if enabled
@@ -762,49 +1441,77 @@ data1 data2 data3"></textarea>
                             }
                         }
 
-                        for (let i = 0; i < rows.length; i++) {
+                        for (let i = 0; i < excelData.length; i++) {
+                            // 檢查是否要停止請求
+                            if (!isRequesting) {
+                                break;
+                            }
+                            
                             await new Promise(resolve => setTimeout(resolve, interval * i));
 
-                            const inputs = rows[i].getElementsByTagName('input');
+                            // 再次檢查是否要停止請求
+                            if (!isRequesting) {
+                                break;
+                            }
+
+                            // 高亮當前請求的行
+                            highlightCurrentRequest(i);
+
+                            const rowData = excelData[i];
                             const params = { Parameter_qrcode };
-                            for (let j = 0; j < inputs.length; j++) {
-                                params[`Parameter${j + 1}`] = inputs[j].value.trim() || '';
+                            for (let j = 0; j < rowData.length; j++) {
+                                params[`Parameter${j + 1}`] = rowData[j] || '';
                             }
 
                             const statusItem = document.createElement('div');
                             statusItem.className = 'status-item';
                             statusItem.innerHTML = `
-                                <div class="status-header">
-                                    <span class="status-number">請求 ${i + 1}/${rows.length}</span>
-                                    <span class="status-url"></span>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
+                                <div>請求 ${i + 1}/${excelData.length}</div>
+                                <div class="progress"><div class="progress-bar" style="width: 20%;"></div></div>
                                 <div class="result-container mt-2"></div>
                             `;
                             statusContainer.appendChild(statusItem);
-                            const urlSpan = statusItem.querySelector('.status-url');
+                            
+                            // 自動滾動到最底部
+                            if (autoScrollEnabled) {
+                                const requestStatusContainer = document.querySelector('.request-status');
+                                if (requestStatusContainer) {
+                                    requestStatusContainer.scrollTop = requestStatusContainer.scrollHeight;
+                                }
+                            }
+                            
                             const progressBar = statusItem.querySelector('.progress-bar');
                             const resultContainer = statusItem.querySelector('.result-container');
 
+                            try {
                             if (method === 'GET') {
                                 let url = document.getElementById('get-url-template').value;
                                 for (const [key, value] of Object.entries(params)) {
                                     url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(value));
                                 }
-                                urlSpan.textContent = url;
                                 progressBar.style.width = '50%';
                                 const response = await sendRequest('GET', url, null, authHeaders);
                                 progressBar.style.width = '100%';
                                 if (response.success) {
                                     progressBar.classList.add('bg-success');
                                     statusItem.classList.add('status-success');
-                                    resultContainer.innerHTML = formatResponse(`成功：${response.data}`, true);
+                                    const resultText = `成功：${response.data}`;
+                                    const shortText = resultText.length > 100 ? resultText.substring(0, 100) + '... (點擊展開)' : resultText;
+                                    resultContainer.innerHTML = `<div class="result success" data-full="${resultText}">${shortText}</div>`;
                                 } else {
                                     progressBar.classList.add('bg-danger');
                                     statusItem.classList.add('status-error');
-                                    resultContainer.innerHTML = formatResponse(`失敗：${response.error}`, false);
+                                    const resultText = `失敗：${response.error}`;
+                                    const shortText = resultText.length > 100 ? resultText.substring(0, 100) + '... (點擊展開)' : resultText;
+                                    resultContainer.innerHTML = `<div class="result error" data-full="${resultText}">${shortText}</div>`;
+                                }
+                                
+                                // 請求完成後滾動到底部
+                                if (autoScrollEnabled) {
+                                    const requestStatusContainer = document.querySelector('.request-status');
+                                    if (requestStatusContainer) {
+                                        requestStatusContainer.scrollTop = requestStatusContainer.scrollHeight;
+                                    }
                                 }
                             } else if (method === 'POST') {
                                 let url = document.getElementById('post-url-template').value;
@@ -814,17 +1521,14 @@ data1 data2 data3"></textarea>
                                     bodyStr = bodyStr.replace(new RegExp(`{${key}}`, 'g'), value);
                                 }
                                 bodyStr = bodyStr.replace(/,\s*}/g, '}').replace(/\s+/g, ' ');
-                                urlSpan.textContent = `${url} (Body: ${bodyStr})`;
 
                                 let bodyObj = {};
                                 try {
                                     bodyObj = JSON.parse(bodyStr);
-                                    const formattedBody = JSON.stringify(bodyObj, null, 2);
-                                    resultContainer.innerHTML = formatResponse(`生成的 JSON:\n${formattedBody}`, true);
                                 } catch (e) {
                                     progressBar.classList.add('bg-danger');
                                     statusItem.classList.add('status-error');
-                                    resultContainer.innerHTML = formatResponse(`JSON 格式錯誤: ${e.message}`, false);
+                                    resultContainer.innerHTML = `<div class="result error">JSON 格式錯誤: ${e.message}</div>`;
                                     continue;
                                 }
 
@@ -834,17 +1538,40 @@ data1 data2 data3"></textarea>
                                 if (response.success) {
                                     progressBar.classList.add('bg-success');
                                     statusItem.classList.add('status-success');
-                                    resultContainer.innerHTML += formatResponse(`成功：${response.data}`, true);
+                                    const resultText = `成功：${response.data}`;
+                                    const shortText = resultText.length > 100 ? resultText.substring(0, 100) + '... (點擊展開)' : resultText;
+                                    resultContainer.innerHTML = `<div class="result success" data-full="${resultText}">${shortText}</div>`;
                                 } else {
                                     progressBar.classList.add('bg-danger');
                                     statusItem.classList.add('status-error');
-                                    resultContainer.innerHTML += formatResponse(`失敗：${response.error}`, false);
+                                    const resultText = `失敗：${response.error}`;
+                                    const shortText = resultText.length > 100 ? resultText.substring(0, 100) + '... (點擊展開)' : resultText;
+                                    resultContainer.innerHTML = `<div class="result error" data-full="${resultText}">${shortText}</div>`;
                                 }
+                                
+                                // 請求完成後滾動到底部
+                                if (autoScrollEnabled) {
+                                    const requestStatusContainer = document.querySelector('.request-status');
+                                    if (requestStatusContainer) {
+                                        requestStatusContainer.scrollTop = requestStatusContainer.scrollHeight;
+                                    }
+                                }
+                                }
+                            } finally {
+                                // 清除當前請求的高亮
+                                setTimeout(() => {
+                                    const allRows = excelBody.getElementsByTagName('tr');
+                                    if (allRows[i]) {
+                                        allRows[i].classList.remove('current-request');
+                                    }
+                                }, 1000);
                             }
                         }
 
                         setTimeout(() => {
                             scanning = false;
+                            isRequesting = false;
+                            document.getElementById('stop-requests').style.display = 'none';
                             if (cameraActive) requestAnimationFrame(() => captureFrame(video));
                         }, 3000);
                     } else {
@@ -856,13 +1583,44 @@ data1 data2 data3"></textarea>
                 });
         }
 
-        document.getElementById('start-scanning').addEventListener('click', () => {
-            cameraActive = true;
-            startCamera();
+        // 移除掃描按鈕事件監聽器，改為自動掃描
+
+        // 停止請求按鈕事件
+        document.getElementById('stop-requests').addEventListener('click', () => {
+            isRequesting = false;
+            document.getElementById('stop-requests').style.display = 'none';
+            statusContainer.innerHTML += '<div class="alert alert-warning">請求已停止</div>';
         });
 
-        document.getElementById('stop-scanning').addEventListener('click', () => {
-            stopCamera();
+        // 自動滾動切換按鈕事件
+        document.getElementById('auto-scroll-toggle').addEventListener('click', () => {
+            autoScrollEnabled = !autoScrollEnabled;
+            const toggleBtn = document.getElementById('auto-scroll-toggle');
+            if (autoScrollEnabled) {
+                toggleBtn.innerHTML = '<i class="bi bi-arrow-down-circle"></i> 自動滾動';
+                toggleBtn.classList.remove('btn-outline-secondary');
+                toggleBtn.classList.add('btn-secondary');
+            } else {
+                toggleBtn.innerHTML = '<i class="bi bi-arrow-down-circle-fill"></i> 停止滾動';
+                toggleBtn.classList.remove('btn-secondary');
+                toggleBtn.classList.add('btn-outline-secondary');
+            }
+        });
+
+
+
+        // 點擊結果展開/收起功能
+        statusContainer.addEventListener('click', e => {
+            if (e.target.classList.contains('result')) {
+                const text = e.target.textContent;
+                if (text.includes('... (點擊展開)')) {
+                    e.target.textContent = e.target.dataset.full || text;
+                } else if (text.length > 100) {
+                    const shortText = text.substring(0, 100) + '... (點擊展開)';
+                    e.target.dataset.full = text;
+                    e.target.textContent = shortText;
+                }
+            }
         });
 
         document.getElementById('clear-storage').addEventListener('click', clearStorage);

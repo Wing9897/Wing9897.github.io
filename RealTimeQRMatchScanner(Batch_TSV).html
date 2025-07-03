@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TVS QR碼匹配器</title>
+    <title>Excel風格QR碼映射工具</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- QR Scanner -->
@@ -486,7 +486,7 @@
 </head>
 <body>
     <div class="container my-4">
-        <h2 class="mb-4 text-center">TVS QR碼匹配器</h2>
+        <h2 class="mb-4 text-center">Excel風格QR碼映射工具</h2>
 
         <!-- 攝像頭區 -->
         <div class="camera-section mb-4">
@@ -504,7 +504,7 @@
                 <div class="scan-overlay">
                     <div class="scan-frame"></div>
                 </div>
-            </div>
+        </div>
         </div>
 
         <!-- 數據表格區 -->
@@ -521,6 +521,7 @@
                     <button class="btn btn-dark btn-sm" id="import-data">📥 匯入數據</button>
                     <div class="status-indicator info" id="data-status">
                         📊 數據行數: <span id="row-count">1</span> | 列數: <span id="col-count">2</span>
+                        <span id="storage-status" class="ms-2" style="font-size: 0.8em; color: #6c757d;">💾 已保存</span>
                     </div>
                 </div>
             </div>
@@ -550,7 +551,7 @@
             </div>
             <div class="debug-info" id="debug-info">
                 <span id="debug-content"></span>
-            </div>
+        </div>
         </div>
     </div>
 
@@ -606,10 +607,119 @@
             showDebugInfo(`表格數據已更新: ${JSON.stringify(tableData)}`);
         }
 
+        // 保存表格數據到本地存儲
+        function saveTableData() {
+            try {
+                localStorage.setItem('qrMappingTableData', JSON.stringify(tableData));
+                showDebugInfo('表格數據已保存到本地存儲');
+                
+                // 更新存儲狀態顯示
+                const storageStatus = document.getElementById('storage-status');
+                storageStatus.textContent = '💾 已保存';
+                storageStatus.style.color = '#28a745';
+                
+                // 2秒後恢復默認狀態
+                setTimeout(() => {
+                    storageStatus.textContent = '💾 已保存';
+                    storageStatus.style.color = '#6c757d';
+                }, 2000);
+            } catch (error) {
+                showDebugInfo('保存失敗: ' + error.message);
+                
+                // 顯示保存失敗狀態
+                const storageStatus = document.getElementById('storage-status');
+                storageStatus.textContent = '❌ 保存失敗';
+                storageStatus.style.color = '#dc3545';
+            }
+        }
+
+        // 從本地存儲加載表格數據
+        function loadTableData() {
+            try {
+                const savedData = localStorage.getItem('qrMappingTableData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    if (Array.isArray(data) && data.length > 0) {
+                        renderTableFromData(data);
+                        showDebugInfo('已從本地存儲加載表格數據');
+                        
+                        // 更新存儲狀態顯示
+                        const storageStatus = document.getElementById('storage-status');
+                        storageStatus.textContent = '💾 已加載';
+                        storageStatus.style.color = '#17a2b8';
+                        
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                showDebugInfo('加載失敗: ' + error.message);
+                return false;
+            }
+        }
+
+        // 從數據渲染表格
+        function renderTableFromData(data) {
+            // 清空現有表格
+            tableBody.innerHTML = '';
+            
+            // 更新表頭
+            const headerRow = document.querySelector('#excel-table thead tr');
+            headerRow.innerHTML = '<th class="row-number">#</th>';
+            for (let i = 0; i < data[0].length; i++) {
+                const headerCell = document.createElement('th');
+                headerCell.textContent = `對應值${i + 1}`;
+                headerRow.appendChild(headerCell);
+            }
+            
+            // 渲染數據行
+            data.forEach((row, rowIndex) => {
+                const newRow = document.createElement('tr');
+                
+                // 添加行號
+                const rowNumberCell = document.createElement('td');
+                rowNumberCell.className = 'row-number';
+                rowNumberCell.textContent = rowIndex + 1;
+                newRow.appendChild(rowNumberCell);
+                
+                // 添加數據列
+                row.forEach((cell, colIndex) => {
+                    const td = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = cell;
+                    input.dataset.row = rowIndex;
+                    input.dataset.col = colIndex;
+                    input.placeholder = '輸入數據';
+                    input.addEventListener('input', updateTableData);
+                    input.addEventListener('focus', () => selectCell(input));
+                    td.appendChild(input);
+                    newRow.appendChild(td);
+                });
+                
+                tableBody.appendChild(newRow);
+            });
+            
+            updateTableData();
+        }
+
+
+
+        // 防抖保存計時器
+        let saveTimeout = null;
+
         // 更新表格數據
         function updateTableData() {
             initializeTableData();
             updateStatus();
+            
+            // 防抖保存，避免過於頻繁的保存操作
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+            }
+            saveTimeout = setTimeout(() => {
+                saveTableData();
+            }, 1000); // 1秒後保存
         }
 
         // 新增行
@@ -737,6 +847,18 @@
             `;
             
             updateTableData();
+            // 清除本地存儲
+            try {
+                localStorage.removeItem('qrMappingTableData');
+                showDebugInfo('已清除本地存儲的表格數據');
+                
+                // 更新存儲狀態顯示
+                const storageStatus = document.getElementById('storage-status');
+                storageStatus.textContent = '🗂️ 已清除';
+                storageStatus.style.color = '#dc3545';
+            } catch (error) {
+                showDebugInfo('清除本地存儲失敗: ' + error.message);
+            }
             showDebugInfo('清空表格並還原預設');
         }
 
@@ -773,41 +895,18 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const content = e.target.result;
-                        const lines = content.split('\n');
+                        const lines = content.split('\n').filter(line => line.trim()); // 過濾空行
                         
-                        // 清空現有表格
-                        tableBody.innerHTML = '';
+                        if (lines.length === 0) {
+                            showDebugInfo('匯入文件為空或只包含空行');
+                            return;
+                        }
                         
-                        lines.forEach((line, rowIndex) => {
-                            if (line.trim()) {
-                                const cells = line.split('\t');
-                                const newRow = document.createElement('tr');
-                                
-                                // 添加行號
-                                const rowNumberCell = document.createElement('td');
-                                rowNumberCell.className = 'row-number';
-                                rowNumberCell.textContent = rowIndex + 1;
-                                newRow.appendChild(rowNumberCell);
-                                
-                                cells.forEach((cell, colIndex) => {
-                                    const td = document.createElement('td');
-                                    const input = document.createElement('input');
-                                    input.type = 'text';
-                                    input.value = cell.trim();
-                                    input.dataset.row = rowIndex;
-                                    input.dataset.col = colIndex;
-                                    input.placeholder = '輸入數據';
-                                    input.addEventListener('input', updateTableData);
-                                    input.addEventListener('focus', () => selectCell(input));
-                                    td.appendChild(input);
-                                    newRow.appendChild(td);
-                                });
-                                
-                                tableBody.appendChild(newRow);
-                            }
-                        });
+                        // 解析數據
+                        const data = lines.map(line => line.split('\t').map(cell => cell.trim()));
                         
-                        updateTableData();
+                        // 渲染表格
+                        renderTableFromData(data);
                         showDebugInfo(`匯入數據: ${lines.length} 行`);
                     };
                     reader.readAsText(file);
@@ -886,8 +985,8 @@
                         }
                         break;
                 }
-            }
-        });
+                }
+            });
 
         // 複製貼上處理
         document.addEventListener('paste', function(e) {
@@ -899,11 +998,20 @@
                 let startRow = parseInt(selectedCell.dataset.row);
                 let startCol = parseInt(selectedCell.dataset.col);
                 
-                lines.forEach((line, rowOffset) => {
+                // 過濾掉空行和只包含空白字符的行
+                const validLines = lines.filter(line => line.trim() !== '');
+                
+                if (validLines.length === 0) {
+                    showDebugInfo('貼上數據為空或只包含空行');
+                    return;
+                }
+                
+                validLines.forEach((line, rowOffset) => {
                     const cells = line.split('\t');
                     const currentRow = startRow + rowOffset;
                     
-                    if (currentRow >= tableBody.rows.length) {
+                    // 確保行存在
+                    while (currentRow >= tableBody.rows.length) {
                         addRow();
                     }
                     
@@ -911,18 +1019,21 @@
                         const currentCol = startCol + colOffset;
                         const row = tableBody.rows[currentRow];
                         
-                        if (currentCol >= row.cells.length - 1) { // 減去行號列
+                        // 確保列存在
+                        while (currentCol >= row.cells.length - 1) { // 減去行號列
                             addColumn();
                         }
                         
                         const input = row.cells[currentCol + 1].querySelector('input'); // +1 因為有行號列
-                        input.value = cell.trim();
-                        input.placeholder = '輸入數據';
+                        if (input) {
+                            input.value = cell.trim();
+                            input.placeholder = '輸入數據';
+                        }
                     });
                 });
                 
                 updateTableData();
-                showDebugInfo(`貼上數據: ${lines.length} 行`);
+                showDebugInfo(`貼上數據: ${validLines.length} 行`);
             }
         });
 
@@ -943,6 +1054,18 @@
             input.addEventListener('focus', () => selectCell(input));
         }
 
+        // 頁面加載時自動加載本地存儲的數據
+        document.addEventListener('DOMContentLoaded', function() {
+            // 嘗試加載本地存儲的數據
+            if (!loadTableData()) {
+                // 如果沒有保存的數據，初始化為預設狀態
+                updateTableData();
+                showDebugInfo('頁面初始化完成，使用預設表格');
+            } else {
+                showDebugInfo('頁面初始化完成，已加載保存的數據');
+            }
+        });
+
         // QR 掃描相關
         async function startCamera() {
             const cameraStatus = document.getElementById('camera-status');
@@ -953,14 +1076,14 @@
                 cameraStatus.style.borderColor = '#ffeaa7';
                 
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
+				  video: {
                         width: { ideal: 1920 },
-                        height: { ideal: 1080 },
+					height: { ideal: 1080 },
                         facingMode: 'environment',
                         focusMode: 'continuous',
-                        zoom: { ideal: 2 },
+					zoom: { ideal: 2 },
                         focusDistance: { ideal: 0.1 }
-                    }
+				  }
                 });
                 const video = document.getElementById('video');
                 video.srcObject = stream;

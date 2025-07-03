@@ -608,6 +608,30 @@
                                 <label class="form-check-label" for="enable-auth">啟用 Authorization</label>
                             </div>
                         </div>
+                        
+                        <!-- CORS 配置 -->
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="enable-cors" checked>
+                                <label class="form-check-label" for="enable-cors">啟用 CORS 模式</label>
+                            </div>
+                            <small class="form-text text-muted">啟用後將使用 CORS 代理來繞過跨域限制</small>
+                        </div>
+                        <div class="mb-3" id="cors-config">
+                            <label for="cors-proxy" class="form-label">CORS 代理服務器</label>
+                            <select class="form-select" id="cors-proxy">
+                                <option value="https://cors-anywhere.herokuapp.com/">cors-anywhere (推薦)</option>
+                                <option value="https://api.allorigins.win/raw?url=">allorigins</option>
+                                <option value="https://thingproxy.freeboard.io/fetch/">thingproxy</option>
+                                <option value="https://corsproxy.io/?">corsproxy.io</option>
+                                <option value="custom">自定義代理</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="custom-cors-proxy" style="display: none;">
+                            <label for="custom-proxy-url" class="form-label">自定義代理 URL</label>
+                            <input type="text" class="form-control" id="custom-proxy-url" placeholder="例如: https://your-proxy.com/?url=">
+                            <small class="form-text text-muted">請確保代理服務器支持您的目標URL</small>
+                        </div>
                         <div class="mb-3" id="auth-config" style="display: none;">
                             <label for="auth-type" class="form-label">選擇授權類型</label>
                             <select class="form-select" id="auth-type">
@@ -771,7 +795,10 @@
                 qrcodePreModifyAdd: document.getElementById('qrcode-pre-modify-add').value,
                 requestInterval: document.getElementById('request-interval').value,
                 enableAuth: document.getElementById('enable-auth').checked,
-                authConfig: authConfig
+                authConfig: authConfig,
+                enableCors: document.getElementById('enable-cors').checked,
+                corsProxy: document.getElementById('cors-proxy').value,
+                customProxyUrl: document.getElementById('custom-proxy-url').value
             };
             
             localStorage.setItem('qrScannerConfig', JSON.stringify(config));
@@ -847,6 +874,16 @@
                 }
             }
 
+            // Apply CORS settings
+            document.getElementById('enable-cors').checked = config.enableCors !== false; // 默認啟用
+            document.getElementById('cors-proxy').value = config.corsProxy || 'https://cors-anywhere.herokuapp.com/';
+            document.getElementById('custom-proxy-url').value = config.customProxyUrl || '';
+            
+            // Show/hide custom proxy input based on selection
+            if (config.corsProxy === 'custom') {
+                document.getElementById('custom-cors-proxy').style.display = 'block';
+            }
+
             saveToLocalStorage();
         }
 
@@ -868,6 +905,12 @@
                 document.getElementById('auth-config').style.display = 'none';
                 document.getElementById('auth-type').value = '';
                 hideAllAuthFields();
+
+                // Reset CORS settings
+                document.getElementById('enable-cors').checked = true;
+                document.getElementById('cors-proxy').value = 'https://cors-anywhere.herokuapp.com/';
+                document.getElementById('custom-proxy-url').value = '';
+                document.getElementById('custom-cors-proxy').style.display = 'none';
 
                 statusContainer.innerHTML = '<div class="alert alert-success">已清空所有儲存數據</div>';
             }
@@ -1209,7 +1252,7 @@
         });
 
         ['get-url-template', 'post-url-template', 'post-body-template', 'qrcode-pre-modify-remove', 
-         'qrcode-pre-modify-add', 'request-interval'].forEach(id => {
+         'qrcode-pre-modify-add', 'request-interval', 'enable-cors', 'cors-proxy', 'custom-proxy-url'].forEach(id => {
             document.getElementById(id).addEventListener('change', saveToLocalStorage);
         });
 
@@ -1233,6 +1276,17 @@
         document.getElementById('auth-type').addEventListener('change', (e) => {
             const type = e.target.value;
             showAuthFields(type);
+            saveToLocalStorage();
+        });
+
+        // CORS Proxy Type Change
+        document.getElementById('cors-proxy').addEventListener('change', (e) => {
+            const proxyType = e.target.value;
+            if (proxyType === 'custom') {
+                document.getElementById('custom-cors-proxy').style.display = 'block';
+            } else {
+                document.getElementById('custom-cors-proxy').style.display = 'none';
+            }
             saveToLocalStorage();
         });
 
@@ -1296,14 +1350,46 @@
             }
         }
 
+        function getCorsProxyUrl(targetUrl) {
+            const enableCors = document.getElementById('enable-cors').checked;
+            if (!enableCors) return targetUrl;
+            
+            const proxyType = document.getElementById('cors-proxy').value;
+            let proxyUrl = '';
+            
+            if (proxyType === 'custom') {
+                proxyUrl = document.getElementById('custom-proxy-url').value.trim();
+                if (!proxyUrl) return targetUrl;
+            } else {
+                proxyUrl = proxyType;
+            }
+            
+            // 根據不同的代理服務器格式構建URL
+            if (proxyUrl.includes('cors-anywhere.herokuapp.com')) {
+                return proxyUrl + targetUrl;
+            } else if (proxyUrl.includes('allorigins.win')) {
+                return proxyUrl + encodeURIComponent(targetUrl);
+            } else if (proxyUrl.includes('thingproxy.freeboard.io')) {
+                return proxyUrl + targetUrl;
+            } else if (proxyUrl.includes('corsproxy.io')) {
+                return proxyUrl + encodeURIComponent(targetUrl);
+            } else {
+                // 自定義代理，假設格式為 baseUrl + targetUrl
+                return proxyUrl + encodeURIComponent(targetUrl);
+            }
+        }
+
         async function sendRequest(method, url, body = null, headers = {}) {
             try {
+                const corsUrl = getCorsProxyUrl(url);
                 const options = { method, headers };
+                
                 if (method === 'POST' && body) {
                     options.headers['Content-Type'] = 'application/json';
                     options.body = JSON.stringify(body);
                 }
-                const response = await fetch(url, options);
+                
+                const response = await fetch(corsUrl, options);
                 const data = await response.text();
                 return { success: true, data };
             } catch (error) {

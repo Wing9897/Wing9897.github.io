@@ -3,22 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR碼對應值匹配器(輸入批量TSV格式參數)</title>
+    <title>TVS QR碼匹配器</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- QR Scanner -->
     <script type="module" src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js"></script>
     <style>
+        /* 攝像頭區域美化 */
+        .camera-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid #dee2e6;
+        }
+        
+        .camera-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .camera-header h4 {
+            margin: 0;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .camera-status {
+            background: #d4edda;
+            color: #155724;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid #c3e6cb;
+        }
+        
         #video-container {
             position: relative;
             width: 100%;
             max-width: 400px;
             margin: 0 auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
+        
         #video {
             width: 100%;
             height: auto;
+            display: block;
         }
+        
         #overlay {
             position: absolute;
             top: 0;
@@ -27,15 +67,234 @@
             height: 100%;
             pointer-events: none;
         }
+        
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .scan-frame {
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .scan-frame::before,
+        .scan-frame::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #007bff;
+        }
+        
+        .scan-frame::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+        }
+        
+        .scan-frame::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+        }
         #result {
             font-size: 18px;
             margin-top: 20px;
             word-wrap: break-word;
         }
-        .table-container {
-            max-height: 300px;
-            overflow-y: auto;
+        
+        /* Excel風格表格 */
+        .excel-table {
+            border-collapse: collapse;
+            width: 100%;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        
+        .excel-table th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            padding: 12px 8px;
+            font-weight: 600;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            color: #495057;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .excel-table td {
+            border: 1px solid #dee2e6;
+            padding: 2px;
+            min-width: 120px;
+            position: relative;
+        }
+        
+        .excel-table input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 8px 6px;
+            background: transparent;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        
+        .excel-table input:focus {
+            background: #e3f2fd;
+            box-shadow: inset 0 0 0 2px #2196f3;
+            border-radius: 2px;
+        }
+        
+        .excel-table input:hover {
+            background: #f8f9fa;
+        }
+        
+        .excel-table .selected {
+            background: #e3f2fd;
+            box-shadow: inset 0 0 0 2px #2196f3;
+        }
+        
+        .excel-table .selected input {
+            background: #e3f2fd;
+        }
+        
+        .excel-table .matched-row {
+            background: #d4edda !important;
+            animation: highlightRow 2s ease-in-out;
+        }
+        
+        .excel-table .matched-row input {
+            background: #d4edda;
+            font-weight: bold;
+        }
+        
+        .excel-table .duplicate-row {
+            background: #fff3cd !important;
+            animation: highlightDuplicate 1s ease-in-out;
+        }
+        
+        .excel-table .duplicate-row input {
+            background: #fff3cd;
+            font-weight: bold;
+        }
+        
+        @keyframes highlightRow {
+            0% { background: #fff3cd; }
+            50% { background: #d4edda; }
+            100% { background: #d4edda; }
+        }
+        
+        @keyframes highlightDuplicate {
+            0% { background: #ffeaa7; }
+            50% { background: #fff3cd; }
+            100% { background: #fff3cd; }
+        }
+        
+        .excel-table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        
+        .excel-table tr:hover {
+            background-color: #f0f8ff;
+        }
+        
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .toolbar {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .toolbar button {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+        
+        .toolbar button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        
+        .toolbar button.btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        
+        .toolbar button.btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        
+        /* 狀態指示器 */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-indicator.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-indicator.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .status-indicator.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
         /* 手機適配 */
         @media (max-width: 576px) {
             #video-container {
@@ -46,52 +305,252 @@
                 padding: 10px;
             }
             .table-container {
-                max-height: 200px;
+                max-height: 350px;
             }
             h2 {
                 font-size: 1.5rem;
             }
+            .excel-table {
+                font-size: 13px;
+            }
+            .excel-table input {
+                font-size: 13px;
+                padding: 6px 4px;
+            }
+            .toolbar {
+                padding: 10px;
+            }
+            .toolbar button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+        
+        /* 複製貼上提示 */
+        .paste-hint {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* 調試信息區域 */
+        .debug-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6;
+        }
+        
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 8px;
+        }
+        
+        .debug-header h5 {
+            margin: 0;
+            color: #495057;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .debug-info {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 12px;
+            font-family: monospace;
+            max-height: 150px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+        
+        /* 表格行號 */
+        .row-number {
+            background: #f8f9fa;
+            border-right: 2px solid #dee2e6;
+            text-align: center;
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 12px;
+            min-width: 30px;
+            max-width: 30px;
+            width: 30px;
+        }
+        
+        .scan-result-status {
+            min-width: 120px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #dee2e6;
+            background: #e2e3e5;
+            color: #383d41;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .scan-result-status.success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .scan-result-status.fail {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .scan-result-status.info {
+            background: #e2e3e5;
+            color: #383d41;
+            border-color: #dee2e6;
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 2px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+        }
+        .table-header h5 {
+            margin: 0;
+            color: #495057;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .table-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .table-toolbar button {
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+        .table-toolbar button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .table-toolbar button.btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .table-toolbar button.btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .duplicate-warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid #ffeaa7;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            animation: pulseWarning 2s infinite;
+        }
+        
+        @keyframes pulseWarning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
     </style>
 </head>
 <body>
     <div class="container my-4">
-        <h2 class="mb-4 text-center">QR碼對應值匹配器(輸入批量TSV格式參數)</h2>
+        <h2 class="mb-4 text-center">Excel風格QR碼映射工具</h2>
 
-        <!-- 批量輸入區 -->
-        <div class="mb-3">
-            <textarea class="form-control" id="batch-input" rows="4" placeholder="批量輸入格式：對應數值 QRcode number（每行一組，用空格分隔）
-例如：
-263 866380079106869
-264 866380079118112"></textarea>
-        </div>
-        <div class="mb-3 text-center">
-            <button class="btn btn-primary me-2" id="batch-submit">批量添加</button>
-            <button class="btn btn-secondary" id="add-row">單行添加</button>
+        <!-- 攝像頭區 -->
+        <div class="camera-section mb-4">
+            <div class="camera-header">
+                <h4 class="text-center mb-3">📷 掃瞄位置及結果</h4>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="camera-status" id="camera-status">🟢 相機已就緒</div>
+                    <div class="scan-result-status" id="scan-result-status" style="display:none;">🔍 掃描結果將顯示在這裡</div>
+                    <div class="duplicate-warning" id="duplicate-warning" style="display:none;">⚠️ 重複</div>
+                </div>
+            </div>
+            <div id="video-container">
+                <video id="video" class="img-fluid" muted playsinline></video>
+                <canvas id="overlay"></canvas>
+                <div class="scan-overlay">
+                    <div class="scan-frame"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- 表格區 -->
-        <div class="table-container mb-3">
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark sticky-top">
+        <!-- 數據表格區 -->
+        <div class="table-container">
+            <div class="table-header">
+                <h5 class="fw-bold">數據表格</h5>
+                <div class="table-toolbar">
+                    <button class="btn btn-primary btn-sm" id="add-row">➕ 新增行</button>
+                    <button class="btn btn-danger btn-sm" id="delete-row">➖ 刪除行</button>
+                    <button class="btn btn-success btn-sm" id="add-column">➕ 新增列</button>
+                    <button class="btn btn-warning btn-sm" id="delete-column">➖ 刪除列</button>
+                    <button class="btn btn-info btn-sm" id="clear-table">🗑️ 清空表格</button>
+                    <button class="btn btn-secondary btn-sm" id="export-data">📤 匯出數據</button>
+                    <button class="btn btn-dark btn-sm" id="import-data">📥 匯入數據</button>
+                    <div class="status-indicator info" id="data-status">
+                        📊 數據行數: <span id="row-count">1</span> | 列數: <span id="col-count">2</span>
+                    </div>
+                </div>
+            </div>
+            <table class="excel-table" id="excel-table">
+                <thead>
                     <tr>
-                        <th>對應數值</th>
-                        <th>QRcode number</th>
+                        <th class="row-number">#</th>
+                        <th>對應值1</th>
+                        <th>對應值2</th>
                     </tr>
                 </thead>
-                <tbody id="data-table"></tbody>
+                <tbody id="table-body">
+                    <tr>
+                        <td class="row-number">1</td>
+                        <td><input type="text" data-row="0" data-col="0" placeholder="輸入數據"></td>
+                        <td><input type="text" data-row="0" data-col="1" placeholder="輸入數據"></td>
+                    </tr>
+                </tbody>
             </table>
         </div>
 
-        <!-- 攝像頭區 -->
-        <div id="video-container">
-            <video id="video" class="img-fluid" muted playsinline></video>
-            <canvas id="overlay"></canvas>
-        </div>
-
-        <!-- 結果顯示區 -->
-        <div id="result" class="alert alert-info text-center" role="alert">
-            掃描結果將顯示在這裡
+        <!-- 調試信息 -->
+        <div class="debug-section" id="debug-section" style="display: none;">
+            <div class="debug-header">
+                <h5 class="mb-2">🔧 調試信息</h5>
+                <button class="btn btn-sm btn-outline-secondary" id="clear-debug">清空</button>
+            </div>
+            <div class="debug-info" id="debug-info">
+                <span id="debug-content"></span>
+            </div>
         </div>
     </div>
 
@@ -100,65 +559,408 @@
     <script type="module">
         import QrScanner from 'https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js';
 
-        let qrCodeData = [];
+        let tableData = [];
         let scanning = false;
-        const tableBody = document.getElementById('data-table');
+        let selectedCell = null;
+        const tableBody = document.getElementById('table-body');
         const resultDiv = document.getElementById('result');
         const overlay = document.getElementById('overlay');
         const context = overlay.getContext('2d');
+        const debugInfo = document.getElementById('debug-info');
+        const debugContent = document.getElementById('debug-content');
+        const scanResultStatus = document.getElementById('scan-result-status');
 
-        // 表格相關函數
-        function addRow(correspondingValue = '', qrCodeNumber = '') {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><input type="text" class="form-control corresponding-value-input" value="${correspondingValue}"></td>
-                <td><input type="text" class="form-control qr-code-number-input" value="${qrCodeNumber}"></td>
-            `;
-            tableBody.appendChild(row);
-            updateQrCodeData();
+        // 更新狀態指示器
+        function updateStatus() {
+            const rowCount = tableBody.rows.length;
+            const colCount = tableBody.rows[0] ? tableBody.rows[0].cells.length - 1 : 0; // 減去行號列
+            document.getElementById('row-count').textContent = rowCount;
+            document.getElementById('col-count').textContent = colCount;
         }
 
-        function updateQrCodeData() {
-            qrCodeData = [];
+        // 顯示調試信息
+        function showDebugInfo(message) {
+            debugContent.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            document.getElementById('debug-section').style.display = 'block';
+            debugInfo.scrollTop = debugInfo.scrollHeight;
+        }
+        
+        // 清空調試信息
+        function clearDebugInfo() {
+            debugContent.innerHTML = '';
+            document.getElementById('debug-section').style.display = 'none';
+        }
+
+        // 初始化表格數據
+        function initializeTableData() {
+            tableData = [];
             const rows = tableBody.getElementsByTagName('tr');
-            for (let row of rows) {
-                const correspondingValue = row.querySelector('.corresponding-value-input').value;
-                const qrCodeNumber = row.querySelector('.qr-code-number-input').value;
-                if (correspondingValue && qrCodeNumber) {
-                    qrCodeData.push({ correspondingValue, qrCodeNumber });
+            for (let i = 0; i < rows.length; i++) {
+                const row = [];
+                const inputs = rows[i].getElementsByTagName('input');
+                for (let j = 0; j < inputs.length; j++) {
+                    row.push(inputs[j].value.trim());
                 }
+                tableData.push(row);
+            }
+            showDebugInfo(`表格數據已更新: ${JSON.stringify(tableData)}`);
+        }
+
+        // 更新表格數據
+        function updateTableData() {
+            initializeTableData();
+            updateStatus();
+        }
+
+        // 新增行
+        function addRow() {
+            const rowCount = tableBody.rows.length;
+            const colCount = tableBody.rows[0] ? tableBody.rows[0].cells.length - 1 : 2; // 減去行號列，預設2列
+            const newRow = document.createElement('tr');
+            
+            // 添加行號
+            const rowNumberCell = document.createElement('td');
+            rowNumberCell.className = 'row-number';
+            rowNumberCell.textContent = rowCount + 1;
+            newRow.appendChild(rowNumberCell);
+            
+            for (let i = 0; i < colCount; i++) {
+                const cell = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.dataset.row = rowCount;
+                input.dataset.col = i;
+                input.placeholder = '輸入數據';
+                input.addEventListener('input', updateTableData);
+                input.addEventListener('focus', () => selectCell(input));
+                cell.appendChild(input);
+                newRow.appendChild(cell);
+            }
+            
+            tableBody.appendChild(newRow);
+            updateTableData();
+            showDebugInfo(`新增行: ${rowCount + 1}`);
+        }
+
+        // 刪除行
+        function deleteRow() {
+            if (tableBody.rows.length > 1) {
+                tableBody.deleteRow(tableBody.rows.length - 1);
+                updateTableData();
+                showDebugInfo('刪除最後一行');
             }
         }
 
-        // 批量輸入處理
-        document.getElementById('batch-submit').addEventListener('click', () => {
-            const input = document.getElementById('batch-input').value;
-            const lines = input.trim().split('\n');
-            lines.forEach(line => {
-                const [correspondingValue, qrCodeNumber] = line.trim().split(/\s+/);
-                if (correspondingValue && qrCodeNumber) {
-                    addRow(correspondingValue, qrCodeNumber);
+        // 新增列
+        function addColumn() {
+            const rows = tableBody.getElementsByTagName('tr');
+            const colCount = rows[0] ? rows[0].cells.length - 1 : 0; // 減去行號列
+            
+            for (let i = 0; i < rows.length; i++) {
+                const cell = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.dataset.row = i;
+                input.dataset.col = colCount;
+                input.placeholder = '輸入數據';
+                input.addEventListener('input', updateTableData);
+                input.addEventListener('focus', () => selectCell(input));
+                cell.appendChild(input);
+                rows[i].appendChild(cell);
+            }
+            
+            // 更新表頭
+            const headerRow = document.querySelector('#excel-table thead tr');
+            const headerCell = document.createElement('th');
+            headerCell.textContent = `對應值${colCount + 1}`;
+            headerRow.appendChild(headerCell);
+            
+            updateTableData();
+            showDebugInfo(`新增列: 對應值${colCount + 1}`);
+        }
+
+        // 刪除列
+        function deleteColumn() {
+            const rows = tableBody.getElementsByTagName('tr');
+            if (rows[0] && rows[0].cells.length > 3) { // 至少保留行號列和2個數據列
+                for (let i = 0; i < rows.length; i++) {
+                    rows[i].deleteCell(rows[i].cells.length - 1);
                 }
-            });
-            document.getElementById('batch-input').value = '';
+                
+                // 更新表頭
+                const headerRow = document.querySelector('#excel-table thead tr');
+                if (headerRow.cells.length > 1) {
+                    headerRow.deleteCell(headerRow.cells.length - 1);
+                }
+                
+                updateTableData();
+                showDebugInfo('刪除最後一列');
+            }
+        }
+
+        // 清空表格並還原預設
+        function clearTable() {
+            // 清空表格內容
+            tableBody.innerHTML = '';
+            
+            // 還原為預設的1行2列
+            const newRow = document.createElement('tr');
+            
+            // 添加行號
+            const rowNumberCell = document.createElement('td');
+            rowNumberCell.className = 'row-number';
+            rowNumberCell.textContent = '1';
+            newRow.appendChild(rowNumberCell);
+            
+            // 添加2個數據列
+            for (let i = 0; i < 2; i++) {
+                const cell = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.dataset.row = 0;
+                input.dataset.col = i;
+                input.placeholder = '輸入數據';
+                input.addEventListener('input', updateTableData);
+                input.addEventListener('focus', () => selectCell(input));
+                cell.appendChild(input);
+                newRow.appendChild(cell);
+            }
+            
+            tableBody.appendChild(newRow);
+            
+            // 還原表頭為2列
+            const headerRow = document.querySelector('#excel-table thead tr');
+            headerRow.innerHTML = `
+                <th class="row-number">#</th>
+                <th>對應值1</th>
+                <th>對應值2</th>
+            `;
+            
+            updateTableData();
+            showDebugInfo('清空表格並還原預設');
+        }
+
+        // 選中單元格
+        function selectCell(input) {
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+            }
+            selectedCell = input;
+            input.classList.add('selected');
+        }
+
+        // 匯出數據
+        function exportData() {
+            const csvContent = tableData.map(row => row.join('\t')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'qr_mapping_data.tsv';
+            a.click();
+            URL.revokeObjectURL(url);
+            showDebugInfo('匯出數據完成');
+        }
+
+        // 匯入數據
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt,.tsv,.csv';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        const lines = content.split('\n');
+                        
+                        // 清空現有表格
+                        tableBody.innerHTML = '';
+                        
+                        lines.forEach((line, rowIndex) => {
+                            if (line.trim()) {
+                                const cells = line.split('\t');
+                                const newRow = document.createElement('tr');
+                                
+                                // 添加行號
+                                const rowNumberCell = document.createElement('td');
+                                rowNumberCell.className = 'row-number';
+                                rowNumberCell.textContent = rowIndex + 1;
+                                newRow.appendChild(rowNumberCell);
+                                
+                                cells.forEach((cell, colIndex) => {
+                                    const td = document.createElement('td');
+                                    const input = document.createElement('input');
+                                    input.type = 'text';
+                                    input.value = cell.trim();
+                                    input.dataset.row = rowIndex;
+                                    input.dataset.col = colIndex;
+                                    input.placeholder = '輸入數據';
+                                    input.addEventListener('input', updateTableData);
+                                    input.addEventListener('focus', () => selectCell(input));
+                                    td.appendChild(input);
+                                    newRow.appendChild(td);
+                                });
+                                
+                                tableBody.appendChild(newRow);
+                            }
+                        });
+                        
+                        updateTableData();
+                        showDebugInfo(`匯入數據: ${lines.length} 行`);
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // 鍵盤事件處理
+        document.addEventListener('keydown', function(e) {
+            if (selectedCell) {
+                const row = parseInt(selectedCell.dataset.row);
+                const col = parseInt(selectedCell.dataset.col);
+                const rows = tableBody.getElementsByTagName('tr');
+                
+                switch(e.key) {
+                    case 'Tab':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            // 向左移動
+                            if (col > 0) {
+                                rows[row].cells[col].querySelector('input').focus();
+                            } else if (row > 0) {
+                                rows[row - 1].cells[rows[row - 1].cells.length - 1].querySelector('input').focus();
+                            }
+                        } else {
+                            // 向右移動
+                            if (col < rows[row].cells.length - 2) { // 減去行號列
+                                rows[row].cells[col + 2].querySelector('input').focus();
+                            } else {
+                                // 如果是最後一列，新增一列
+                                addColumn();
+                                // 聚焦到新列的輸入框
+                                setTimeout(() => {
+                                    rows[row].cells[rows[row].cells.length - 1].querySelector('input').focus();
+                                }, 100);
+                            }
+                        }
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (row < rows.length - 1) {
+                            rows[row + 1].cells[col + 1].querySelector('input').focus();
+                        } else {
+                            // 如果是最後一行，新增一行
+                            addRow();
+                            // 聚焦到新行的對應列
+                            setTimeout(() => {
+                                const newRows = tableBody.getElementsByTagName('tr');
+                                newRows[newRows.length - 1].cells[col + 1].querySelector('input').focus();
+                            }, 100);
+                        }
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (row > 0) {
+                            rows[row - 1].cells[col + 1].querySelector('input').focus();
+                        }
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (row < rows.length - 1) {
+                            rows[row + 1].cells[col + 1].querySelector('input').focus();
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        if (col > 0) {
+                            rows[row].cells[col].querySelector('input').focus();
+                        }
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        if (col < rows[row].cells.length - 2) { // 減去行號列
+                            rows[row].cells[col + 2].querySelector('input').focus();
+                        }
+                        break;
+                }
+            }
         });
 
-        // 單行添加
-        document.getElementById('add-row').addEventListener('click', () => addRow());
-        tableBody.addEventListener('input', updateQrCodeData);
+        // 複製貼上處理
+        document.addEventListener('paste', function(e) {
+            if (selectedCell) {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text');
+                const lines = pastedData.split('\n');
+                
+                let startRow = parseInt(selectedCell.dataset.row);
+                let startCol = parseInt(selectedCell.dataset.col);
+                
+                lines.forEach((line, rowOffset) => {
+                    const cells = line.split('\t');
+                    const currentRow = startRow + rowOffset;
+                    
+                    if (currentRow >= tableBody.rows.length) {
+                        addRow();
+                    }
+                    
+                    cells.forEach((cell, colOffset) => {
+                        const currentCol = startCol + colOffset;
+                        const row = tableBody.rows[currentRow];
+                        
+                        if (currentCol >= row.cells.length - 1) { // 減去行號列
+                            addColumn();
+                        }
+                        
+                        const input = row.cells[currentCol + 1].querySelector('input'); // +1 因為有行號列
+                        input.value = cell.trim();
+                        input.placeholder = '輸入數據';
+                    });
+                });
+                
+                updateTableData();
+                showDebugInfo(`貼上數據: ${lines.length} 行`);
+            }
+        });
+
+        // 事件監聽器
+        document.getElementById('add-row').addEventListener('click', addRow);
+        document.getElementById('delete-row').addEventListener('click', deleteRow);
+        document.getElementById('add-column').addEventListener('click', addColumn);
+        document.getElementById('delete-column').addEventListener('click', deleteColumn);
+        document.getElementById('clear-table').addEventListener('click', clearTable);
+        document.getElementById('export-data').addEventListener('click', exportData);
+        document.getElementById('import-data').addEventListener('click', importData);
+        document.getElementById('clear-debug').addEventListener('click', clearDebugInfo);
+
+        // 初始化表格事件
+        const inputs = tableBody.getElementsByTagName('input');
+        for (let input of inputs) {
+            input.addEventListener('input', updateTableData);
+            input.addEventListener('focus', () => selectCell(input));
+        }
 
         // QR 掃描相關
         async function startCamera() {
+            const cameraStatus = document.getElementById('camera-status');
             try {
+                cameraStatus.textContent = '🟡 正在啟動相機...';
+                cameraStatus.style.background = '#fff3cd';
+                cameraStatus.style.color = '#856404';
+                cameraStatus.style.borderColor = '#ffeaa7';
+                
                 const stream = await navigator.mediaDevices.getUserMedia({
-				  video: {
-					width: { ideal: 1920 },  // 提高分辨率
-					height: { ideal: 1080 },
-					facingMode: 'environment', // 使用後置鏡頭（通常對焦更好）
-					focusMode: 'continuous' ,   // 啟用連續自動對焦
-					zoom: { ideal: 2 },
-					focusDistance: { ideal: 0.1 }  // 設置焦距為30厘米
-				  }
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        facingMode: 'environment',
+                        focusMode: 'continuous',
+                        zoom: { ideal: 2 },
+                        focusDistance: { ideal: 0.1 }
+                    }
                 });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
@@ -168,34 +970,86 @@
                     overlay.width = video.videoWidth;
                     overlay.height = video.videoHeight;
                     requestAnimationFrame(() => captureFrame(video));
+                    
+                    cameraStatus.textContent = '🟢 相機已就緒';
+                    cameraStatus.style.background = '#d4edda';
+                    cameraStatus.style.color = '#155724';
+                    cameraStatus.style.borderColor = '#c3e6cb';
                 });
             } catch (error) {
                 console.error('無法訪問相機:', error);
+                cameraStatus.textContent = '🔴 相機啟動失敗';
+                cameraStatus.style.background = '#f8d7da';
+                cameraStatus.style.color = '#721c24';
+                cameraStatus.style.borderColor = '#f5c6cb';
+                
                 resultDiv.textContent = '無法啟動攝像頭，請檢查權限或設備';
                 resultDiv.className = 'alert alert-danger text-center';
             }
         }
 
+        function showScanResultStatus(type, text) {
+            scanResultStatus.textContent = text;
+            scanResultStatus.className = 'scan-result-status ' + type;
+            scanResultStatus.style.display = '';
+        }
+
+        function showDuplicateWarning(count) {
+            const duplicateWarning = document.getElementById('duplicate-warning');
+            if (count > 1) {
+                duplicateWarning.textContent = `⚠️ ${count}個重複`;
+                duplicateWarning.style.display = '';
+            } else {
+                duplicateWarning.style.display = 'none';
+            }
+        }
+
         function captureFrame(video) {
             if (scanning) return;
-
             context.clearRect(0, 0, overlay.width, overlay.height);
             context.drawImage(video, 0, 0, overlay.width, overlay.height);
-
             QrScanner.scanImage(overlay, { returnDetailedScanResult: true })
                 .then(result => {
                     if (result) {
-                        const scannedQrCodeNumber = result.data;
-                        const matchedItem = qrCodeData.find(item => item.qrCodeNumber === scannedQrCodeNumber);
-                        
-                        if (matchedItem) {
-                            resultDiv.textContent = `找到匹配！對應數值: ${matchedItem.correspondingValue}, QRcode number: ${matchedItem.qrCodeNumber}`;
-                            resultDiv.className = 'alert alert-success text-center';
-                        } else {
-                            resultDiv.textContent = `未找到匹配的QRcode number: ${scannedQrCodeNumber}`;
-                            resultDiv.className = 'alert alert-warning text-center';
+                        const scannedQrCodeNumber = result.data.trim();
+                        if (!scannedQrCodeNumber) {
+                            // 掃描到空值，直接忽略
+                            requestAnimationFrame(() => captureFrame(video));
+                            return;
                         }
-
+                        showDebugInfo(`掃描到QR碼: "${scannedQrCodeNumber}"`);
+                        showDebugInfo(`當前表格數據: ${JSON.stringify(tableData)}`);
+                        
+                        // 在所有行和所有列中查找匹配的QR碼
+                        let matchedRows = [];
+                        
+                        for (let rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
+                            const row = tableData[rowIndex];
+                            for (let colIndex = 0; colIndex < row.length; colIndex++) {
+                                if (row[colIndex] === scannedQrCodeNumber) {
+                                    matchedRows.push({
+                                        row: row,
+                                        col: colIndex,
+                                        rowIndex: rowIndex
+                                    });
+                                }
+                            }
+                        }
+                        
+                        if (matchedRows.length > 0) {
+                            const firstMatch = matchedRows[0];
+                            const rowNumber = firstMatch.rowIndex + 1;
+                            const colNumber = firstMatch.col + 1;
+                            showScanResultStatus('success', `✅ 第${rowNumber}行, 第${colNumber}列`);
+                            showDebugInfo(`匹配成功: 找到${matchedRows.length}個匹配，顯示第${rowNumber}行第${colNumber}列`);
+                            showDuplicateWarning(matchedRows.length);
+                            
+                            highlightAndScrollToRows(matchedRows);
+                        } else {
+                            showScanResultStatus('fail', `❌ 未找到`);
+                            showDebugInfo(`匹配失敗: 未找到 "${scannedQrCodeNumber}"`);
+                            showDuplicateWarning(0);
+                        }
                         drawHighlight(result);
                         scanning = true;
                         setTimeout(() => {
@@ -209,6 +1063,47 @@
                 .catch(() => {
                     requestAnimationFrame(() => captureFrame(video));
                 });
+        }
+
+        // 高亮所有匹配的行並滾動到第一個匹配的行
+        function highlightAndScrollToRows(matchedRows) {
+            // 清除之前的高亮
+            const allRows = tableBody.getElementsByTagName('tr');
+            for (let i = 0; i < allRows.length; i++) {
+                allRows[i].classList.remove('matched-row');
+                allRows[i].classList.remove('duplicate-row');
+            }
+            
+            // 高亮所有匹配的行
+            matchedRows.forEach((match, index) => {
+                const rowIndex = match.rowIndex;
+                if (allRows[rowIndex]) {
+                    if (index === 0) {
+                        // 第一個匹配用綠色高亮
+                        allRows[rowIndex].classList.add('matched-row');
+                    } else {
+                        // 後續重複用橙色高亮
+                        allRows[rowIndex].classList.add('duplicate-row');
+                    }
+                }
+            });
+            
+            // 滾動到第一個匹配的行
+            if (matchedRows.length > 0) {
+                const firstMatch = matchedRows[0];
+                const tableContainer = document.querySelector('.table-container');
+                const rowElement = allRows[firstMatch.rowIndex];
+                const rowTop = rowElement.offsetTop;
+                const containerHeight = tableContainer.clientHeight;
+                
+                // 計算滾動位置，讓第一個匹配的行在容器中間
+                const scrollTo = rowTop - containerHeight / 2 + rowElement.offsetHeight / 2;
+                
+                tableContainer.scrollTo({
+                    top: scrollTo,
+                    behavior: 'smooth'
+                });
+            }
         }
 
         function drawHighlight(result) {
@@ -225,8 +1120,12 @@
             }
         }
 
-        // 啟動相機
+        // 初始化
+        updateTableData();
         startCamera();
+        scanResultStatus.textContent = '🔍 掃描結果將顯示在這裡';
+        scanResultStatus.className = 'scan-result-status info';
+        scanResultStatus.style.display = '';
 
         // 清理資源
         window.addEventListener('unload', () => {

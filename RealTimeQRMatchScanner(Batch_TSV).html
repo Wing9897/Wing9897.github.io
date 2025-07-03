@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- QR Scanner -->
     <script type="module" src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js"></script>
+    <!-- SheetJS for Excel support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         /* 攝像頭區域美化 */
         .camera-section {
@@ -518,10 +520,15 @@
                     <button class="btn btn-warning btn-sm" id="delete-column">➖ 刪除列</button>
                     <button class="btn btn-info btn-sm" id="clear-table">🗑️ 清空表格</button>
                     <button class="btn btn-secondary btn-sm" id="export-data">📤 匯出數據</button>
-                    <button class="btn btn-dark btn-sm" id="import-data">📥 匯入數據</button>
+                    <button class="btn btn-dark btn-sm" id="import-data" title="支援TSV、CSV、Excel格式">📥 匯入數據</button>
                     <div class="status-indicator info" id="data-status">
                         📊 數據行數: <span id="row-count">1</span> | 列數: <span id="col-count">2</span>
                         <span id="storage-status" class="ms-2" style="font-size: 0.8em; color: #6c757d;">💾 已保存</span>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            💡 匯入格式：TSV (Tab分隔)、CSV (逗號分隔)、Excel (.xlsx/.xls)
+                        </small>
                     </div>
                 </div>
             </div>
@@ -663,10 +670,18 @@
             // 清空現有表格
             tableBody.innerHTML = '';
             
+            if (data.length === 0) {
+                showDebugInfo('沒有數據可渲染');
+                return;
+            }
+            
+            // 找出最大列數
+            const maxCols = Math.max(...data.map(row => row ? row.length : 0));
+            
             // 更新表頭
             const headerRow = document.querySelector('#excel-table thead tr');
             headerRow.innerHTML = '<th class="row-number">#</th>';
-            for (let i = 0; i < data[0].length; i++) {
+            for (let i = 0; i < maxCols; i++) {
                 const headerCell = document.createElement('th');
                 headerCell.textContent = `對應值${i + 1}`;
                 headerRow.appendChild(headerCell);
@@ -683,11 +698,18 @@
                 newRow.appendChild(rowNumberCell);
                 
                 // 添加數據列
-                row.forEach((cell, colIndex) => {
+                for (let colIndex = 0; colIndex < maxCols; colIndex++) {
                     const td = document.createElement('td');
                     const input = document.createElement('input');
                     input.type = 'text';
-                    input.value = cell;
+                    
+                    // 處理Excel數據中的空值
+                    let cellValue = '';
+                    if (row && row[colIndex] !== null && row[colIndex] !== undefined) {
+                        cellValue = row[colIndex].toString().trim();
+                    }
+                    
+                    input.value = cellValue;
                     input.dataset.row = rowIndex;
                     input.dataset.col = colIndex;
                     input.placeholder = '輸入數據';
@@ -695,7 +717,7 @@
                     input.addEventListener('focus', () => selectCell(input));
                     td.appendChild(input);
                     newRow.appendChild(td);
-                });
+                }
                 
                 tableBody.appendChild(newRow);
             });
@@ -888,28 +910,75 @@
         function importData() {
             const input = document.createElement('input');
             input.type = 'file';
-            input.accept = '.txt,.tsv,.csv';
+            input.accept = '.txt,.tsv,.csv,.xlsx,.xls';
             input.onchange = function(e) {
                 const file = e.target.files[0];
                 if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const content = e.target.result;
-                        const lines = content.split('\n').filter(line => line.trim()); // 過濾空行
-                        
-                        if (lines.length === 0) {
-                            showDebugInfo('匯入文件為空或只包含空行');
+                    const fileName = file.name.toLowerCase();
+                    const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+                    
+                    if (isExcel) {
+                        // 檢查SheetJS庫是否可用
+                        if (typeof XLSX === 'undefined') {
+                            showDebugInfo('Excel解析庫未加載，請檢查網絡連接');
+                            alert('Excel解析庫未加載，請檢查網絡連接後重試');
                             return;
                         }
                         
-                        // 解析數據
-                        const data = lines.map(line => line.split('\t').map(cell => cell.trim()));
-                        
-                        // 渲染表格
-                        renderTableFromData(data);
-                        showDebugInfo(`匯入數據: ${lines.length} 行`);
-                    };
-                    reader.readAsText(file);
+                        // 處理Excel文件
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            try {
+                                const data = new Uint8Array(e.target.result);
+                                const workbook = XLSX.read(data, { type: 'array' });
+                                
+                                // 獲取第一個工作表
+                                const firstSheetName = workbook.SheetNames[0];
+                                const worksheet = workbook.Sheets[firstSheetName];
+                                
+                                // 將工作表轉換為JSON數組
+                                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                                
+                                // 過濾空行
+                                const filteredData = jsonData.filter(row => 
+                                    row && row.length > 0 && row.some(cell => cell !== null && cell !== undefined && cell.toString().trim() !== '')
+                                );
+                                
+                                if (filteredData.length === 0) {
+                                    showDebugInfo('Excel文件為空或只包含空行');
+                                    return;
+                                }
+                                
+                                // 渲染表格
+                                renderTableFromData(filteredData);
+                                showDebugInfo(`匯入Excel數據: ${filteredData.length} 行`);
+                            } catch (error) {
+                                showDebugInfo('Excel文件解析失敗: ' + error.message);
+                                alert('Excel文件解析失敗: ' + error.message);
+                            }
+                        };
+                        reader.readAsArrayBuffer(file);
+                    } else {
+                        // 處理文本文件（TSV、CSV、TXT）
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const content = e.target.result;
+                            const lines = content.split('\n').filter(line => line.trim()); // 過濾空行
+                            
+                            if (lines.length === 0) {
+                                showDebugInfo('匯入文件為空或只包含空行');
+                                return;
+                            }
+                            
+                            // 解析數據
+                            const data = lines.map(line => line.split('\t').map(cell => cell.trim()));
+                            
+                            // 渲染表格
+                            renderTableFromData(data);
+                            showDebugInfo(`匯入文本數據: ${lines.length} 行`);
+                        };
+                        reader.readAsText(file);
+                    }
                 }
             };
             input.click();

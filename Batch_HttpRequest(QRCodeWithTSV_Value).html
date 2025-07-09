@@ -980,7 +980,7 @@
             const reader = new FileReader();
             reader.onload = function(ev){
                 const lines = ev.target.result.split(/\r?\n/).filter(Boolean);
-                excelData = lines.map(line=>line.split(/\t|,|\s+/));
+                excelData = lines.map(line=>line.split(/\t|,/)); // 只使用制表符和逗號作為分隔符，不使用空格
                 if(excelData.length===0)excelData=[["",""]];
                 renderExcelTable();
                 saveToLocalStorage();
@@ -1102,18 +1102,28 @@
                 let startRow = parseInt(selectedCell.dataset.row);
                 let startCol = parseInt(selectedCell.dataset.col);
                 
-                lines.forEach((line, rowOffset) => {
+                // 過濾掉空行和只包含空白字符的行
+                const validLines = lines.filter(line => line.trim() !== '');
+                
+                if (validLines.length === 0) {
+                    console.log('貼上數據為空或只包含空行');
+                    return;
+                }
+                
+                validLines.forEach((line, rowOffset) => {
                     const cells = line.split('\t');
                     const currentRow = startRow + rowOffset;
                     
-                    if (currentRow >= excelData.length) {
+                    // 確保行存在
+                    while (currentRow >= excelData.length) {
                         addExcelRow();
                     }
                     
                     cells.forEach((cell, colOffset) => {
                         const currentCol = startCol + colOffset;
                         
-                        if (currentCol >= excelData[0].length) {
+                        // 確保列存在
+                        while (currentCol >= excelData[0].length) {
                             addExcelCol();
                         }
                         

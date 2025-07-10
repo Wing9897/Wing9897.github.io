@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaMask + 加密貨幣 測試交易</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+        
+        .network-card {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        }
+        
+        .faucet-card {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+        }
+        
+        .transaction-card {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%);
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #f1f8e9 0%, #dcedc1 100%);
+            grid-column: 1 / -1;
+            margin-bottom: 30px;
+        }
+        
+        .status-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .status-value {
+            font-family: monospace;
+            background: rgba(255,255,255,0.8);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(156, 39, 176, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+        }
+        
+        .btn-success:hover {
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+        }
+        
+        .btn-info:hover {
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .link-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .link-list li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .link-list li:before {
+            content: "🔗";
+            position: absolute;
+            left: 0;
+        }
+        
+        .link-list a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .link-list a:hover {
+            text-decoration: underline;
+        }
+        
+        .usage-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .usage-list li {
+            margin-bottom: 8px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .usage-list li:before {
+            content: counter(step-counter);
+            counter-increment: step-counter;
+            position: absolute;
+            left: 0;
+            background: #4CAF50;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .usage-list {
+            counter-reset: step-counter;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        #messageBox {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 400px;
+            z-index: 1000;
+        }
+
+        .account-select {
+            width: 75%;
+            max-width: 280px;
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: monospace;
+            background-color: rgba(255,255,255,0.8);
+            color: #333;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            height: 28px;
+        }
+
+        .account-select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .account-select:disabled {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦊 MetaMask 加密貨幣測試平台</h1>
+            <p>安全便捷的區塊鏈測試交易環境</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- 使用說明 -->
+            <div class="card info-card">
+                <h3>📋 使用說明</h3>
+                <ol class="usage-list">
+                <li>確保安裝了 MetaMask 瀏覽器擴展</li>
+                <li>點擊「連接 MetaMask」按鈕</li>
+                <li><strong>新手推薦：先使用測試網獲取免費代幣</strong></li>
+                <li>添加相應的網絡配置</li>
+                <li>輸入接收地址和金額，執行測試交易</li>
+            </ol>
+                <p style="margin-top: 15px;"><strong>🔗 更多 Chain ID 資訊：</strong><a href="https://chainlist.org/" target="_blank">Chainlist.org</a> - 完整的 EVM 網絡清單，幫助您連接到正確的 Chain ID 和 Network ID</p>
+        </div>
+
+            <div class="grid">
+                <!-- 連接狀態 -->
+                <div class="card status-card">
+                    <h3>🔗 連接狀態</h3>
+                    <div class="status-info">
+                        <div class="status-item">
+                            <span class="status-label">連接狀態</span>
+                            <span class="status-value" id="connectionStatus">未連接</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">當前帳戶</span>
+                            <select id="accountSelect" class="account-select" onchange="switchAccount()" disabled>
+                                <option value="">請先連接錢包</option>
+                            </select>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">網絡</span>
+                            <span class="status-value" id="networkInfo">--</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Chain ID</span>
+                            <span class="status-value" id="chainIdInfo">--</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">餘額</span>
+                            <span class="status-value" id="balanceInfo">--</span>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button id="connectBtn" class="btn-primary" onclick="connectMetaMask()">
+                            🔌 連接 MetaMask
+                        </button>
+                        <button id="refreshAccountsBtn" class="btn-secondary" onclick="refreshAccounts()" disabled>
+                            🔄 刷新帳戶
+                        </button>
+                    </div>
+        </div>
+
+                <!-- 網絡管理 -->
+                <div class="card network-card">
+                    <h3>🌐 網絡管理</h3>
+                    <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">選擇並切換到您需要的測試網絡</p>
+                    <div class="button-group">
+                        <button id="addSepoliaBtn" class="btn-secondary" onclick="addSepoliaTestnet()" disabled>
+                            ⚡ 添加及切換 Ethereum Sepolia
+                        </button>
+                        <button id="addPolygonBtn" class="btn-secondary" onclick="addPolygonAmoyTestnet()" disabled>
+                            🔷 添加及切換 Polygon Amoy
+                        </button>
+                        <button id="openChainlistBtn" class="btn-info" onclick="openChainlist()">
+                            🔗 查看更多網絡
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 免費代幣 -->
+                <div class="card faucet-card">
+                    <h3>🆓 免費測試代幣</h3>
+                    <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">從官方水龍頭獲取免費測試代幣</p>
+                    <ul class="link-list">
+                        <li><a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank">Google Ethereum Sepolia 水龍頭</a></li>
+                        <li><a href="https://faucet.polygon.technology/" target="_blank">Polygon 官方水龍頭</a></li>
+                    </ul>
+                    <div class="button-group">
+                        <button id="openFaucetBtn" class="btn-success" onclick="openFaucet()" disabled>
+                            💧 快速打開水龍頭
+                        </button>
+                    </div>
+        </div>
+
+                <!-- 測試交易 -->
+                <div class="card transaction-card">
+                    <h3>💸 測試交易</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="recipientAddress">接收地址</label>
+                <input type="text" id="recipientAddress" placeholder="0x..." />
+            </div>
+                    <div class="form-group">
+                        <label class="form-label" for="amount">金額</label>
+                <input type="text" id="amount" placeholder="0.001" />
+                    </div>
+                    <div class="button-group">
+                        <button id="sendBtn" class="btn-primary" onclick="sendTransaction()" disabled>
+                            🚀 發送測試交易
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="messageBox"></div>
+    <script>
+        // 網絡配置
+        // Ethereum Sepolia 測試網配置
+        const SEPOLIA_TESTNET = {
+            chainId: '0xaa36a7', // 11155111 in hex
+            chainName: 'Sepolia Test Network',
+            nativeCurrency: {
+                name: 'ETH',
+                symbol: 'ETH',
+                decimals: 18
+            },
+            rpcUrls: ['https://sepolia.infura.io'],
+            blockExplorerUrls: ['https://sepolia.etherscan.io']
+        };
+
+        // Polygon Amoy 測試網配置
+        const POLYGON_AMOY_TESTNET = {
+            chainId: '0x13882', // 80002 in hex
+            chainName: 'Polygon Amoy Testnet',
+            nativeCurrency: {
+                name: 'POL',
+                symbol: 'POL',
+                decimals: 18
+            },
+            rpcUrls: ['https://rpc-amoy.polygon.technology'],
+            blockExplorerUrls: ['https://amoy.polygonscan.com']
+        };
+
+        // 全局變量
+        let currentAccount = null;
+        let allAccounts = [];
+        let web3 = null;
+
+        // 檢查 MetaMask 是否安裝
+        function checkMetaMaskInstallation() {
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('MetaMask 已安裝！');
+                return true;
+            } else {
+                showMessage('請先安裝 MetaMask 瀏覽器擴展！', 'error');
+                return false;
+            }
+        }
+
+        // 連接 MetaMask
+        async function connectMetaMask() {
+            if (!checkMetaMaskInstallation()) {
+                return;
+            }
+
+            try {
+                // 請求連接帳戶
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+
+                if (accounts.length > 0) {
+                    allAccounts = accounts;
+                    currentAccount = accounts[0];
+                    updateConnectionStatus();
+                    await updateAccountInfo();
+                    
+                    // 更新帳戶選擇下拉框
+                    updateAccountSelect();
+                    
+                    // 啟用按鈕
+                    document.getElementById('addSepoliaBtn').disabled = false;
+                    document.getElementById('addPolygonBtn').disabled = false;
+                    document.getElementById('openFaucetBtn').disabled = false;
+                    document.getElementById('sendBtn').disabled = false;
+                    document.getElementById('refreshAccountsBtn').disabled = false;
+                    document.getElementById('accountSelect').disabled = false;
+                    
+                    showMessage('MetaMask 連接成功！', 'success');
+                }
+            } catch (error) {
+                console.error('連接失敗:', error);
+                showMessage(`連接失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 更新帳戶選擇下拉框
+        function updateAccountSelect() {
+            const accountSelect = document.getElementById('accountSelect');
+            accountSelect.innerHTML = '';
+            
+            if (allAccounts.length === 0) {
+                accountSelect.innerHTML = '<option value="">請先連接錢包</option>';
+                return;
+            }
+            
+            allAccounts.forEach(account => {
+                const option = document.createElement('option');
+                option.value = account;
+                option.textContent = `${account.slice(0, 10)}...${account.slice(-6)}`;
+                if (account === currentAccount) {
+                    option.selected = true;
+                }
+                accountSelect.appendChild(option);
+            });
+        }
+
+        // 添加 Sepolia 測試網
+        async function addSepoliaTestnet() {
+            await addNetwork(SEPOLIA_TESTNET, 'Ethereum Sepolia 測試網');
+        }
+
+        // 添加 Polygon Amoy 測試網
+        async function addPolygonAmoyTestnet() {
+            await addNetwork(POLYGON_AMOY_TESTNET, 'Polygon Amoy 測試網');
+        }
+
+        // 通用添加網絡函數
+        async function addNetwork(networkConfig, networkName) {
+            if (!checkMetaMaskInstallation()) {
+                return;
+            }
+
+            try {
+                // 嘗試切換到指定網絡
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: networkConfig.chainId }],
+                });
+                
+                showMessage(`已切換到 ${networkName}！`, 'success');
+            } catch (switchError) {
+                // 如果網絡不存在，添加網絡
+                if (switchError.code === 4902) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [networkConfig],
+                        });
+                        showMessage(`${networkName} 添加成功！`, 'success');
+                    } catch (addError) {
+                        console.error('添加網絡失敗:', addError);
+                        showMessage(`添加網絡失敗: ${addError.message}`, 'error');
+                    }
+                } else {
+                    console.error('切換網絡失敗:', switchError);
+                    showMessage(`切換網絡失敗: ${switchError.message}`, 'error');
+                }
+            }
+            
+            // 更新網絡信息
+            setTimeout(updateAccountInfo, 1000);
+        }
+
+        // 打開水龍頭領取免費代幣
+        async function openFaucet() {
+            if (!currentAccount) {
+                showMessage('請先連接 MetaMask！', 'error');
+                return;
+            }
+            
+            // 獲取當前網絡
+            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+            let faucetUrl = 'https://cloud.google.com/application/web3/faucet/ethereum/sepolia';
+            let networkName = '水龍頭';
+            
+            // 根據網絡選擇對應的水龍頭
+            switch(chainId) {
+                case '0xaa36a7': // Sepolia
+                    faucetUrl = 'https://cloud.google.com/application/web3/faucet/ethereum/sepolia';
+                    networkName = 'Google Ethereum Sepolia 水龍頭';
+                    break;
+                case '0x13882': // Polygon Amoy
+                    faucetUrl = 'https://faucet.polygon.technology/';
+                    networkName = 'Polygon 官方水龍頭';
+                    break;
+                default:
+                    faucetUrl = 'https://cloud.google.com/application/web3/faucet/ethereum/sepolia';
+                    networkName = 'Google Ethereum Sepolia 水龍頭';
+            }
+            
+            // 複製地址到剪貼板
+            navigator.clipboard.writeText(currentAccount).then(() => {
+                showMessage(`✅ 已複製你的錢包地址：${currentAccount.slice(0, 10)}...${currentAccount.slice(-6)}\n即將打開 ${networkName} 水龍頭網站，貼上地址即可領取免費測試幣！`, 'success');
+                
+                // 打開水龍頭網站
+                setTimeout(() => {
+                    window.open(faucetUrl, '_blank');
+                }, 2000);
+            }).catch(err => {
+                console.error('複製失敗:', err);
+                showMessage(`你的錢包地址：${currentAccount.slice(0, 10)}...${currentAccount.slice(-6)}\n請手動複製到水龍頭網站領取免費代幣`, 'info');
+                window.open(faucetUrl, '_blank');
+            });
+        }
+
+        // 打開 Chainlist 查看更多網絡
+        function openChainlist() {
+            showMessage('即將打開 Chainlist.org 網站，您可以在那裡找到所有 EVM 網絡的 Chain ID 和 RPC 設定！', 'info');
+            
+            // 打開 Chainlist 網站
+            setTimeout(() => {
+                window.open('https://chainlist.org/', '_blank');
+            }, 1500);
+        }
+
+        // 發送測試交易
+        async function sendTransaction() {
+            const recipientAddress = document.getElementById('recipientAddress').value;
+            const amount = document.getElementById('amount').value;
+
+            // 驗證輸入
+            if (!recipientAddress || !amount) {
+                showMessage('請填寫接收地址和金額！', 'error');
+                return;
+            }
+
+            if (!recipientAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
+                showMessage('接收地址格式不正確！', 'error');
+                return;
+            }
+
+            if (isNaN(amount) || parseFloat(amount) <= 0) {
+                showMessage('金額必須是正數！', 'error');
+                return;
+            }
+
+            try {
+                // 轉換金額為 Wei (1 ETH/POL = 10^18 Wei)
+                const amountInWei = (parseFloat(amount) * Math.pow(10, 18)).toString(16);
+
+                // 構建交易參數
+                const transactionParameters = {
+                    to: recipientAddress,
+                    from: currentAccount,
+                    value: '0x' + amountInWei,
+                    gas: '0x5208', // 21000 gas (標準轉帳)
+                };
+
+                // 發送交易
+                const txHash = await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [transactionParameters],
+                });
+
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const explorerUrl = getExplorerUrl(chainId);
+                
+                showMessage(`交易已發送！\n交易哈希: ${txHash}\n可在 ${explorerUrl} 查看交易狀態。`, 'success');
+                
+                // 更新餘額
+                setTimeout(updateAccountInfo, 3000);
+                
+            } catch (error) {
+                console.error('交易失敗:', error);
+                showMessage(`交易失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 更新連接狀態
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            if (currentAccount) {
+                statusElement.textContent = '✅ 已連接';
+                statusElement.style.color = 'green';
+            } else {
+                statusElement.textContent = '❌ 未連接';
+                statusElement.style.color = 'red';
+            }
+        }
+
+        // 更新帳戶信息
+        async function updateAccountInfo() {
+            if (!currentAccount) return;
+
+            try {
+                // 獲取當前網絡
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const networkName = getNetworkName(chainId);
+                document.getElementById('networkInfo').textContent = `${networkName}`;
+                
+                // 顯示Chain ID（十六進制和十進制）
+                const chainIdDecimal = parseInt(chainId, 16);
+                document.getElementById('chainIdInfo').textContent = `${chainIdDecimal} (${chainId})`;
+
+                // 獲取餘額
+                const balance = await window.ethereum.request({
+                    method: 'eth_getBalance',
+                    params: [currentAccount, 'latest']
+                });
+                
+                const balanceInEther = parseInt(balance, 16) / Math.pow(10, 18);
+                document.getElementById('balanceInfo').textContent = 
+                    `${balanceInEther.toFixed(6)} ${getNetworkCurrency(chainId)}`;
+
+            } catch (error) {
+                console.error('獲取帳戶信息失敗:', error);
+            }
+        }
+
+        // 獲取網絡名稱
+        function getNetworkName(chainId) {
+            const networks = {
+                '0x1': 'Ethereum 主網',
+                '0xaa36a7': 'Ethereum Sepolia 測試網',
+                '0x13882': 'Polygon Amoy 測試網'
+            };
+            return networks[chainId] || `未知網絡 (${chainId})`;
+        }
+
+        // 獲取網絡貨幣
+        function getNetworkCurrency(chainId) {
+            const currencies = {
+                '0x1': 'ETH',
+                '0xaa36a7': 'ETH',
+                '0x13882': 'POL'
+            };
+            return currencies[chainId] || 'ETH';
+        }
+
+        // 獲取區塊瀏覽器URL
+        function getExplorerUrl(chainId) {
+            const explorers = {
+                '0x1': 'Etherscan',
+                '0xaa36a7': 'Sepolia Etherscan',
+                '0x13882': 'Amoy Polygonscan'
+            };
+            return explorers[chainId] || '區塊瀏覽器';
+        }
+
+        // 顯示消息
+        function showMessage(message, type = 'info') {
+            const messageBox = document.getElementById('messageBox');
+            
+            // 根據類型設置對應的CSS類
+            let alertClass = 'alert-info';
+            switch(type) {
+                case 'success':
+                    alertClass = 'alert-success';
+                    break;
+                case 'error':
+                    alertClass = 'alert-error';
+                    break;
+                case 'info':
+                default:
+                    alertClass = 'alert-info';
+                    break;
+            }
+            
+            messageBox.innerHTML = `<div class="alert ${alertClass}">${message.replace(/\n/g, '<br>')}</div>`;
+            
+            // 自動清除消息
+            setTimeout(() => {
+                messageBox.innerHTML = '';
+            }, 8000);
+        }
+
+        // 監聽帳戶變更
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', function (accounts) {
+                if (accounts.length === 0) {
+                    // 沒有帳戶，清空所有狀態
+                    allAccounts = [];
+                    currentAccount = null;
+                    updateConnectionStatus();
+                    document.getElementById('networkInfo').textContent = '--';
+                    document.getElementById('chainIdInfo').textContent = '--';
+                    document.getElementById('balanceInfo').textContent = '--';
+                    document.getElementById('accountSelect').innerHTML = '<option value="">請先連接錢包</option>';
+                    document.getElementById('accountSelect').disabled = true;
+                    
+                    // 禁用按鈕
+                    document.getElementById('addSepoliaBtn').disabled = true;
+                    document.getElementById('addPolygonBtn').disabled = true;
+                    document.getElementById('openFaucetBtn').disabled = true;
+                    document.getElementById('sendBtn').disabled = true;
+                    document.getElementById('refreshAccountsBtn').disabled = true;
+                    
+                    showMessage('MetaMask 已斷開連接', 'error');
+                } else {
+                    // 有帳戶，更新帳戶列表
+                    allAccounts = accounts;
+                    
+                    // 如果當前帳戶不在新列表中，選擇第一個帳戶
+                    if (!accounts.includes(currentAccount)) {
+                        currentAccount = accounts[0];
+                    }
+                    
+                    // 更新界面
+                    updateConnectionStatus();
+                    updateAccountInfo();
+                    updateAccountSelect();
+                    
+                    // 啟用按鈕
+                    document.getElementById('addSepoliaBtn').disabled = false;
+                    document.getElementById('addPolygonBtn').disabled = false;
+                    document.getElementById('openFaucetBtn').disabled = false;
+                    document.getElementById('sendBtn').disabled = false;
+                    document.getElementById('refreshAccountsBtn').disabled = false;
+                    document.getElementById('accountSelect').disabled = false;
+                    
+                    showMessage('帳戶已更新', 'info');
+                }
+            });
+
+            // 監聽網絡變更
+            window.ethereum.on('chainChanged', function (chainId) {
+                updateAccountInfo();
+                showMessage(`已切換到 ${getNetworkName(chainId)} 網絡`, 'info');
+            });
+        }
+
+        // 切換帳戶
+        async function switchAccount() {
+            const selectedAccount = document.getElementById('accountSelect').value;
+            
+            if (!selectedAccount || selectedAccount === '') {
+                showMessage('請選擇一個帳戶！', 'error');
+                return;
+            }
+
+            if (selectedAccount === currentAccount) {
+                showMessage('您已經在使用此帳戶！', 'info');
+                return;
+            }
+
+            try {
+                // 更新當前帳戶
+                currentAccount = selectedAccount;
+                
+                // 更新界面顯示
+                updateConnectionStatus();
+                await updateAccountInfo();
+                
+                showMessage(`已切換到帳戶：${selectedAccount.slice(0, 10)}...${selectedAccount.slice(-6)}`, 'success');
+            } catch (error) {
+                console.error('切換帳戶失敗:', error);
+                showMessage(`切換帳戶失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 刷新帳戶列表
+        async function refreshAccounts() {
+            if (!checkMetaMaskInstallation()) {
+                return;
+            }
+            
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                
+                if (accounts.length > 0) {
+                    allAccounts = accounts;
+                    
+                    // 如果當前帳戶不在新的帳戶列表中，選擇第一個帳戶
+                    if (!accounts.includes(currentAccount)) {
+                        currentAccount = accounts[0];
+                    }
+                    
+                    // 更新帳戶選擇下拉框
+                    updateAccountSelect();
+                    
+                    // 更新界面顯示
+                    updateConnectionStatus();
+                    await updateAccountInfo();
+                    
+                    // 啟用相關按鈕
+                    document.getElementById('addSepoliaBtn').disabled = false;
+                    document.getElementById('addPolygonBtn').disabled = false;
+                    document.getElementById('openFaucetBtn').disabled = false;
+                    document.getElementById('sendBtn').disabled = false;
+                    document.getElementById('refreshAccountsBtn').disabled = false;
+                    document.getElementById('accountSelect').disabled = false;
+                    
+                    showMessage(`已刷新帳戶列表，共找到 ${accounts.length} 個帳戶`, 'success');
+                } else {
+                    // 沒有帳戶，清空狀態
+                    allAccounts = [];
+                    currentAccount = null;
+                    updateConnectionStatus();
+                    document.getElementById('networkInfo').textContent = '--';
+                    document.getElementById('chainIdInfo').textContent = '--';
+                    document.getElementById('balanceInfo').textContent = '--';
+                    document.getElementById('accountSelect').innerHTML = '<option value="">請先連接錢包</option>';
+                    document.getElementById('accountSelect').disabled = true;
+                    
+                    showMessage('未找到已連接的帳戶，請重新連接MetaMask', 'error');
+                }
+            } catch (error) {
+                console.error('刷新帳戶失敗:', error);
+                showMessage(`刷新帳戶失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 頁面載入完成後執行
+        window.addEventListener('load', async () => {
+            // 檢查是否已連接
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        allAccounts = accounts; // 初始化 allAccounts
+                        currentAccount = accounts[0];
+                        updateConnectionStatus();
+                        await updateAccountInfo();
+                        
+                        // 更新帳戶選擇下拉框
+                        updateAccountSelect();
+                        
+                        // 啟用按鈕
+                        document.getElementById('addSepoliaBtn').disabled = false;
+                        document.getElementById('addPolygonBtn').disabled = false;
+                        document.getElementById('openFaucetBtn').disabled = false;
+                        document.getElementById('sendBtn').disabled = false;
+                        document.getElementById('refreshAccountsBtn').disabled = false; // 啟用刷新按鈕
+                        document.getElementById('accountSelect').disabled = false; // 啟用選擇框
+                    } else {
+                        // 確保未連接時顯示預設值
+                        document.getElementById('networkInfo').textContent = '--';
+                        document.getElementById('chainIdInfo').textContent = '--';
+                        document.getElementById('balanceInfo').textContent = '--';
+                        document.getElementById('accountSelect').innerHTML = '<option value="">請先連接錢包</option>'; // 清空選擇框
+                        document.getElementById('accountSelect').disabled = true; // 禁用選擇框
+                        document.getElementById('refreshAccountsBtn').disabled = true; // 禁用刷新按鈕
+                    }
+                } catch (error) {
+                    console.error('檢查連接狀態失敗:', error);
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

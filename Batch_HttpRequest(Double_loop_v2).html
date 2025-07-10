@@ -27,6 +27,20 @@
             --gradient-success: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
             --gradient-warning: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
             --gradient-danger: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            
+            /* 主項表格 - 粉藍色系 */
+            --main-primary: #3b82f6;
+            --main-primary-hover: #2563eb;
+            --main-light: #dbeafe;
+            --main-lighter: #eff6ff;
+            --main-gradient: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            
+            /* 參數組表格 - 粉紫色系 */
+            --param-primary: #a855f7;
+            --param-primary-hover: #9333ea;
+            --param-light: #e9d5ff;
+            --param-lighter: #faf5ff;
+            --param-gradient: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%);
         }
         body { 
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -91,9 +105,27 @@
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow);
         }
+        
+        .table-container::-webkit-scrollbar, .request-status::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .table-container::-webkit-scrollbar-track, .request-status::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb, .request-status::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover, .request-status::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
         .request-status { 
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 16px;
+            padding: 10px 12px;
             border: 1px solid var(--border-color);
         }
         .btn { 
@@ -172,15 +204,15 @@
             flex-wrap: wrap;
         }
         .status-item { 
-            padding: 12px; 
+            padding: 8px 10px; 
             border-bottom: 1px solid var(--border-color); 
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             background: rgba(255, 255, 255, 0.8);
             border-radius: 6px;
             border: 1px solid var(--border-color);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             transition: all 0.3s ease;
         }
         .status-item::before {
@@ -213,17 +245,21 @@
         }
         .result { 
             word-wrap: break-word; 
-            font-size: 0.8rem; 
-            padding: 8px 10px; 
+            font-size: 0.75rem; 
+            padding: 6px 8px; 
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
-            border-radius: 6px; 
-            margin-top: 8px; 
+            border-radius: 4px; 
+            margin-top: 6px; 
             white-space: pre-wrap;
             border: 1px solid rgba(0, 0, 0, 0.08);
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
             line-height: 1.4;
             cursor: pointer;
+            font-weight: 400;
+            letter-spacing: 0.005em;
+            max-height: 120px;
+            overflow-y: auto;
         }
         .result.success { 
             color: var(--success-color); 
@@ -249,10 +285,10 @@
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
         }
         .step-icon { 
-            font-size: 1.1rem; 
-            margin-right: 6px;
-            padding: 2px 6px;
-            border-radius: 4px;
+            font-size: 0.85rem; 
+            margin-right: 5px;
+            padding: 2px 5px;
+            border-radius: 3px;
             background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.15) 100%);
             display: inline-block;
         }
@@ -298,11 +334,11 @@
         }
         
         .progress { 
-            height: 6px; 
-            border-radius: 4px;
+            height: 4px; 
+            border-radius: 3px;
             background: rgba(100, 116, 139, 0.15);
             overflow: hidden;
-            margin: 8px 0;
+            margin: 6px 0;
             box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         .progress-bar {
@@ -310,6 +346,44 @@
             background: linear-gradient(90deg, var(--primary-color) 0%, #3b82f6 100%);
             transition: width 0.3s ease;
             box-shadow: 0 0 4px rgba(59, 130, 246, 0.3);
+        }
+        
+        .progress-info {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            margin-top: 3px;
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.001em;
+        }
+        
+        .status-compact {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 400;
+            letter-spacing: 0.001em;
+        }
+        
+        /* 改善滾動條樣式 */
+        .result::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        
+        .result::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+        }
+        
+        .result::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 2px;
+        }
+        
+        .result::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
         }
         
         /* Excel風格表格 */
@@ -462,13 +536,13 @@
         }
         
         .loop-outer {
-            border: 2px solid var(--primary-color);
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid var(--main-primary);
+            background: var(--main-gradient);
         }
         
         .loop-inner {
-            border: 2px solid var(--warning-color);
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid var(--param-primary);
+            background: var(--param-gradient);
         }
         
         .loop-result {
@@ -584,6 +658,38 @@
             50% {
                 transform: translateX(2px);
             }
+        }
+
+
+
+        /* 表格行高亮樣式 */
+        .table-row-active {
+            background-color: rgba(37, 99, 235, 0.1) !important;
+            border-left: 4px solid var(--primary-color) !important;
+        }
+
+        .table-row-active td {
+            background-color: rgba(37, 99, 235, 0.08) !important;
+        }
+
+        /* 主項表格行高亮樣式 */
+        .main-table-row-active {
+            background-color: rgba(59, 130, 246, 0.1) !important;
+            border-left: 4px solid var(--main-primary) !important;
+        }
+
+        .main-table-row-active td {
+            background-color: rgba(59, 130, 246, 0.08) !important;
+        }
+
+        /* 參數組表格行高亮樣式 */
+        .param-table-row-active {
+            background-color: rgba(236, 72, 153, 0.1) !important;
+            border-left: 4px solid var(--param-primary) !important;
+        }
+
+        .param-table-row-active td {
+            background-color: rgba(236, 72, 153, 0.08) !important;
         }
         
         .loop-connector {
@@ -712,32 +818,38 @@
         }
         
         .loop-inner-item span {
-            font-size: 0.9rem;
-            margin-right: 3px;
+            font-size: 0.7rem;
+            margin-right: 2px;
         }
         
         .request-url {
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 0.7rem;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+            font-size: 0.6rem;
             color: var(--info-color);
             background: rgba(8, 145, 178, 0.1);
-            padding: 3px 6px;
+            padding: 4px 6px;
             border-radius: 3px;
-            margin-left: 12px;
+            margin-left: 10px;
             display: inline-block;
             margin-top: 3px;
+            font-weight: 400;
+            letter-spacing: 0.005em;
+            line-height: 1.2;
         }
         
         .request-body {
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 0.7rem;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+            font-size: 0.6rem;
             color: var(--secondary-color);
             background: rgba(100, 116, 139, 0.1);
-            padding: 3px 6px;
+            padding: 4px 6px;
             border-radius: 3px;
-            margin-left: 12px;
+            margin-left: 10px;
             display: inline-block;
             margin-top: 3px;
+            font-weight: 400;
+            letter-spacing: 0.005em;
+            line-height: 1.2;
         }
         
         .request-info {
@@ -749,13 +861,15 @@
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             margin-bottom: 3px;
-            font-size: 0.85rem;
+            font-size: 0.7rem;
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            letter-spacing: 0.003em;
         }
         
         .request-title span {
-            font-size: 0.95rem;
+            font-size: 0.75rem;
         }
         
         .loop-badge {
@@ -765,19 +879,19 @@
         }
         
         .outer-loop, .inner-loop {
-            font-size: 0.65rem;
-            padding: 2px 4px;
-            border-radius: 3px;
+            font-size: 0.45rem;
+            padding: 1px 2px;
+            border-radius: 2px;
             font-weight: 500;
         }
         
         .outer-loop {
-            background: var(--primary-color);
+            background: var(--main-primary);
             color: white;
         }
         
         .inner-loop {
-            background: var(--warning-color);
+            background: var(--param-primary);
             color: white;
         }
         
@@ -787,27 +901,192 @@
         }
         
         .request-details {
-            font-size: 0.75rem;
+            font-size: 0.6rem;
             color: var(--text-secondary);
-            margin-left: 20px;
+            margin-left: 15px;
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.2;
+            font-weight: 400;
+            letter-spacing: 0.001em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .request-details:hover {
+            color: var(--text-primary);
+            background: rgba(248, 250, 252, 0.5);
+            border-radius: 3px;
+            padding: 2px 4px;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow: visible;
+        }
+        
+        .expandable-text {
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+            margin-left: 15px;
+            margin-top: 2px;
+            padding: 2px 4px;
+            background: rgba(248, 250, 252, 0.8);
+            border-radius: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 400;
+            letter-spacing: 0.001em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .expandable-text:hover {
+            color: var(--text-primary);
+            background: rgba(248, 250, 252, 0.9);
+            white-space: normal;
+            word-wrap: break-word;
+            overflow: visible;
+            max-height: 150px;
+            overflow-y: auto;
         }
 
         
         .badge {
-            font-size: 0.7rem;
-            padding: 4px 8px;
-            border-radius: 4px;
+            font-size: 0.6rem;
+            padding: 3px 6px;
+            border-radius: 3px;
         }
         
         .alert {
-            padding: 10px 12px;
-            margin-bottom: 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 0.65rem;
         }
         
         .alert strong {
+            font-size: 0.65rem;
+        }
+        
+        /* 結果區域標題字體優化 */
+        .text-primary.mb-2 {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 600;
             font-size: 0.8rem;
+            letter-spacing: 0.005em;
+        }
+        
+        /* 狀態項目整體字體優化 */
+        .status-item {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        /* 主項表格特定樣式 */
+        .main-excel-table th {
+            background: var(--main-primary) !important;
+            color: white !important;
+        }
+        
+        .main-excel-table input:focus {
+            background: var(--main-light) !important;
+            box-shadow: inset 0 0 0 2px var(--main-primary) !important;
+        }
+        
+        .main-excel-table tr:hover {
+            background: var(--main-lighter) !important;
+        }
+        
+        .main-excel-table .selected {
+            background: var(--main-light) !important;
+            box-shadow: inset 0 0 0 2px var(--main-primary) !important;
+        }
+        
+        .main-excel-table .selected input {
+            background: var(--main-light) !important;
+        }
+        
+        /* 參數組表格特定樣式 */
+        .param-excel-table th {
+            background: var(--param-primary) !important;
+            color: white !important;
+        }
+        
+        .param-excel-table input:focus {
+            background: var(--param-light) !important;
+            box-shadow: inset 0 0 0 2px var(--param-primary) !important;
+        }
+        
+        .param-excel-table tr:hover {
+            background: var(--param-lighter) !important;
+        }
+        
+        .param-excel-table .selected {
+            background: var(--param-light) !important;
+            box-shadow: inset 0 0 0 2px var(--param-primary) !important;
+        }
+        
+        .param-excel-table .selected input {
+            background: var(--param-light) !important;
+        }
+        
+        /* 主項表格按鈕組樣式 */
+        .main-btn-group .btn-primary {
+            background: var(--main-primary) !important;
+            border-color: var(--main-primary) !important;
+        }
+        
+        .main-btn-group .btn-primary:hover {
+            background: var(--main-primary-hover) !important;
+            border-color: var(--main-primary-hover) !important;
+        }
+        
+        /* 參數組表格按鈕組樣式 */
+        .param-btn-group .btn-primary {
+            background: var(--param-primary) !important;
+            border-color: var(--param-primary) !important;
+        }
+        
+        .param-btn-group .btn-primary:hover {
+            background: var(--param-primary-hover) !important;
+            border-color: var(--param-primary-hover) !important;
+        }
+        
+        /* 主項表格卡片標題樣式 */
+        .main-card-title {
+            color: var(--main-primary) !important;
+        }
+        
+        .main-card-title .step-icon {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.15) 100%) !important;
+        }
+        
+        /* 參數組表格卡片標題樣式 */
+        .param-card-title {
+            color: var(--param-primary) !important;
+        }
+        
+        .param-card-title .step-icon {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(236, 72, 153, 0.15) 100%) !important;
+        }
+        
+        /* 主項表格提示框樣式 */
+        .main-alert {
+            background: var(--main-lighter) !important;
+            border: 1px solid var(--main-light) !important;
+            color: var(--main-primary) !important;
+        }
+        
+        /* 參數組表格提示框樣式 */
+        .param-alert {
+            background: var(--param-lighter) !important;
+            border: 1px solid var(--param-light) !important;
+            color: var(--param-primary) !important;
         }
     </style>
 </head>
@@ -904,16 +1183,16 @@
         <!-- 步驟 1：設置主項表格 -->
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title"><span class="step-icon">1️⃣</span>設置主項表格 (外層循環：主要項目)</h5>
+                <h5 class="card-title main-card-title"><span class="step-icon">1️⃣</span>設置主項表格 (外層循環：主要項目)</h5>
                 <div class="mb-3">
-                    <div class="alert alert-info d-flex align-items-center">
+                    <div class="alert alert-info main-alert d-flex align-items-center">
                         <span class="me-2">ℹ️</span>
                         <div>
                             <strong>外層循環說明：</strong>每一行主項都會觸發一輪完整的內層循環，與所有參數組進行組合
                         </div>
                     </div>
                 </div>
-                <div class="btn-group mb-2">
+                <div class="btn-group main-btn-group mb-2">
                     <button class="btn btn-primary" id="add-main-row" title="新增一行">➕ 新增行</button>
                     <button class="btn btn-primary" id="add-main-column" title="新增一列">📋 新增列</button>
                     <button class="btn btn-secondary" id="del-main-row" title="刪除最後一行">➖ 刪除行</button>
@@ -924,7 +1203,7 @@
                     <button class="btn btn-primary" id="import-main-table-btn" title="支援TSV、CSV、Excel格式">📥 匯入</button>
                 </div>
                 <div class="table-container">
-                    <table class="excel-table" id="main-excel-table">
+                    <table class="excel-table main-excel-table" id="main-excel-table">
                         <thead>
                             <tr id="main-excel-header"></tr>
                         </thead>
@@ -937,16 +1216,16 @@
         <!-- 步驟 2：設置參數組表格 -->
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title"><span class="step-icon">2️⃣</span>設置參數組表格 (內層循環：參數組合)</h5>
+                <h5 class="card-title param-card-title"><span class="step-icon">2️⃣</span>設置參數組表格 (內層循環：參數組合)</h5>
                 <div class="mb-3">
-                    <div class="alert alert-warning d-flex align-items-center">
+                    <div class="alert alert-warning param-alert d-flex align-items-center">
                         <span class="me-2">⚠️</span>
                         <div>
                             <strong>內層循環說明：</strong>每一行參數組都會與每一行主項進行組合，生成一個獨立的請求
                         </div>
                     </div>
                 </div>
-                <div class="btn-group mb-2">
+                <div class="btn-group param-btn-group mb-2">
                     <button class="btn btn-primary" id="add-row" title="新增一行">➕ 新增行</button>
                     <button class="btn btn-primary" id="add-column" title="新增一列">📋 新增列</button>
                     <button class="btn btn-secondary" id="del-row" title="刪除最後一行">➖ 刪除行</button>
@@ -957,7 +1236,7 @@
                     <button class="btn btn-primary" id="import-table-btn" title="支援TSV、CSV、Excel格式">📥 匯入</button>
                 </div>
                 <div class="table-container">
-                    <table class="excel-table" id="excel-table">
+                    <table class="excel-table param-excel-table" id="excel-table">
                         <thead>
                             <tr id="excel-header"></tr>
                         </thead>
@@ -1066,7 +1345,9 @@
                         </div>
                         
                         <div class="request-status mt-3">
-                            <h6 class="text-primary mb-2">📋 請求結果</h6>
+                            <h6 class="text-primary mb-2">📋 請求結果 
+                                <span id="scroll-indicator" class="badge badge-success" style="font-size: 0.4rem; margin-left: 6px;">🔄 自動滾動</span>
+                            </h6>
                             <div id="status-container"></div>
                         </div>
                     </div>
@@ -1100,7 +1381,7 @@
             mainExcelHeader.innerHTML = '<th class="row-number">#</th>' + mainExcelData[0].map((_,i)=>`<th>主項${i+1}</th>`).join('');
             // 渲染表身
             mainExcelBody.innerHTML = mainExcelData.map((row,ri)=>
-                `<tr><td class="row-number">${ri+1}</td>`+
+                `<tr data-main-row="${ri}"><td class="row-number">${ri+1}</td>`+
                 row.map((cell,ci)=>`<td><input type="text" value="${cell}" data-row="${ri}" data-col="${ci}" class="form-control main-excel-input" placeholder="輸入主項數據"></td>`).join('')+
                 '</tr>'
             ).join('');
@@ -1185,7 +1466,7 @@
             paramExcelHeader.innerHTML = '<th class="row-number">#</th>' + paramExcelData[0].map((_,i)=>`<th>參數${i+1}</th>`).join('');
             // 渲染表身
             paramExcelBody.innerHTML = paramExcelData.map((row,ri)=>
-                `<tr><td class="row-number">${ri+1}</td>`+
+                `<tr data-param-row="${ri}"><td class="row-number">${ri+1}</td>`+
                 row.map((cell,ci)=>`<td><input type="text" value="${cell}" data-row="${ri}" data-col="${ci}" class="form-control param-excel-input" placeholder="輸入參數數據"></td>`).join('')+
                 '</tr>'
             ).join('');
@@ -1384,6 +1665,31 @@
         function formatResult(text, success) {
             const max = 100;
             return text.length > max ? { short: `${text.slice(0, max)} ... (點擊展開)`, full: text } : { short: text, full: text };
+        }
+
+        // 表格位置指示函數
+        function updateTableHighlight(mainRowIndex, paramRowIndex) {
+            // 清除所有行高亮
+            clearTableHighlight();
+            
+            // 設置主項表格行高亮
+            const mainRow = document.querySelector(`[data-main-row="${mainRowIndex}"]`);
+            if (mainRow) {
+                mainRow.classList.add('main-table-row-active');
+            }
+            
+            // 設置參數組表格行高亮
+            const paramRow = document.querySelector(`[data-param-row="${paramRowIndex}"]`);
+            if (paramRow) {
+                paramRow.classList.add('param-table-row-active');
+            }
+        }
+
+        function clearTableHighlight() {
+            // 清除所有行高亮
+            document.querySelectorAll('.main-table-row-active, .param-table-row-active').forEach(row => {
+                row.classList.remove('main-table-row-active', 'param-table-row-active');
+            });
         }
 
         // 主項表格事件綁定
@@ -1702,8 +2008,11 @@
             let count = 0;
             const total = mainExcelData.length * paramExcelData.length;
 
+            // 清除所有表格行高亮
+            clearTableHighlight();
+
             // 更新執行進度標題
-            document.querySelector('#total-progress').previousElementSibling.textContent = `📊 執行進度 (🔄 外層循環: ${mainExcelData.length} 行主項 | 🔁 內層循環: ${paramExcelData.length} 行參數 | 🚀 總請求數: ${total})`;
+            document.querySelector('#total-progress').previousElementSibling.textContent = `📊 執行進度 (🔄 外層循環: ${mainExcelData.length} 行主項 | 🔁 內層循環: ${paramExcelData.length} 行參數 | 🚀 總請求數: 0/${total})`;
 
             // 步驟5：執行請求並顯示結果
             for (let i = 0; i < mainExcelData.length; i++) {
@@ -1722,6 +2031,9 @@
                     
                     // 設置參數組參數
                     paramRowData.forEach((value, k) => allParams[`Parameter${k + 1}`] = value);
+                    
+                    // 更新表格行高亮指示當前正在處理的行
+                    updateTableHighlight(i, j);
                     
                     const statusItem = elements.statusContainer.appendChild(document.createElement('div'));
                     statusItem.className = 'status-item';
@@ -1742,6 +2054,11 @@
                         <div class="progress"><div class="progress-bar" style="width: 50%;"></div></div>
                         <div class="result-container mt-2"></div>
                     `;
+                    
+                    // 添加新項目後立即滾動到最新項目
+                    setTimeout(() => {
+                        scrollToBottom();
+                    }, 50);
                     const progress = statusItem.querySelector('.progress-bar');
                     const resultContainer = statusItem.querySelector('.result-container');
 
@@ -1754,7 +2071,7 @@
                     }
                     
                     // 顯示請求詳細信息
-                    let requestInfo = `<div class="request-url">🌐 ${url}</div>`;
+                    let requestInfo = `<div class="request-url expandable-text">🌐 ${url}</div>`;
                     
                     if (method === 'POST') {
                         let postBodyTemplate = $('#post-body-template').value;
@@ -1763,7 +2080,8 @@
                             postBodyTemplate = postBodyTemplate.replace(new RegExp(`{${key}}`, 'g'), val);
                         }
                         body = JSON.parse(postBodyTemplate);
-                        requestInfo += `<div class="request-body">📦 資料: ${JSON.stringify(body)}</div>`;
+                        const bodyText = JSON.stringify(body);
+                        requestInfo += `<div class="request-body expandable-text">📦 資料: ${bodyText}</div>`;
                     }
                     
                     resultContainer.innerHTML = requestInfo;
@@ -1778,9 +2096,19 @@
 
                     count++;
                     elements.totalProgress.style.width = `${(count / total) * 100}%`;
+                    
+                    // 更新執行進度標題顯示當前請求數
+                    document.querySelector('#total-progress').previousElementSibling.textContent = `📊 執行進度 (🔄 外層循環: ${mainExcelData.length} 行主項 | 🔁 內層循環: ${paramExcelData.length} 行參數 | 🚀 總請求數: ${count}/${total})`;
+                    
+                    // 自動滾動到最新的結果
+                    scrollToBottom();
+                    
                     if (delay) await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
+            
+            // 所有請求完成後清除表格行高亮
+            clearTableHighlight();
         });
 
         elements.statusContainer.addEventListener('click', e => {
@@ -1796,6 +2124,106 @@
         $('#import-config').addEventListener('change', importConfig);
 
         function $(selector) { return document.getElementById(selector.replace('#', '')); }
+        
+        // 自動滾動功能管理
+        let autoScrollEnabled = true;
+        let scrollTimeout = null;
+        
+        // 自動滾動到請求結果區域底部
+        function scrollToBottom() {
+            if (!autoScrollEnabled) return;
+            
+            const requestStatusContainer = document.querySelector('.request-status');
+            if (requestStatusContainer) {
+                requestStatusContainer.scrollTo({
+                    top: requestStatusContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }
+        
+        // 更新滾動指示器
+        function updateScrollIndicator() {
+            const indicator = document.getElementById('scroll-indicator');
+            if (indicator) {
+                if (autoScrollEnabled) {
+                    indicator.textContent = '🔄 自動滾動';
+                    indicator.className = 'badge badge-success';
+                    indicator.style.background = 'var(--success-color)';
+                    indicator.style.color = 'white';
+                } else {
+                    indicator.textContent = '⏸️ 暫停滾動';
+                    indicator.className = 'badge badge-warning';
+                    indicator.style.background = 'var(--warning-color)';
+                    indicator.style.color = 'white';
+                }
+            }
+        }
+        
+        // 設置滾動事件監聽器來檢測用戶手動滾動
+        function setupScrollListener() {
+            const requestStatusContainer = document.querySelector('.request-status');
+            if (requestStatusContainer) {
+                requestStatusContainer.addEventListener('scroll', function() {
+                    // 清除之前的timeout
+                    if (scrollTimeout) {
+                        clearTimeout(scrollTimeout);
+                    }
+                    
+                    // 檢查是否滾動到底部
+                    const isAtBottom = this.scrollTop + this.clientHeight >= this.scrollHeight - 5;
+                    
+                    if (isAtBottom) {
+                        // 如果在底部，啟用自動滾動
+                        autoScrollEnabled = true;
+                        updateScrollIndicator();
+                    } else {
+                        // 如果不在底部，暫停自動滾動
+                        autoScrollEnabled = false;
+                        updateScrollIndicator();
+                        
+                        // 3秒後重新啟用自動滾動
+                        scrollTimeout = setTimeout(() => {
+                            autoScrollEnabled = true;
+                            updateScrollIndicator();
+                        }, 3000);
+                    }
+                });
+            }
+        }
+        
+        // 改善文本顯示的功能
+        function formatText(text, maxLength = 80) {
+            if (!text || text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+        
+        function createExpandableElement(element) {
+            const originalText = element.textContent;
+            const shortText = formatText(originalText);
+            
+            if (originalText.length <= 80) return;
+            
+            element.textContent = shortText;
+            element.title = '點擊展開完整內容';
+            element.style.cursor = 'pointer';
+            
+            element.addEventListener('click', function() {
+                if (this.textContent.includes('...')) {
+                    this.textContent = originalText;
+                    this.title = '點擊縮短內容';
+                } else {
+                    this.textContent = shortText;
+                    this.title = '點擊展開完整內容';
+                }
+            });
+        }
+        
+        // 頁面加載完成後處理所有可展開的文本
+        document.addEventListener('DOMContentLoaded', function() {
+            const expandableElements = document.querySelectorAll('.expandable-text');
+            expandableElements.forEach(createExpandableElement);
+        });
 
         // 雙重循環動畫控制
         let animationRunning = false;
@@ -1894,6 +2322,12 @@
         // 當頁面加載完成後啟動動畫
         document.addEventListener('DOMContentLoaded', () => {
             loadConfig();
+            
+            // 設置滾動監聽器
+            setupScrollListener();
+            
+            // 初始化滾動指示器
+            updateScrollIndicator();
             
             // 立即啟動動畫
             setTimeout(() => {

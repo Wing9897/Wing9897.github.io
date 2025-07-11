@@ -3,235 +3,694 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wing9897 工具集</title>
+    <title>Wing9897工作坊</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: #f8f9fa; /* Light grey background */
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        .navbar {
-            background-color: #343a40; /* Darker navbar */
-        }
-        .navbar-brand {
-            color: #ffffff !important;
-            font-weight: bold;
-        }
-        .header-section {
-            background: linear-gradient(45deg, #007bff, #6610f2); /* Gradient background */
-            color: white;
-            padding: 60px 0;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .header-section h1 {
-            font-size: 3.5rem;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        .header-section p {
-            font-size: 1.25rem;
-            opacity: 0.9;
-        }
-        .tools-section {
-            padding: 50px 0;
-            flex-grow: 1; /* Allow this section to grow and push footer down */
-        }
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%; /* Ensure all cards in a row have same height */
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-        .card-title {
-            color: #007bff; /* Primary blue for titles */
-            font-weight: bold;
-            display: flex; /* 讓圖示和文字對齊 */
-            align-items: center; /* 垂直置中對齊 */
-            gap: 10px; /* 圖示和文字間距 */
-        }
-        .card-title i { /* 圖示樣式 */
-            font-size: 1.5em; /* 圖示大小 */
-            color: #6610f2; /* 圖示顏色 */
-        }
-        .card-body {
-            display: flex;
-            flex-direction: column;
-        }
-        .card-text {
-            flex-grow: 1; /* Allow description to take available space */
-        }
-        .card-footer {
-            background-color: transparent;
-            border-top: none;
-            padding-top: 0;
-        }
-        .footer {
-            background-color: #343a40;
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            margin-top: auto; /* Push footer to the bottom */
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #8b5cf6;
+            --accent-color: #10b981;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        /* Adjustments for smaller screens */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.1)" points="0,1000 1000,0 1000,1000"/></svg>');
+            background-size: cover;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--text-dark) !important;
+            font-size: 1.1rem;
+        }
+
+        .nav-link {
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        /* Product Grid */
+        .products-section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: var(--bg-white);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-color);
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .product-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .product-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .product-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .product-category {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .product-body {
+            padding: 1.5rem;
+        }
+
+        .product-description {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-tag {
+            background: var(--bg-light);
+            color: var(--text-light);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn-primary-custom:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            color: white;
+        }
+
+        .btn-secondary-custom {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 0.6rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-secondary-custom:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        /* Category Filter */
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: var(--bg-white);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .footer p {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links a {
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #374151;
+            padding-top: 2rem;
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .header-section h1 {
-                font-size: 2.5rem;
+            .header h1 {
+                font-size: 2rem;
             }
-            .header-section p {
-                font-size: 1rem;
+            
+            .header p {
+                font-size: 0.9rem;
             }
+            
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .category-filter {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scale-up {
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.6s ease;
+        }
+
+        .scale-up.visible {
+            transform: scale(1);
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="index.html">Wing9897 工具集</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="#"><i class="bi bi-code-square me-2"></i>Wing9897工作坊</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="index.html">首頁</a>
+                        <a class="nav-link" href="#products">工具</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">關於</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">聯繫</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <header class="header-section">
+    <!-- Header -->
+    <header class="header">
         <div class="container">
-            <h1>歡迎來到 Wing9897 的工具箱！</h1>
-            <p>探索我為您準備的實用網頁工具，讓您的工作和生活更高效。</p>
+            <div class="header-content" data-aos="fade-up">
+                <h1>Wing9897工作坊</h1>
+                <p>專業開發工具集，提升您的工作效率與創造力</p>
+            </div>
         </div>
     </header>
 
-    <section class="tools-section">
+    <!-- Products Section -->
+    <section class="products-section" id="products">
         <div class="container">
-            <h2 class="text-center mb-5">所有工具</h2>
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-arrow-repeat"></i> API 批量發送器 (多重循環)
-                            </h5>
-                            <p class="card-text">此工具允許您設定複雜的雙層參數循環，自動生成並批量發送多個 HTTP 請求，適用於需要組合參數的 API 測試或資料提交。</p>
-                            <div class="card-footer text-end">
-                                <a href="Batch_HttpRequest(Double_loop).html" class="btn btn-primary">立即使用</a>
-                            </div>
+            <div class="section-title" data-aos="fade-up">
+                <h2>我們的工具</h2>
+                <p>精心開發的專業工具，滿足不同場景的需求</p>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="category-filter" data-aos="fade-up" data-aos-delay="200">
+                <button class="category-btn active" data-category="all">全部工具</button>
+                <button class="category-btn" data-category="api">API工具</button>
+                <button class="category-btn" data-category="scanner">掃描工具</button>
+                <button class="category-btn" data-category="chart">圖表工具</button>
+                <button class="category-btn" data-category="crypto">區塊鏈</button>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="product-grid">
+                <!-- 批量自訂參數的HTTP請求器(雙循環_主項及TSV格式參數) - 進階版 -->
+                <div class="product-card" data-category="api" data-aos="fade-up" data-aos-delay="100">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <h3 class="product-title">批量自訂參數的HTTP請求器 (進階版)</h3>
+                        <p class="product-category">API工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            支援複雜雙層循環參數的進階API批量發送工具，具備完整的UI優化和智能滾動功能，適合大規模API測試。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">雙層循環</span>
+                            <span class="product-tag">批量處理</span>
+                            <span class="product-tag">進階UI</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="Batch_HttpRequest(Double_loop_v2).html" class="btn-primary-custom">立即使用</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-qr-code-scan"></i> QR碼參數化批量請求
-                            </h5>
-                            <p class="card-text">結合 QR Code 掃描功能，此工具可讀取 QR Code 內容作為參數，並根據表格數據（TSV 格式）批量發送 HTTP 請求，適合需要快速處理實物數據的場景。</p>
-                            <div class="card-footer text-end">
-                                <a href="Batch_HttpRequest(QRCodeWithTSV_Value).html" class="btn btn-primary">立即使用</a>
-                            </div>
+                <!-- 批量自訂參數的HTTP請求器(雙循環_主項及TSV格式參數) - 標準版 -->
+                <div class="product-card" data-category="api" data-aos="fade-up" data-aos-delay="200">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-send"></i>
+                        </div>
+                        <h3 class="product-title">批量自訂參數的HTTP請求器 (標準版)</h3>
+                        <p class="product-category">API工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            簡潔高效的API批量發送工具，支援多重循環參數設定，適合日常API測試和自動化任務。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">多重循環</span>
+                            <span class="product-tag">自動化</span>
+                            <span class="product-tag">簡潔介面</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="Batch_HttpRequest(Double_loop).html" class="btn-primary-custom">立即使用</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-table"></i> HTTP 請求批量發送器 (表格數據)
-                            </h5>
-                            <p class="card-text">一個通用的批量 HTTP 請求工具，您可以透過輸入表格形式（如 TSV）的參數數據，為每個數據行自動生成並發送獨立的請求。</p>
-                            <div class="card-footer text-end">
-                                <a href="Batch_HttpRequest(TSV_Value).html" class="btn btn-primary">立即使用</a>
-                            </div>
+                <!-- 批量自訂參數的HTTP請求器(QRcode及TSV格式參數) -->
+                <div class="product-card" data-category="api scanner" data-aos="fade-up" data-aos-delay="300">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-qr-code-scan"></i>
+                        </div>
+                        <h3 class="product-title">批量自訂參數的HTTP請求器 (QR碼版)</h3>
+                        <p class="product-category">掃描工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            結合QR碼掃描與批量API請求的創新工具，可讀取QR碼內容作為參數，配合TSV數據批量處理。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">QR碼掃描</span>
+                            <span class="product-tag">參數化</span>
+                            <span class="product-tag">批量處理</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="Batch_HttpRequest(QRCodeWithTSV_Value).html" class="btn-primary-custom">立即使用</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-search"></i> 實時 QR Code 搜索掃描器
-                            </h5>
-                            <p class="card-text">即時掃描 QR Code 並在畫面中高亮顯示，同時提供文字搜索功能，幫助您快速從多個 QR Code 中找出包含特定內容的目標。</p>
-                            <div class="card-footer text-end">
-                                <a href="RealTimeQRMatchScanner(Singal_Value).html" class="btn btn-primary">立即使用</a>
-                            </div>
+                <!-- 批量自訂參數的HTTP請求器(TSV格式參數) -->
+                <div class="product-card" data-category="api" data-aos="fade-up" data-aos-delay="400">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-table"></i>
+                        </div>
+                        <h3 class="product-title">批量自訂參數的HTTP請求器 (TSV版)</h3>
+                        <p class="product-category">API工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            支援TSV格式數據的通用批量HTTP請求工具，為每個數據行自動生成獨立請求，適合數據遷移和批量操作。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">TSV格式</span>
+                            <span class="product-tag">數據遷移</span>
+                            <span class="product-tag">批量操作</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="Batch_HttpRequest(TSV_Value).html" class="btn-primary-custom">立即使用</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-hand-index"></i> QR 碼對應值匹配器
-                            </h5>
-                            <p class="card-text">這是一個 Key-Value 形式的 QR Code 對照工具。您可以輸入一組 QR Code 與其對應的數值清單，掃描 QR Code 後即可即時顯示其關聯的數值，快速進行資料比對。</p>
-                            <div class="card-footer text-end">
-                                <a href="RealTimeQRMatchScanner(Batch_TSV).html" class="btn btn-primary">立即使用</a>
-                            </div>
+                <!-- Excel風格QR碼映射工具 -->
+                <div class="product-card" data-category="scanner" data-aos="fade-up" data-aos-delay="500">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-file-earmark-spreadsheet"></i>
+                        </div>
+                        <h3 class="product-title">Excel風格QR碼映射工具</h3>
+                        <p class="product-category">掃描工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            仿Excel介面的QR碼對照工具，支援批量TSV數據導入，掃描後即時顯示對應數值，適合庫存管理和資料比對。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">Excel風格</span>
+                            <span class="product-tag">批量導入</span>
+                            <span class="product-tag">即時匹配</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="RealTimeQRMatchScanner(Batch_TSV).html" class="btn-primary-custom">立即使用</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-bar-chart-line"></i> SQLite 資料圖表生成器 (Chart.js)
-                            </h5>
-                            <p class="card-text">將 SQLite 資料庫內容轉換為視覺化圖表。透過 Chart.js 庫，您可以上傳 SQLite 檔案並即時生成多種類型的統計圖表。</p>
-                            <div class="card-footer text-end">
-                                <a href="SQLite_to_charts(charts.js).html" class="btn btn-primary">立即使用</a>
-                            </div>
+                <!-- 實時單參數QR Code匹配器 -->
+                <div class="product-card" data-category="scanner" data-aos="fade-up" data-aos-delay="600">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <h3 class="product-title">實時單參數QR Code匹配器</h3>
+                        <p class="product-category">掃描工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            即時掃描QR碼並提供文字搜索功能，可快速從多個QR碼中找出包含特定內容的目標，支援高亮顯示。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">即時掃描</span>
+                            <span class="product-tag">文字搜索</span>
+                            <span class="product-tag">高亮顯示</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="RealTimeQRMatchScanner(Singal_Value).html" class="btn-primary-custom">立即使用</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-pie-chart-fill"></i> SQLite 資料圖表生成器 (ECharts)
-                            </h5>
-                            <p class="card-text">使用功能強大的 ECharts 庫來視覺化您的 SQLite 資料。上傳您的資料庫檔案，即可生成專業且互動性強的圖表，進行數據分析。</p>
-                            <div class="card-footer text-end">
-                                <a href="SQLite_to_charts(echarts.js).html" class="btn btn-primary">立即使用</a>
-                            </div>
+                <!-- SQLite Chart Viewer -->
+                <div class="product-card" data-category="chart" data-aos="fade-up" data-aos-delay="700">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-bar-chart"></i>
+                        </div>
+                        <h3 class="product-title">SQLite Chart Viewer</h3>
+                        <p class="product-category">圖表工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            基於Chart.js的輕量級SQLite數據圖表生成工具，簡潔高效，適合快速生成基本圖表分析。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">Chart.js</span>
+                            <span class="product-tag">輕量級</span>
+                            <span class="product-tag">快速分析</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="SQLite_to_charts(charts.js).html" class="btn-primary-custom">立即使用</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-graph-up"></i> TSV/Excel 資料圖表生成器 (ECharts)
-                            </h5>
-                            <p class="card-text">將 TSV 或 Excel 資料轉換為視覺化圖表。支援線圖、柱狀圖、圓環圖及時間-類別散點圖，適合快速分析表格數據。</p>
-                            <div class="card-footer text-end">
-                                <a href="TSV_Excel_to_charts.html" class="btn btn-primary">立即使用</a>
-                            </div>
+                <!-- SQLite Chart Viewer with ECharts -->
+                <div class="product-card" data-category="chart" data-aos="fade-up" data-aos-delay="800">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-pie-chart"></i>
+                        </div>
+                        <h3 class="product-title">SQLite Chart Viewer with ECharts</h3>
+                        <p class="product-category">圖表工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            使用ECharts函式庫的SQLite數據可視化工具，支援多種圖表類型，提供豐富的交互功能和美觀的圖表效果。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">ECharts</span>
+                            <span class="product-tag">SQLite</span>
+                            <span class="product-tag">數據可視化</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="SQLite_to_charts(echarts.js).html" class="btn-primary-custom">立即使用</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TSV / Excel 圖表產生器 -->
+                <div class="product-card" data-category="chart" data-aos="fade-up" data-aos-delay="900">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-file-earmark-spreadsheet"></i>
+                        </div>
+                        <h3 class="product-title">TSV / Excel 圖表產生器</h3>
+                        <p class="product-category">圖表工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            支援TSV和Excel格式的通用圖表生成工具，可直接導入表格數據並生成多種類型的可視化圖表。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">TSV/Excel</span>
+                            <span class="product-tag">通用格式</span>
+                            <span class="product-tag">多種圖表</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="TSV_Excel_to_charts.html" class="btn-primary-custom">立即使用</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MetaMask + 加密貨幣 測試交易 -->
+                <div class="product-card" data-category="crypto" data-aos="fade-up" data-aos-delay="1000">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <h3 class="product-title">MetaMask + 加密貨幣 測試交易</h3>
+                        <p class="product-category">區塊鏈工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            專業的MetaMask區塊鏈測試平台，支援多種測試網絡，提供完整的加密貨幣開發和測試環境。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">MetaMask</span>
+                            <span class="product-tag">測試網絡</span>
+                            <span class="product-tag">區塊鏈</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="MetaMask_Crypto_Testnet_Platform.html" class="btn-primary-custom">立即使用</a>
                         </div>
                     </div>
                 </div>
@@ -239,12 +698,94 @@
         </div>
     </section>
 
-    <footer class="footer">
+    <!-- Footer -->
+    <footer class="footer" id="contact">
         <div class="container">
-            <p>© 2025 Wing9897. All rights reserved.</p>
+            <div class="footer-content">
+                <h3>Wing9897工作坊</h3>
+                <p>專注於開發高品質的數位工具，為您的工作和生活提供便利</p>
+                <div class="footer-links">
+                    <a href="#">工具支援</a>
+                    <a href="#">使用條款</a>
+                    <a href="#">隱私政策</a>
+                    <a href="#">聯繫我們</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Wing9897工作坊. 版權所有。</p>
+            </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-quart',
+            once: true,
+            offset: 50
+        });
+
+        // Category Filter
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            const productCards = document.querySelectorAll('.product-card');
+
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    
+                    // Update active button
+                    categoryBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter products
+                    productCards.forEach(card => {
+                        if (category === 'all' || card.dataset.category.includes(category)) {
+                            card.style.display = 'block';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 50);
+                        } else {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Navbar scroll effect
+            window.addEventListener('scroll', function() {
+                const navbar = document.querySelector('.navbar');
+                if (window.scrollY > 50) {
+                    navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+                    navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+                } else {
+                    navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                    navbar.style.boxShadow = 'none';
+                }
+            });
+        });
+    </script>
 </body>
-</html>
+</html> 

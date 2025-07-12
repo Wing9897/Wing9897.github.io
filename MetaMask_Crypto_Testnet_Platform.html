@@ -540,7 +540,7 @@
 
     <div id="messageBox"></div>
     <!-- QR碼生成庫 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script>
         // 網絡配置
         // Ethereum Sepolia 測試網配置
@@ -624,7 +624,7 @@
                     document.getElementById('addSepoliaTokenBtn').disabled = false;
                     
                     // 生成QR碼
-                    generateQRCode(currentAccount);
+                    await generateQRCode(currentAccount);
                     
                     showMessage('MetaMask 連接成功！', 'success');
                 }
@@ -796,7 +796,7 @@
         }
 
         // 生成QR碼
-        function generateQRCode(address) {
+        async function generateQRCode(address) {
             if (!address) {
                 const qrCodeElement = document.getElementById('qrCode');
                 qrCodeElement.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">請先連接MetaMask</div>';
@@ -811,22 +811,46 @@
                 // 清空之前的內容
                 qrCodeElement.innerHTML = '';
                 
+                // 檢查QR碼庫是否已載入
+                if (typeof QRCode === 'undefined') {
+                    console.warn('QR碼庫尚未載入，使用備用方案');
+                    // 備用方案：顯示地址文字
+                    qrCodeElement.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 2rem; margin-bottom: 10px;">📱</div>
+                            <div style="font-size: 0.8rem; color: #666;">QR碼庫載入中...</div>
+                            <div style="font-size: 0.7rem; color: #999; margin-top: 10px;">請稍後重試</div>
+                        </div>
+                    `;
+                    qrAddressElement.textContent = address;
+                    return;
+                }
+                
                 // 生成QR碼
-                new QRCode(qrCodeElement, {
-                    text: address,
+                const canvas = document.createElement('canvas');
+                await QRCode.toCanvas(canvas, address, {
                     width: 150,
                     height: 150,
-                    colorDark: '#000000',
-                    colorLight: '#FFFFFF',
-                    correctLevel: QRCode.CorrectLevel.H
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
                 });
                 
+                qrCodeElement.appendChild(canvas);
                 qrAddressElement.textContent = address;
                 
             } catch (error) {
                 console.error('生成QR碼失敗:', error);
                 const qrCodeElement = document.getElementById('qrCode');
-                qrCodeElement.innerHTML = '<div style="text-align: center; color: #f56565; padding: 20px;">生成QR碼失敗</div>';
+                qrCodeElement.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">❌</div>
+                        <div style="font-size: 0.8rem; color: #f56565;">QR碼生成失敗</div>
+                        <div style="font-size: 0.7rem; color: #999; margin-top: 10px;">請檢查網絡連接</div>
+                    </div>
+                `;
             }
         }
 
@@ -920,7 +944,7 @@
                     `${balanceInEther.toFixed(6)} ${getNetworkCurrency(chainId)}`;
 
                 // 更新QR碼
-                generateQRCode(currentAccount);
+                await generateQRCode(currentAccount);
 
             } catch (error) {
                 console.error('獲取帳戶信息失敗:', error);
@@ -1007,7 +1031,7 @@
                     document.getElementById('addSepoliaTokenBtn').disabled = true;
                     
                     // 清空QR碼
-                    generateQRCode(null);
+                    generateQRCode(null).catch(console.error);
                     
                     showMessage('MetaMask 已斷開連接', 'error');
                 } else {
@@ -1128,6 +1152,15 @@
 
         // 頁面載入完成後執行
         window.addEventListener('load', async () => {
+            // 檢查QR碼庫是否載入
+            setTimeout(() => {
+                if (typeof QRCode !== 'undefined') {
+                    console.log('QR碼庫載入成功');
+                } else {
+                    console.warn('QR碼庫載入失敗，將使用備用方案');
+                }
+            }, 2000);
+            
             // 檢查是否已連接
             if (typeof window.ethereum !== 'undefined') {
                 try {
@@ -1142,7 +1175,7 @@
                         updateAccountSelect();
                         
                         // 生成QR碼
-                        generateQRCode(currentAccount);
+                        await generateQRCode(currentAccount);
                         
                         // 啟用按鈕
                         document.getElementById('addSepoliaBtn').disabled = false;

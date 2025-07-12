@@ -351,6 +351,50 @@
             background-color: #f8f9fa;
             cursor: not-allowed;
         }
+
+        .token-card {
+            background: linear-gradient(135deg, #fef7ff 0%, #fce7ff 100%);
+        }
+
+        .qr-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .qr-code {
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .qr-address {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #666;
+            text-align: center;
+            word-break: break-all;
+            max-width: 100%;
+            padding: 8px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .btn-token {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+        }
+
+        .btn-token:hover {
+            box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -461,11 +505,42 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- 代幣管理 -->
+                <div class="card token-card">
+                    <h3>🪙 代幣管理</h3>
+                    <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">將測試代幣添加到您的MetaMask錢包</p>
+                    <div class="button-group">
+                        <button id="addSepoliaTokenBtn" class="btn-token" onclick="addSepoliaTestnetToken()" disabled>
+                            ⚡ 添加Sepolia測試代幣
+                        </button>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 0.75rem; color: #888;">
+                        代幣地址: 0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9
+                    </p>
+                </div>
+
+                <!-- QR碼顯示 -->
+                <div class="card qr-card">
+                    <h3>📱 地址QR碼</h3>
+                    <div class="qr-container">
+                        <div id="qrCode" class="qr-code">
+                            <div style="text-align: center; color: #999; padding: 20px;">
+                                請先連接MetaMask
+                            </div>
+                        </div>
+                        <div id="qrAddress" class="qr-address">
+                            未連接錢包
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="messageBox"></div>
+    <!-- QR碼生成庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script>
         // 網絡配置
         // Ethereum Sepolia 測試網配置
@@ -492,6 +567,14 @@
             },
             rpcUrls: ['https://rpc-amoy.polygon.technology'],
             blockExplorerUrls: ['https://amoy.polygonscan.com']
+        };
+
+        // Sepolia 測試代幣配置
+        const SEPOLIA_TEST_TOKEN = {
+            address: '0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9',
+            symbol: 'STEST',
+            decimals: 18,
+            image: 'https://via.placeholder.com/32x32/a855f7/ffffff?text=ST'
         };
 
         // 全局變量
@@ -538,6 +621,10 @@
                     document.getElementById('sendBtn').disabled = false;
                     document.getElementById('refreshAccountsBtn').disabled = false;
                     document.getElementById('accountSelect').disabled = false;
+                    document.getElementById('addSepoliaTokenBtn').disabled = false;
+                    
+                    // 生成QR碼
+                    await generateQRCode(currentAccount);
                     
                     showMessage('MetaMask 連接成功！', 'success');
                 }
@@ -667,6 +754,85 @@
             }, 1500);
         }
 
+        // 添加Sepolia測試代幣
+        async function addSepoliaTestnetToken() {
+            if (!checkMetaMaskInstallation()) {
+                return;
+            }
+
+            try {
+                // 檢查是否在Sepolia網絡上
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                
+                if (chainId !== '0xaa36a7') {
+                    showMessage('請先切換到Ethereum Sepolia測試網絡！', 'error');
+                    return;
+                }
+
+                // 添加代幣到MetaMask
+                await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address: SEPOLIA_TEST_TOKEN.address,
+                            symbol: SEPOLIA_TEST_TOKEN.symbol,
+                            decimals: SEPOLIA_TEST_TOKEN.decimals,
+                            image: SEPOLIA_TEST_TOKEN.image,
+                        },
+                    },
+                });
+
+                showMessage('Sepolia測試代幣添加成功！您現在可以在MetaMask中看到此代幣。', 'success');
+                
+            } catch (error) {
+                console.error('添加代幣失敗:', error);
+                if (error.code === 4001) {
+                    showMessage('用戶拒絕了添加代幣的請求', 'error');
+                } else {
+                    showMessage(`添加代幣失敗: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // 生成QR碼
+        async function generateQRCode(address) {
+            if (!address) {
+                const qrCodeElement = document.getElementById('qrCode');
+                qrCodeElement.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">請先連接MetaMask</div>';
+                document.getElementById('qrAddress').textContent = '未連接錢包';
+                return;
+            }
+
+            try {
+                const qrCodeElement = document.getElementById('qrCode');
+                const qrAddressElement = document.getElementById('qrAddress');
+                
+                // 清空之前的內容
+                qrCodeElement.innerHTML = '';
+                
+                // 生成QR碼
+                const canvas = document.createElement('canvas');
+                await QRCode.toCanvas(canvas, address, {
+                    width: 150,
+                    height: 150,
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                });
+                
+                qrCodeElement.appendChild(canvas);
+                qrAddressElement.textContent = address;
+                
+            } catch (error) {
+                console.error('生成QR碼失敗:', error);
+                const qrCodeElement = document.getElementById('qrCode');
+                qrCodeElement.innerHTML = '<div style="text-align: center; color: #f56565; padding: 20px;">生成QR碼失敗</div>';
+            }
+        }
+
         // 發送測試交易
         async function sendTransaction() {
             const recipientAddress = document.getElementById('recipientAddress').value;
@@ -756,6 +922,9 @@
                 document.getElementById('balanceInfo').textContent = 
                     `${balanceInEther.toFixed(6)} ${getNetworkCurrency(chainId)}`;
 
+                // 更新QR碼
+                await generateQRCode(currentAccount);
+
             } catch (error) {
                 console.error('獲取帳戶信息失敗:', error);
             }
@@ -838,6 +1007,10 @@
                     document.getElementById('openFaucetBtn').disabled = true;
                     document.getElementById('sendBtn').disabled = true;
                     document.getElementById('refreshAccountsBtn').disabled = true;
+                    document.getElementById('addSepoliaTokenBtn').disabled = true;
+                    
+                    // 清空QR碼
+                    generateQRCode(null);
                     
                     showMessage('MetaMask 已斷開連接', 'error');
                 } else {
@@ -861,6 +1034,7 @@
                     document.getElementById('sendBtn').disabled = false;
                     document.getElementById('refreshAccountsBtn').disabled = false;
                     document.getElementById('accountSelect').disabled = false;
+                    document.getElementById('addSepoliaTokenBtn').disabled = false;
                     
                     showMessage('帳戶已更新', 'info');
                 }
@@ -933,6 +1107,7 @@
                     document.getElementById('sendBtn').disabled = false;
                     document.getElementById('refreshAccountsBtn').disabled = false;
                     document.getElementById('accountSelect').disabled = false;
+                    document.getElementById('addSepoliaTokenBtn').disabled = false;
                     
                     showMessage(`已刷新帳戶列表，共找到 ${accounts.length} 個帳戶`, 'success');
                 } else {
@@ -969,6 +1144,9 @@
                         // 更新帳戶選擇下拉框
                         updateAccountSelect();
                         
+                        // 生成QR碼
+                        await generateQRCode(currentAccount);
+                        
                         // 啟用按鈕
                         document.getElementById('addSepoliaBtn').disabled = false;
                         document.getElementById('addPolygonBtn').disabled = false;
@@ -976,6 +1154,7 @@
                         document.getElementById('sendBtn').disabled = false;
                         document.getElementById('refreshAccountsBtn').disabled = false; // 啟用刷新按鈕
                         document.getElementById('accountSelect').disabled = false; // 啟用選擇框
+                        document.getElementById('addSepoliaTokenBtn').disabled = false; // 啟用代幣按鈕
                     } else {
                         // 確保未連接時顯示預設值
                         document.getElementById('networkInfo').textContent = '--';

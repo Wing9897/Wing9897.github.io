@@ -61,6 +61,14 @@
             .grid {
                 grid-template-columns: 1fr;
             }
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+            button {
+                font-size: 13px;
+                padding: 10px 16px;
+                min-height: 44px;
+            }
         }
         
         .card {
@@ -91,6 +99,27 @@
         
         .network-card {
             background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        }
+        
+        .token-card {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+        }
+        
+        .token-subsection {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .token-subsection h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .faucet-card {
@@ -148,10 +177,14 @@
             font-size: 14px;
             font-weight: 600;
             transition: all 0.3s ease;
-            margin: 5px;
-            display: inline-flex;
+            margin: 0;
+            display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
+            width: 100%;
+            min-height: 48px;
+            white-space: nowrap;
         }
         
         button:hover {
@@ -199,8 +232,8 @@
         }
         
         .button-group {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 10px;
             margin-top: 15px;
         }
@@ -454,7 +487,7 @@
 
                 <!-- 網絡管理 -->
                 <div class="card network-card">
-                    <h3>🌐 網絡與代幣管理</h3>
+                    <h3>🌐 網絡與貨幣管理</h3>
                     <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">選擇並切換到您需要的測試網絡</p>
                     <div class="button-group">
                         <button id="addSepoliaBtn" class="btn-secondary" onclick="addSepoliaTestnet()" disabled>
@@ -463,25 +496,64 @@
                         <button id="addPolygonBtn" class="btn-secondary" onclick="addPolygonAmoyTestnet()" disabled>
                             🔷 添加及切換 Polygon Amoy
                         </button>
-                        <button id="addSepoliaTokenBtn" class="btn-info" onclick="addSepoliaToken()" disabled>
-                            🪙 添加 Ethereum Sepolia PYUSD
-                        </button>
-                        <button id="openChainlistBtn" class="btn-info" onclick="openChainlist()">
-                            🔗 查看更多網絡
-                        </button>
                     </div>
                     
-                    <!-- 代幣信息顯示 -->
-                    <div id="tokenInfoContainer" style="display: none;">
-                        <div class="token-info">
-                            <strong>代幣地址：</strong><br>
-                            0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9
+                    <!-- 應用代幣管理子區塊 -->
+                    <div class="token-subsection">
+                        <h4>🪙 應用代幣管理</h4>
+                        <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">添加和管理測試代幣</p>
+                        <div class="button-group">
+                            <button id="addSepoliaTokenBtn" class="btn-info" onclick="addSepoliaToken()" disabled>
+                                🪙 添加 Sepolia PYUSD (Paxos)
+                            </button>
+                            <button id="addSepoliaUSDCBtn" class="btn-info" onclick="addSepoliaUSDC()" disabled>
+                                💰 添加 Sepolia USDC (Circle)
+                            </button>
+                            <button id="addPolygonAmoyUSDCBtn" class="btn-info" onclick="addPolygonAmoyUSDC()" disabled>
+                                💰 添加 Amoy USDC (Circle)
+                            </button>
                         </div>
-                        <div class="token-info">
-                            <strong>代幣名稱：</strong> PayPal USD (PYUSD)<br>
-                            <strong>網絡：</strong> Ethereum Sepolia 測試網<br>
-                            <strong>代幣標準：</strong> ERC-20<br>
-                            <strong>小數位數：</strong> 6
+                        
+                        <!-- 代幣信息顯示 -->
+                        <div id="tokenInfoContainer" style="display: none;">
+                            <div class="token-info">
+                                <strong>代幣地址：</strong><br>
+                                0xCaC524BcA292aaade2DF8A05cC58F0a65B1B3bB9
+                            </div>
+                            <div class="token-info">
+                                <strong>代幣名稱：</strong> PayPal USD (PYUSD)<br>
+                                <strong>網絡：</strong> Ethereum Sepolia 測試網<br>
+                                <strong>代幣標準：</strong> ERC-20<br>
+                                <strong>小數位數：</strong> 6
+                            </div>
+                        </div>
+
+                        <!-- Ethereum Sepolia USDC 代幣信息顯示 -->
+                        <div id="sepoliaUSDCInfoContainer" style="display: none;">
+                            <div class="token-info">
+                                <strong>代幣地址：</strong><br>
+                                0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238
+                            </div>
+                            <div class="token-info">
+                                <strong>代幣名稱：</strong> USD Coin (USDC)<br>
+                                <strong>網絡：</strong> Ethereum Sepolia 測試網<br>
+                                <strong>代幣標準：</strong> ERC-20<br>
+                                <strong>小數位數：</strong> 6
+                            </div>
+                        </div>
+
+                        <!-- Polygon Amoy USDC 代幣信息顯示 -->
+                        <div id="polygonAmoyUSDCInfoContainer" style="display: none;">
+                            <div class="token-info">
+                                <strong>代幣地址：</strong><br>
+                                0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582
+                            </div>
+                            <div class="token-info">
+                                <strong>代幣名稱：</strong> USD Coin (USDC)<br>
+                                <strong>網絡：</strong> Polygon Amoy 測試網<br>
+                                <strong>代幣標準：</strong> ERC-20<br>
+                                <strong>小數位數：</strong> 6
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -493,13 +565,10 @@
                     <ul class="link-list">
                         <li><a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia/pyusd" target="_blank">Google Sepolia PYUSD 水龍頭</a>（專領 PYUSD）</li>
                         <li><a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank">Google Ethereum Sepolia 水龍頭</a></li>
+                        <li><a href="https://faucet.circle.com/" target="_blank">Circle USDC 官方水龍頭</a>（專領 USDC）</li>
                         <li><a href="https://faucet.polygon.technology/" target="_blank">Polygon 官方水龍頭</a></li>
                     </ul>
-                    <div class="button-group">
-                        <button id="openFaucetBtn" class="btn-success" onclick="openFaucet()" disabled>
-                            💧 快速打開水龍頭
-                        </button>
-                    </div>
+
         </div>
 
                 <!-- 測試交易 -->
@@ -565,6 +634,22 @@
             name: 'PayPal USD'
         };
 
+        // Ethereum Sepolia USDC 代幣配置
+        const SEPOLIA_USDC_TOKEN = {
+            address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+            symbol: 'USDC',
+            decimals: 6,
+            name: 'USD Coin'
+        };
+
+        // Polygon Amoy USDC 代幣配置
+        const POLYGON_AMOY_USDC_TOKEN = {
+            address: '0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582',
+            symbol: 'USDC',
+            decimals: 6,
+            name: 'USD Coin'
+        };
+
         // 檢查 MetaMask 是否安裝
         function checkMetaMaskInstallation() {
             if (typeof window.ethereum !== 'undefined') {
@@ -600,8 +685,9 @@
                     // 啟用按鈕
                     document.getElementById('addSepoliaBtn').disabled = false;
                     document.getElementById('addPolygonBtn').disabled = false;
-                    document.getElementById('openFaucetBtn').disabled = false;
                     document.getElementById('addSepoliaTokenBtn').disabled = false;
+                    document.getElementById('addSepoliaUSDCBtn').disabled = false;
+                    document.getElementById('addPolygonAmoyUSDCBtn').disabled = false;
                     document.getElementById('sendBtn').disabled = false;
                     document.getElementById('refreshAccountsBtn').disabled = false;
                     document.getElementById('accountSelect').disabled = false;
@@ -683,57 +769,9 @@
             setTimeout(updateAccountInfo, 1000);
         }
 
-        // 打開水龍頭領取免費代幣
-        async function openFaucet() {
-            if (!currentAccount) {
-                showMessage('請先連接 MetaMask！', 'error');
-                return;
-            }
-            
-            // 獲取當前網絡
-            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-            let faucetUrl = 'https://cloud.google.com/application/web3/faucet/ethereum/sepolia';
-            let networkName = '水龍頭';
-            
-            // 根據網絡選擇對應的水龍頭
-            switch(chainId) {
-                case '0xaa36a7': // Sepolia
-                    faucetUrl = 'https://cloud.google.com/application/web3/faucet/ethereum/sepolia';
-                    networkName = 'Google Ethereum Sepolia 水龍頭';
-                    break;
-                case '0x13882': // Polygon Amoy
-                    faucetUrl = 'https://faucet.polygon.technology/';
-                    networkName = 'Polygon 官方水龍頭';
-                    break;
-                default:
-                    faucetUrl = 'https://cloud.google.com/application/web3/faucet/ethereum/sepolia';
-                    networkName = 'Google Ethereum Sepolia 水龍頭';
-            }
-            
-            // 複製地址到剪貼板
-            navigator.clipboard.writeText(currentAccount).then(() => {
-                showMessage(`✅ 已複製你的錢包地址：${currentAccount.slice(0, 10)}...${currentAccount.slice(-6)}\n即將打開 ${networkName} 水龍頭網站，貼上地址即可領取免費測試幣！`, 'success');
-                
-                // 打開水龍頭網站
-                setTimeout(() => {
-                    window.open(faucetUrl, '_blank');
-                }, 2000);
-            }).catch(err => {
-                console.error('複製失敗:', err);
-                showMessage(`你的錢包地址：${currentAccount.slice(0, 10)}...${currentAccount.slice(-6)}\n請手動複製到水龍頭網站領取免費代幣`, 'info');
-                window.open(faucetUrl, '_blank');
-            });
-        }
 
-        // 打開 Chainlist 查看更多網絡
-        function openChainlist() {
-            showMessage('即將打開 Chainlist.org 網站，您可以在那裡找到所有 EVM 網絡的 Chain ID 和 RPC 設定！', 'info');
-            
-            // 打開 Chainlist 網站
-            setTimeout(() => {
-                window.open('https://chainlist.org/', '_blank');
-            }, 1500);
-        }
+
+
 
         // 發送測試交易
         async function sendTransaction() {
@@ -824,6 +862,7 @@
                 document.getElementById('balanceInfo').textContent = 
                     `${balanceInEther.toFixed(6)} ${getNetworkCurrency(chainId)}`;
 
+
             } catch (error) {
                 console.error('獲取帳戶信息失敗:', error);
             }
@@ -893,10 +932,20 @@
             try {
                 const chainId = await window.ethereum.request({ method: 'eth_chainId' });
                 if (chainId === '0xaa36a7') {
-                    // 在 Sepolia 網絡時，直接顯示代幣信息
+                    // 在 Sepolia 網絡時，顯示PYUSD與USDC資訊
                     document.getElementById('tokenInfoContainer').style.display = '';
-                } else {
+                    document.getElementById('sepoliaUSDCInfoContainer').style.display = '';
+                    document.getElementById('polygonAmoyUSDCInfoContainer').style.display = 'none';
+                } else if (chainId === '0x13882') {
+                    // 在Polygon Amoy時，僅顯示USDC資訊
                     document.getElementById('tokenInfoContainer').style.display = 'none';
+                    document.getElementById('sepoliaUSDCInfoContainer').style.display = 'none';
+                    document.getElementById('polygonAmoyUSDCInfoContainer').style.display = '';
+                } else {
+                    // 在其他網絡時，隱藏所有代幣資訊
+                    document.getElementById('tokenInfoContainer').style.display = 'none';
+                    document.getElementById('sepoliaUSDCInfoContainer').style.display = 'none';
+                    document.getElementById('polygonAmoyUSDCInfoContainer').style.display = 'none';
                 }
             } catch (error) {
                 console.error('檢查代幣狀態失敗:', error);
@@ -934,6 +983,74 @@
                 });
                 showMessage('已請求 MetaMask 添加 Ethereum Sepolia PYUSD 代幣！', 'success');
                 document.getElementById('tokenInfoContainer').style.display = '';
+            } catch (error) {
+                console.error('添加代幣失敗:', error);
+                showMessage('添加代幣失敗: ' + error.message, 'error');
+            }
+        }
+
+        // 添加 Ethereum Sepolia USDC 代幣
+        async function addSepoliaUSDC() {
+            if (!checkMetaMaskInstallation()) return;
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== '0xaa36a7') {
+                    showMessage('請先切換到 Ethereum Sepolia 測試網！', 'error');
+                    return;
+                }
+            } catch (error) {
+                showMessage('無法獲取當前網絡信息', 'error');
+                return;
+            }
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address: SEPOLIA_USDC_TOKEN.address,
+                            symbol: SEPOLIA_USDC_TOKEN.symbol,
+                            decimals: SEPOLIA_USDC_TOKEN.decimals,
+                            name: SEPOLIA_USDC_TOKEN.name,
+                        },
+                    },
+                });
+                showMessage('已請求 MetaMask 添加 Ethereum Sepolia USDC 代幣！', 'success');
+                document.getElementById('sepoliaUSDCInfoContainer').style.display = '';
+            } catch (error) {
+                console.error('添加代幣失敗:', error);
+                showMessage('添加代幣失敗: ' + error.message, 'error');
+            }
+        }
+
+        // 添加 Polygon Amoy USDC 代幣
+        async function addPolygonAmoyUSDC() {
+            if (!checkMetaMaskInstallation()) return;
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== '0x13882') {
+                    showMessage('請先切換到 Polygon Amoy 測試網！', 'error');
+                    return;
+                }
+            } catch (error) {
+                showMessage('無法獲取當前網絡信息', 'error');
+                return;
+            }
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address: POLYGON_AMOY_USDC_TOKEN.address,
+                            symbol: POLYGON_AMOY_USDC_TOKEN.symbol,
+                            decimals: POLYGON_AMOY_USDC_TOKEN.decimals,
+                            name: POLYGON_AMOY_USDC_TOKEN.name,
+                        },
+                    },
+                });
+                showMessage('已請求 MetaMask 添加 Polygon Amoy USDC 代幣！', 'success');
+                document.getElementById('polygonAmoyUSDCInfoContainer').style.display = '';
             } catch (error) {
                 console.error('添加代幣失敗:', error);
                 showMessage('添加代幣失敗: ' + error.message, 'error');
@@ -992,7 +1109,6 @@
                     // 禁用按鈕
                     document.getElementById('addSepoliaBtn').disabled = true;
                     document.getElementById('addPolygonBtn').disabled = true;
-                    document.getElementById('openFaucetBtn').disabled = true;
                     document.getElementById('sendBtn').disabled = true;
                     document.getElementById('refreshAccountsBtn').disabled = true;
                     document.getElementById('addSepoliaTokenBtn').disabled = true;
@@ -1016,8 +1132,9 @@
                     // 啟用按鈕
                     document.getElementById('addSepoliaBtn').disabled = false;
                     document.getElementById('addPolygonBtn').disabled = false;
-                    document.getElementById('openFaucetBtn').disabled = false;
                     document.getElementById('addSepoliaTokenBtn').disabled = false;
+                    document.getElementById('addSepoliaUSDCBtn').disabled = false;
+                    document.getElementById('addPolygonAmoyUSDCBtn').disabled = false;
                     document.getElementById('sendBtn').disabled = false;
                     document.getElementById('refreshAccountsBtn').disabled = false;
                     document.getElementById('accountSelect').disabled = false;
@@ -1094,8 +1211,6 @@
                     // 啟用相關按鈕
                     document.getElementById('addSepoliaBtn').disabled = false;
                     document.getElementById('addPolygonBtn').disabled = false;
-                    document.getElementById('openFaucetBtn').disabled = false;
-                    document.getElementById('addSepoliaTokenBtn').disabled = false;
                     document.getElementById('sendBtn').disabled = false;
                     document.getElementById('refreshAccountsBtn').disabled = false;
                     document.getElementById('accountSelect').disabled = false;
@@ -1138,8 +1253,6 @@
                         // 啟用按鈕
                         document.getElementById('addSepoliaBtn').disabled = false;
                         document.getElementById('addPolygonBtn').disabled = false;
-                        document.getElementById('openFaucetBtn').disabled = false;
-                        document.getElementById('addSepoliaTokenBtn').disabled = false;
                         document.getElementById('sendBtn').disabled = false;
                         document.getElementById('refreshAccountsBtn').disabled = false; // 啟用刷新按鈕
                         document.getElementById('accountSelect').disabled = false; // 啟用選擇框

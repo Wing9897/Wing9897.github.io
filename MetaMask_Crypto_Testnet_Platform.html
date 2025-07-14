@@ -130,6 +130,10 @@
             background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%);
         }
         
+        .explorer-card {
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+        }
+        
         .info-card {
             background: linear-gradient(135deg, #f1f8e9 0%, #dcedc1 100%);
             grid-column: 1 / -1;
@@ -491,10 +495,13 @@
                     <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">選擇並切換到您需要的測試網絡</p>
                     <div class="button-group">
                         <button id="addSepoliaBtn" class="btn-secondary" onclick="addSepoliaTestnet()" disabled>
-                            ⚡ 添加及切換 Ethereum Sepolia
+                            ⚡ 添加及切換 Ethereum Sepolia (官方)
                         </button>
                         <button id="addPolygonBtn" class="btn-secondary" onclick="addPolygonAmoyTestnet()" disabled>
-                            🔷 添加及切換 Polygon Amoy
+                            🔷 添加及切換 Polygon Amoy (官方)
+                        </button>
+                        <button id="addBSCBtn" class="btn-secondary" onclick="addBSCTestnet()" disabled>
+                            🟡 添加及切換 BNB Smart Chain Testnet (官方)
                         </button>
                     </div>
                     
@@ -567,9 +574,20 @@
                         <li><a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank">Google Ethereum Sepolia 水龍頭</a></li>
                         <li><a href="https://faucet.circle.com/" target="_blank">Circle USDC 官方水龍頭</a>（專領 USDC）</li>
                         <li><a href="https://faucet.polygon.technology/" target="_blank">Polygon 官方水龍頭</a></li>
+                        <li><a href="https://www.bnbchain.org/en/testnet-faucet" target="_blank">BNB Smart Chain 官方水龍頭</a>（專領 tBNB）</li>
                     </ul>
 
         </div>
+
+                <!-- 區塊鏈瀏覽器 -->
+                <div class="card explorer-card">
+                    <h3>🔍 區塊鏈瀏覽器</h3>
+                    <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">查看交易記錄和區塊鏈資訊</p>
+                    <ul class="link-list">
+                        <li><a href="https://testnet.bscscan.com/" target="_blank">BSC 測試網瀏覽器</a>（Binance Smart Chain Testnet）</li>
+                        <li><a href="https://sepolia.etherscan.io/" target="_blank">Sepolia 測試網瀏覽器</a>（Ethereum Sepolia Testnet）</li>
+                    </ul>
+                </div>
 
                 <!-- 測試交易 -->
                 <div class="card transaction-card">
@@ -619,6 +637,19 @@
             },
             rpcUrls: ['https://rpc-amoy.polygon.technology'],
             blockExplorerUrls: ['https://amoy.polygonscan.com']
+        };
+
+        // BNB Smart Chain Testnet 配置
+        const BSC_TESTNET = {
+            chainId: '0x61', // 97 in hex
+            chainName: 'BNB Smart Chain Testnet',
+            nativeCurrency: {
+                name: 'tBNB',
+                symbol: 'tBNB',
+                decimals: 18
+            },
+            rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545'],
+            blockExplorerUrls: ['https://testnet.bscscan.com']
         };
 
         // 全局變量
@@ -685,6 +716,7 @@
                     // 啟用按鈕
                     document.getElementById('addSepoliaBtn').disabled = false;
                     document.getElementById('addPolygonBtn').disabled = false;
+                    document.getElementById('addBSCBtn').disabled = false;
                     document.getElementById('addSepoliaTokenBtn').disabled = false;
                     document.getElementById('addSepoliaUSDCBtn').disabled = false;
                     document.getElementById('addPolygonAmoyUSDCBtn').disabled = false;
@@ -730,6 +762,11 @@
         // 添加 Polygon Amoy 測試網
         async function addPolygonAmoyTestnet() {
             await addNetwork(POLYGON_AMOY_TESTNET, 'Polygon Amoy 測試網');
+        }
+
+        // 添加 BNB Smart Chain Testnet
+        async function addBSCTestnet() {
+            await addNetwork(BSC_TESTNET, 'BNB Smart Chain Testnet');
         }
 
         // 通用添加網絡函數
@@ -873,7 +910,8 @@
             const networks = {
                 '0x1': 'Ethereum 主網',
                 '0xaa36a7': 'Ethereum Sepolia 測試網',
-                '0x13882': 'Polygon Amoy 測試網'
+                '0x13882': 'Polygon Amoy 測試網',
+                '0x61': 'BNB Smart Chain Testnet'
             };
             return networks[chainId] || `未知網絡 (${chainId})`;
         }
@@ -883,7 +921,8 @@
             const currencies = {
                 '0x1': 'ETH',
                 '0xaa36a7': 'ETH',
-                '0x13882': 'POL'
+                '0x13882': 'POL',
+                '0x61': 'tBNB'
             };
             return currencies[chainId] || 'ETH';
         }
@@ -893,7 +932,8 @@
             const explorers = {
                 '0x1': 'Etherscan',
                 '0xaa36a7': 'Sepolia Etherscan',
-                '0x13882': 'Amoy Polygonscan'
+                '0x13882': 'Amoy Polygonscan',
+                '0x61': 'BSC Testnet Explorer'
             };
             return explorers[chainId] || '區塊瀏覽器';
         }
@@ -1132,6 +1172,7 @@
                     // 啟用按鈕
                     document.getElementById('addSepoliaBtn').disabled = false;
                     document.getElementById('addPolygonBtn').disabled = false;
+                    document.getElementById('addBSCBtn').disabled = false;
                     document.getElementById('addSepoliaTokenBtn').disabled = false;
                     document.getElementById('addSepoliaUSDCBtn').disabled = false;
                     document.getElementById('addPolygonAmoyUSDCBtn').disabled = false;

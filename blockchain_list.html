@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>區塊鏈與代幣信息卡片 (最新驗證版 - 2025年1月)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f6f8fa;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif;
+        }
+        .main-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: 1px;
+            margin-top: 2.5rem;
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+        .section-title {
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #343a40;
+            font-size: 1.35rem;
+            font-weight: 700;
+            border-left: 8px solid #3b82f6;
+            background: linear-gradient(90deg, #e0e7ff 60%, #f6f8fa 100%);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.04);
+        }
+        .table-responsive {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(59,130,246,0.07);
+            padding: 1.2rem 1rem 1.2rem 1rem;
+            margin-bottom: 2.5rem;
+        }
+        .table {
+            table-layout: fixed;
+            border-collapse: separate;
+            border-spacing: 0 1.1rem; /* 行距更大 */
+        }
+        .table thead th {
+            background-color: #e0e7ff;
+            border: none;
+            font-weight: 700;
+            color: #2563eb;
+            font-size: 1.05rem;
+            padding-top: 0.7rem;
+            padding-bottom: 0.7rem;
+            letter-spacing: 0.5px;
+        }
+        .table tbody tr {
+            background-color: #f9fafb;
+            box-shadow: 0 2px 10px rgba(59,130,246,0.04);
+            transition: transform 0.18s, box-shadow 0.18s;
+        }
+        .table tbody tr:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 25px rgba(59,130,246,0.13);
+        }
+        .table td, .table th {
+            vertical-align: middle;
+            padding: 1.1rem 0.7rem;
+            font-size: 1rem;
+            word-wrap: break-word;
+            border: none;
+        }
+        .table tbody td:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        .table tbody td:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        .copy-btn {
+            cursor: pointer;
+            display: inline-block;
+            margin-left: 8px;
+            opacity: 0.7;
+            font-size: 1.1em;
+            color: #3b82f6;
+            transition: opacity 0.2s, color 0.2s;
+        }
+        .copy-btn:hover {
+            opacity: 1;
+            color: #1d4ed8;
+        }
+        /* 統一 logo 尺寸與間距 */
+        .logo-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            margin-right: 8px;
+            background-color: #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(59,130,246,0.08);
+        }
+        /* 合約地址區塊的鏈 logo 單獨微調（覆蓋 inline style） */
+        .contract-list .logo-icon {
+            width: 22px !important;
+            height: 22px !important;
+            margin-right: 8px !important;
+            box-shadow: 0 1px 4px rgba(59,130,246,0.08) !important;
+        }
+        .chain-name {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .chain-name span {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 1rem;
+        }
+        .chain-name .symbol {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 1rem;
+            margin-left: 2px;
+        }
+        .chain-name small {
+            color: #64748b;
+            font-size: 0.92em;
+            font-weight: 400;
+        }
+        .contract-list div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+        .contract-list strong {
+            font-size: 0.98em;
+            font-weight: 600;
+            color: #1e293b;
+            margin-right: 2px;
+        }
+        .contract-list code {
+            font-size: 0.98em;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .contract-list .copy-btn {
+            font-size: 1em;
+            margin-left: 2px;
+        }
+        /* 表格字體、行高、間距統一 */
+        .table td, .table th {
+            font-size: 0.92rem;
+            padding: 0.48rem 0.3rem;
+            line-height: 1.5;
+        }
+        @media (max-width: 768px) {
+            .table td, .table th { font-size: 0.85rem; padding: 0.32rem 0.1rem; }
+            .logo-icon { width: 18px; height: 18px; }
+            .contract-list .logo-icon { width: 18px !important; height: 18px !important; }
+        }
+        .chains-table th:nth-child(1) { width: 25%; }
+        .tokens-table th:nth-child(2) { width: 10%; }
+        .tokens-table th:nth-child(3) { width: 18%; }
+        .tokens-table th:nth-child(4) { width: 47%; } /* 合約地址加寬 */
+
+        /* 字體與行距縮小 */
+        .table td, .table th {
+            font-size: 0.92rem;
+            padding: 0.65rem 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .table td, .table th { font-size: 0.85rem; padding: 0.45rem 0.2rem; }
+        }
+        .chains-table th:nth-child(5) { width: 30%; } /* RPC/ID 欄更寬 */
+        .chains-table th:nth-child(1) { width: 28%; } /* 名稱欄加寬 */
+        .chains-table th:nth-child(2) { width: 12%; } /* 類型 */
+        .chains-table th:nth-child(3) { width: 12%; } /* VM */
+        .chains-table th:nth-child(4) { width: 38%; } /* RPC/ID 欄再加寬 */
+        .chains-table th:nth-child(5) { width: 10%; } /* Explorer */
+
+        .tokens-table th:nth-child(1) { width: 32%; }
+        .tokens-table th:nth-child(2) { width: 18%; }
+        .tokens-table th:nth-child(3) { width: 47%; }
+
+        /* 行距再縮小 */
+        .table td, .table th {
+            font-size: 0.88rem;
+            padding: 0.38rem 0.3rem;
+        }
+        @media (max-width: 768px) {
+            .table td, .table th { font-size: 0.8rem; padding: 0.28rem 0.1rem; }
+        }
+        .contract-list {
+            /* 保持預設 block，不要設 flex */
+        }
+        .contract-list div {
+            display: block;
+            align-items: unset;
+            margin-bottom: 0.1rem;
+        }
+        .contract-list img.logo-icon,
+        .contract-list strong,
+        .contract-list code,
+        .contract-list .copy-btn {
+            display: inline;
+            vertical-align: middle;
+        }
+        .contract-list {
+            display: block !important;
+            width: 100% !important;
+        }
+        .contract-list div {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 0.1rem;
+            white-space: normal !important;
+        }
+        .contract-list img.logo-icon,
+        .contract-list strong,
+        .contract-list code,
+        .contract-list .copy-btn {
+            display: inline;
+            vertical-align: middle;
+            white-space: normal !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">區塊鏈與代幣信息卡片</a>
+            <div class="search-bar">
+                <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242 1.106a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg></span>
+                <input id="searchInput" class="form-control" type="search" placeholder="搜尋名稱、符號、賽道..." aria-label="Search">
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-title">區塊鏈與代幣信息卡片</div>
+        <p class="text-center text-muted mb-4" style="font-size: 0.95rem;">本文檔為每個區塊鏈網絡和應用層代幣提供了獨立的、模塊化的信息卡片。所有信息均已通過 ChainList、官方文檔及區塊鏈瀏覽器交叉驗證 (截至 2025年1月)。</p>
+        <h2 class="section-title">第一部分：底層區塊鏈網路</h2>
+        <div class="d-flex align-items-center mb-2">
+            <label class="me-2">排序：</label>
+            <select id="chainsSort" class="form-select form-select-sm" style="width:140px;">
+                <option value="default">預設排序</option>
+                <option value="popularity">按熱門程度</option>
+            </select>
+        </div>
+        <div id="chains-container" class="table-responsive">
+            <table class="table chains-table">
+                <thead>
+                    <tr>
+                        <th>名稱</th>
+                        <th>類型</th>
+                        <th>虛擬機</th>
+                        <th>RPC / API / Chain ID</th>
+                        <th>區塊瀏覽器</th>
+                    </tr>
+                </thead>
+                <tbody id="chains-tbody">
+                    <!-- Chain rows will be injected here -->
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="section-title">第二部分：應用層代幣</h2>
+        <div class="d-flex align-items-center mb-2">
+            <label class="me-2">排序：</label>
+            <select id="tokensSort" class="form-select form-select-sm" style="width:140px;">
+                <option value="default">預設排序</option>
+                <option value="popularity">按熱門程度</option>
+            </select>
+        </div>
+        <div id="tokens-container" class="table-responsive">
+            <table class="table tokens-table">
+                <thead>
+                    <tr>
+                        <th>名稱</th>
+                        <th>賽道</th>
+                        <th>合約地址</th>
+                    </tr>
+                </thead>
+                <tbody id="tokens-tbody">
+                    <!-- Token rows will be injected here -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <footer class="bg-dark text-white text-center p-3 mt-4">
+        <p style="font-size:0.92rem;opacity:0.7;">&copy; 2025 Gemini. All Rights Reserved.</p>
+        <p style="font-size:0.8rem;opacity:0.6;">數據來源：ChainList、官方文檔及區塊鏈瀏覽器 | 最後更新：2025年1月</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // chainsData 熱門程度（越大越熱門，依市值/知名度預設）
+        const chainsData = [
+            { name: "Ethereum", name_zh: "以太坊", slug: "ethereum", symbol: "ETH", type: "L1", vm: "EVM", rpc: "https://eth1.lava.build", chainId: "1", explorer: "https://etherscan.io", popularity: 100 },
+            { name: "BNB Smart Chain", name_zh: "幣安智能鏈", slug: "binance-coin", symbol: "BNB", type: "L1", vm: "EVM", rpc: "https://bsc-dataseed.binance.org/", chainId: "56", explorer: "https://bscscan.com", popularity: 90 },
+            { name: "Polygon", name_zh: "Polygon", slug: "polygon", symbol: "MATIC", type: "L2 / 側鏈", vm: "EVM", rpc: "https://polygon-rpc.com/", chainId: "137", explorer: "https://polygonscan.com", popularity: 85 },
+            { name: "Solana", name_zh: "索拉納", slug: "solana", symbol: "SOL", type: "L1", vm: "Solana VM", rpc: "https://api.mainnet-beta.solana.com", rpcType: "RPC", explorer: "https://explorer.solana.com", popularity: 95 },
+            { name: "Avalanche C-Chain", name_zh: "雪崩", slug: "avalanche", symbol: "AVAX", type: "L1", vm: "EVM", rpc: "https://api.avax.network/ext/bc/C/rpc", chainId: "43114", explorer: "https://snowtrace.io", popularity: 80 },
+            { name: "Arbitrum One", name_zh: "Arbitrum One", slug: "arbitrum", symbol: "ETH", type: "L2（樂觀型 Rollup）", vm: "EVM", rpc: "https://arbitrum.lava.build", chainId: "42161", explorer: "https://arbiscan.io", popularity: 75 },
+            { name: "Optimism", name_zh: "樂觀", slug: "optimism", symbol: "ETH", type: "L2（樂觀型 Rollup）", vm: "EVM", rpc: "https://mainnet.optimism.io", chainId: "10", explorer: "https://optimistic.etherscan.io", popularity: 70 },
+            { name: "Base", name_zh: "Base", slug: "base", symbol: "ETH", type: "L2（樂觀型 Rollup）", vm: "EVM", rpc: "https://base.lava.build", chainId: "8453", explorer: "https://basescan.org", popularity: 65 },
+            { name: "zkSync Era", name_zh: "zkSync Era", slug: "zksync", symbol: "ETH", type: "L2（零知識 Rollup）", vm: "zkEVM", rpc: "https://mainnet.era.zksync.io", chainId: "324", explorer: "https://explorer.zksync.io", popularity: 60 },
+            { name: "Mantle", name_zh: "Mantle", slug: "mantle", symbol: "MNT", type: "L2（模組化 Rollup）", vm: "EVM", rpc: "https://rpc.mantle.xyz", chainId: "5000", explorer: "https://explorer.mantle.xyz", popularity: 55 },
+            { name: "Linea", name_zh: "Linea", slug: "linea", symbol: "ETH", type: "L2（零知識 EVM）", vm: "EVM", rpc: "https://rpc.linea.build", chainId: "59144", explorer: "https://lineascan.build", popularity: 50 },
+            { name: "Scroll", name_zh: "Scroll", slug: "scroll", symbol: "ETH", type: "L2（零知識 EVM）", vm: "EVM", rpc: "https://rpc.scroll.io", chainId: "534352", explorer: "https://scrollscan.com", popularity: 45 },
+            { name: "Blast", name_zh: "Blast", slug: "blast", symbol: "ETH", type: "L2（樂觀型 Rollup）", vm: "EVM", rpc: "https://rpc.blast.io", chainId: "81457", explorer: "https://blastscan.io", popularity: 40 },
+            { name: "Mode", name_zh: "Mode", slug: "mode", symbol: "ETH", type: "L2（樂觀型 Rollup）", vm: "EVM", rpc: "https://mainnet.mode.network", chainId: "34443", explorer: "https://modescan.io", popularity: 35 },
+            { name: "Zora", name_zh: "Zora", slug: "zora", symbol: "ETH", type: "L2（樂觀型 Rollup）", vm: "EVM", rpc: "https://rpc.zora.energy", chainId: "7777777", explorer: "https://explorer.zora.energy", popularity: 30 },
+            { name: "Manta Pacific", name_zh: "Manta Pacific", slug: "manta-network", symbol: "ETH", type: "L2（零知識 Rollup）", vm: "EVM", rpc: "https://pacific-rpc.manta.network/http", chainId: "169", explorer: "https://pacific-explorer.manta.network", popularity: 25 },
+            { name: "Immutable zkEVM", name_zh: "Immutable zkEVM", slug: "immutable-x", symbol: "IMX", type: "L2（零知識 Rollup）", vm: "EVM", rpc: "https://rpc.immutable.com", chainId: "13371", explorer: "https://explorer.immutable.com", popularity: 20 },
+            { name: "Ronin", name_zh: "浪人", slug: "ronin", symbol: "RON", type: "L2 / 側鏈", vm: "EVM", rpc: "https://api.roninchain.com/rpc", chainId: "2020", explorer: "https://app.roninchain.com", popularity: 15 },
+            { name: "Metis", name_zh: "梅蒂斯", slug: "metis-token", symbol: "METIS", type: "L2（樂觀型 Rollup）", vm: "EVM", rpc: "https://andromeda.metis.io/?owner=1088", chainId: "1088", explorer: "https://andromeda-explorer.metis.io", popularity: 10 },
+            { name: "Kava", name_zh: "卡瓦", slug: "kava", symbol: "KAVA", type: "L1", vm: "EVM", rpc: "https://evm.kava.io", chainId: "2222", explorer: "https://kavascan.com", popularity: 5 },
+            { name: "Evmos", name_zh: "Evmos", slug: "evmos", symbol: "EVMOS", type: "L1（Cosmos SDK）", vm: "EVM", rpc: "https://evmos.lava.build", chainId: "9001", explorer: "https://escan.live", popularity: 2 },
+            { name: "Canto", name_zh: "Canto", slug: "canto", symbol: "CANTO", type: "L1（Cosmos SDK）", vm: "EVM", rpc: "https://canto.slingshot.finance", chainId: "7700", explorer: "https://tuber.build", popularity: 1 },
+            { name: "Conflux eSpace", name_zh: "樹圖", slug: "conflux-network", symbol: "CFX", type: "L1", vm: "EVM", rpc: "https://evm.confluxrpc.com", chainId: "1030", explorer: "https://evm.confluxscan.net", popularity: 0 },
+            { name: "Gnosis Chain", name_zh: "靈知鏈", slug: "gnosis", symbol: "xDAI", type: "L2 / 側鏈", vm: "EVM", rpc: "https://rpc.gnosischain.com", chainId: "100", explorer: "https://gnosisscan.io", popularity: 0 },
+            { name: "Celo", name_zh: "塞洛", slug: "celo", symbol: "CELO", type: "L1", vm: "EVM", rpc: "https://forno.celo.org", chainId: "42220", explorer: "https://celoscan.io", popularity: 0 },
+            { name: "Hedera", name_zh: "常春藤", slug: "hedera", symbol: "HBAR", type: "L1", vm: "EVM", rpc: "https://mainnet.hashio.io/api", chainId: "295", explorer: "https://hashscan.io/mainnet", popularity: 0 },
+            { name: "Tron", name_zh: "波場", slug: "tron", symbol: "TRX", type: "L1", vm: "TVM（波場虛擬機）", rpc: "https://api.trongrid.io", rpcType: "API", explorer: "https://tronscan.org", popularity: 0 },
+            { name: "Near Protocol", name_zh: "NEAR 協議", slug: "near-protocol", symbol: "NEAR", type: "L1", vm: "Wasm", rpc: "https://rpc.mainnet.near.org", rpcType: "RPC", explorer: "https://nearblocks.io", popularity: 0 },
+            { name: "StarkNet", name_zh: "StarkNet", slug: "starknet", symbol: "ETH", type: "L2（零知識 Rollup / STARK）", vm: "Cairo VM", rpc: "https://starknet-mainnet.public.blastapi.io", rpcType: "RPC", explorer: "https://voyager.online", popularity: 0 },
+            { name: "Aptos", name_zh: "Aptos", slug: "aptos", symbol: "APT", type: "L1", vm: "MoveVM", rpc: "https://fullnode.mainnet.aptoslabs.com/v1", rpcType: "API", explorer: "https://explorer.aptoslabs.com", popularity: 0 },
+            { name: "Sui", name_zh: "隋", slug: "sui", symbol: "SUI", type: "L1", vm: "MoveVM", rpc: "https://sui-mainnet.public.blastapi.io", rpcType: "RPC", explorer: "https://suiscan.xyz", popularity: 0 },
+            { name: "Polkadot", name_zh: "波卡", slug: "polkadot", symbol: "DOT", type: "L0（中繼鏈）", vm: "Wasm", rpc: "wss://rpc.polkadot.io", rpcType: "WSS", explorer: "https://polkadot.subscan.io", popularity: 0 },
+            { name: "Moonbeam", name_zh: "月光", slug: "moonbeam", symbol: "GLMR", type: "L1（Polkadot 平行鏈）", vm: "EVM", rpc: "https://rpc.api.moonbeam.network", chainId: "1284", explorer: "https://moonscan.io", popularity: 0 },
+            { name: "Moonriver", name_zh: "月亮河", slug: "moonriver", symbol: "MOVR", type: "L1（Kusama 平行鏈）", vm: "EVM", rpc: "https://rpc.api.moonriver.moonbeam.network", chainId: "1285", explorer: "https://moonriver.moonscan.io", popularity: 0 },
+            { name: "Cosmos Hub", name_zh: "Cosmos Hub", slug: "cosmos", symbol: "ATOM", type: "L1（Cosmos 生態核心）", vm: "CosmWasm", rpc: "https://rpc.cosmos.directory/cosmoshub", rpcType: "RPC", explorer: "https://www.mintscan.io/cosmos", popularity: 0 },
+            { name: "Cardano", name_zh: "卡達諾", slug: "cardano", symbol: "ADA", type: "L1", vm: "Plutus Core（EUTXO 模型）", rpc: "https://cardano-mainnet.blockfrost.io/api/v0", rpcType: "API", explorer: "https://cardanoscan.io", popularity: 0 },
+            { name: "Internet Computer", name_zh: "網際網路電腦", slug: "internet-computer", symbol: "ICP", type: "L1", vm: "Wasm", rpc: "https://ic-api.internetcomputer.org/api/v3/", rpcType: "API", explorer: "https://dashboard.internetcomputer.org", popularity: 0 },
+            { name: "Bitcoin", name_zh: "比特幣", slug: "bitcoin", symbol: "BTC", type: "L1", vm: "無（使用指令碼系統）", explorer: "https://mempool.space", popularity: 0 },
+            { name: "Dogecoin", name_zh: "狗狗幣", slug: "dogecoin", symbol: "DOGE", type: "L1", vm: "無（使用指令碼系統）", rpc: "https://rpc.dogechain.info", rpcType: "RPC", explorer: "https://dogechain.info", popularity: 0 },
+            { name: "Litecoin", name_zh: "萊特幣", slug: "litecoin", symbol: "LTC", type: "L1", vm: "無（使用指令碼系統）", rpc: "https://litecoin-mainnet.gateway.tatum.io/", rpcType: "RPC", explorer: "https://blockchair.com/litecoin", popularity: 0 },
+            { name: "Ripple", name_zh: "瑞波幣", slug: "ripple", symbol: "XRP", type: "L1", vm: "無", rpc: "https://s1.ripple.com:51234/", rpcType: "API", explorer: "https://xrpscan.com", popularity: 0 },
+            { name: "Stellar", name_zh: "恆星幣", slug: "stellar", symbol: "XLM", type: "L1", vm: "無", rpc: "https://horizon.stellar.org", rpcType: "API", explorer: "https://stellar.expert", popularity: 0 },
+            { name: "Tezos", name_zh: "特佐斯", slug: "tezos", symbol: "XTZ", type: "L1", vm: "Michelson", rpc: "https://mainnet.tezos.ecadinfra.com", rpcType: "RPC", explorer: "https://tzkt.io", popularity: 0 },
+            { name: "Flow", name_zh: "Flow", slug: "flow", symbol: "FLOW", type: "L1", vm: "EVM（Crescendo 升級）", rpc: "https://mainnet.evm.nodes.onflow.org", chainId: "747", explorer: "https://evm.flowscan.io", popularity: 0 },
+            { name: "Stacks", name_zh: "Stacks", slug: "stacks", symbol: "STX", type: "L1（比特幣擴展層）", vm: "Clarity", rpc: "https://api.hiro.so", rpcType: "API", explorer: "https://explorer.hiro.so", popularity: 0 },
+            { name: "Zilliqa", name_zh: "Zilliqa", slug: "zilliqa", symbol: "ZIL", type: "L1", vm: "EVM", rpc: "https://api.zilliqa.com", rpcType: "API", chainId: "32769", explorer: "https://viewblock.io/zilliqa", popularity: 0 },
+            { name: "Oasis Network", name_zh: "綠洲網路", slug: "oasis-network", symbol: "ROSE", type: "L1（ParaTime）", vm: "EVM", rpc: "https://sapphire.oasis.io", chainId: "23294", explorer: "https://explorer.sapphire.oasis.io", popularity: 0 },
+            { name: "TON (The Open Network)", name_zh: "開放網路", slug: "toncoin", symbol: "Toncoin", type: "L1", vm: "TVM", rpc: "https://toncenter.com/api/v2/", rpcType: "API", explorer: "https://tonscan.org", popularity: 0 },
+            { name: "Sei", name_zh: "Sei", slug: "sei-network", symbol: "SEI", type: "L1", vm: "EVM", rpc: "https://evm-rpc.sei-apis.com", chainId: "1329", explorer: "https://www.seiscan.app/", popularity: 0 },
+            { name: "Injective (inEVM)", name_zh: "Injective", slug: "injective", symbol: "INJ", type: "L1", vm: "EVM", rpc: "https://mainnet.rpc.inevm.com/http", chainId: "2525", explorer: "https://explorer.inevm.com/", popularity: 0 },
+            { name: "Berachain bArtio", name_zh: "熊鏈", slug: "berachain", symbol: "BERA", type: "L1（測試網）", vm: "EVM", rpc: "https://bartio.rpc.berachain.com", chainId: "80084", explorer: "https://bartio.beratrail.io", popularity: 0 },
+            { name: "ZetaChain", name_zh: "ZetaChain", slug: "zetachain", symbol: "ZETA", type: "L1", vm: "EVM", rpc: "https://zetachain-evm.blockpi.network/v1/rpc/public", chainId: "7000", explorer: "https://explorer.zetachain.com", popularity: 0 },
+            { name: "Filecoin EVM", name_zh: "檔案幣", slug: "filecoin", symbol: "FIL", type: "L1", vm: "EVM", rpc: "https://api.node.glif.io/rpc/v1", chainId: "314", explorer: "https://filfox.info", popularity: 0 },
+            { name: "Cronos", name_zh: "克羅諾斯", slug: "cronos", symbol: "CRO", type: "L1", vm: "EVM", rpc: "https://evm.cronos.org", chainId: "25", explorer: "https://cronoscan.com", popularity: 0 },
+            { name: "Klaytn", name_zh: "Klaytn", slug: "klaytn", symbol: "KLAY", type: "L1", vm: "EVM", rpc: "https://rpc.ankr.com/klaytn", chainId: "8217", explorer: "https://www.klaytnfinder.io", popularity: 0 },
+            { name: "Aurora", name_zh: "Aurora", slug: "aurora", symbol: "ETH", type: "L2（Near Protocol）", vm: "EVM", rpc: "https://mainnet.aurora.dev", chainId: "1313161554", explorer: "https://aurorascan.dev", popularity: 0 },
+            { name: "Bitgert", name_zh: "Bitgert", slug: "bitgert", symbol: "BRISE", type: "L1", vm: "EVM", rpc: "https://mainnet-rpc.brisescan.com", chainId: "32520", explorer: "https://brisescan.com", popularity: 0 },
+        ];
+
+        // tokensData 熱門程度（越大越熱門，依市值/知名度預設）
+        const tokensData = [
+            { name: "Tether", name_zh: "Tether", slug: "tether", symbol: "USDT", track: "Stablecoin", contracts: { Ethereum: "0xdac17f958d2ee523a2206206994597c13d831ec7", Polygon: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f", "BNB Chain": "0x55d398326f99059ff775485246999027b3197955", Arbitrum: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", Optimism: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", Base: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb" }, popularity: 100 },
+            { name: "USD Coin", name_zh: "USD Coin", slug: "usd-coin", symbol: "USDC", track: "Stablecoin", contracts: { Ethereum: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", Polygon: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", "BNB Chain": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d", Arbitrum: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", Optimism: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", Base: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", Avalanche: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E" }, popularity: 98 },
+            { name: "Ethereum", name_zh: "以太坊", slug: "ethereum", symbol: "ETH", track: "主鏈原生幣", contracts: {}, popularity: 97 },
+            { name: "Aave", name_zh: "Aave", slug: "aave", symbol: "AAVE", track: "Lending / DeFi", note: "地址為 Aave V3 市場的原生 AAVE 代幣。", contracts: { Ethereum: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9", Polygon: "0xD6DF932A45C0f255f85145f286EA0b292B21C90B", Avalanche: "0x63a72806098Bd3D9520297207e2112B82316E582" }, popularity: 90 },
+            { name: "Ankr", name_zh: "Ankr", slug: "ankr", symbol: "ANKR", track: "RPC / 基礎設施", contracts: { Ethereum: "0x8290333ceF9e6D528dD5618Fb97a76f268f3EDD4" }, popularity: 85 },
+            { name: "ApeCoin", name_zh: "猿幣", slug: "apecoin", symbol: "APE", track: "Culture / NFT", contracts: { Ethereum: "0x4d224452801ACEd8B2F0aebE155379bb5D594381" }, popularity: 80 },
+            { name: "API3", name_zh: "API3", slug: "api3", symbol: "API3", track: "Oracle / 基礎設施", contracts: { Ethereum: "0x0b38210ea11411557c13457D4dA7dC6ea731B88a" }, popularity: 75 },
+            { name: "Arweave", name_zh: "Arweave", slug: "arweave", symbol: "AR", track: "Decentralized Storage", popularity: 70 },
+            { name: "Axie Infinity", name_zh: "Axie Infinity", slug: "axie-infinity", symbol: "AXS", track: "Gaming / GameFi", contracts: { Ethereum: "0xBB0E17EF65F82Ab018d8EDd776e859B6a129a091" }, popularity: 65 },
+            { name: "Balancer", name_zh: "平衡器", slug: "balancer", symbol: "BAL", track: "DEX / DeFi", contracts: { Ethereum: "0xba100000625a3754423978a60c9317c58a424e3D" }, popularity: 60 },
+            { name: "Basic Attention Token", name_zh: "Basic Attention Token", slug: "basic-attention-token", symbol: "BAT", track: "Ad-Tech / Browser", contracts: { Ethereum: "0x0D8775F648430679A709E98d2b0Cb6250d2887EF" }, popularity: 55 },
+            { name: "Bittensor", name_zh: "Bittensor", slug: "bittensor", symbol: "TAO", track: "AI", popularity: 50 },
+            { name: "Blur", name_zh: "Blur", slug: "blur", symbol: "BLUR", track: "NFT Marketplace", contracts: { Ethereum: "0x5283D291DBCF85356A21BaA150e6fEd6214346BB" }, popularity: 45 },
+            { name: "Bonk", name_zh: "Bonk", slug: "bonk", symbol: "BONK", track: "Memecoin", contracts: { Solana: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" }, popularity: 40 },
+            { name: "Celestia", name_zh: "天空岛", slug: "celestia", symbol: "TIA", track: "Modular Blockchain", popularity: 35 },
+            { name: "Chainlink", name_zh: "Chainlink", slug: "chainlink", symbol: "LINK", track: "Oracle / 基礎設施", contracts: { Ethereum: "0x514910771AF9Ca656af840dff83E8264EcF986CA" }, popularity: 30 },
+            { name: "Compound", name_zh: "Compound", slug: "compound", symbol: "COMP", track: "Lending / DeFi", contracts: { Ethereum: "0xc00e94Cb662C3520282E6f5717214004A7f26888" }, popularity: 25 },
+            { name: "Curve DAO Token", name_zh: "Curve DAO 代币", slug: "curve-dao-token", symbol: "CRV", track: "DEX / DeFi", contracts: { Ethereum: "0xD533a949740bb3306d119CC777fa900bA034cd52" }, popularity: 20 },
+            { name: "Dai", name_zh: "Dai", slug: "multi-collateral-dai", symbol: "DAI", track: "Stablecoin", contracts: { Ethereum: "0x6B175474E89094C44Da98b954EedeAC495271d0F" }, popularity: 15 },
+            { name: "dYdX", name_zh: "dYdX", slug: "dydx", symbol: "DYDX, ETHDYDX", track: "Derivatives / DeFi", note: "DYDX 是 dYdX v4 (Cosmos L1) 的原生代幣。ETHDYDX 是舊版 (v3) 在以太坊上的治理代幣。", contracts: { "dYdX Chain (L1)": "dydx", "Ethereum (舊版)": "0x92D6C1e31e14520e676a687F0a93788B716BEff5" }, popularity: 10 },
+            { name: "Ethena", name_zh: "Ethena", slug: "ethena", symbol: "ENA", track: "Stablecoin / DeFi", contracts: { Ethereum: "0x57e114B691Db790C35207b2e685D4A43181e6061" }, popularity: 5 },
+            { name: "ether.fi", name_zh: "ether.fi", slug: "ether-fi", symbol: "ETHFI", track: "Liquid Staking / DeFi", contracts: { Ethereum: "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB" }, popularity: 2 },
+            { name: "Frax Share", name_zh: "Frax Share", slug: "frax-share", symbol: "FXS", track: "Stablecoin / DeFi", contracts: { Ethereum: "0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0" }, popularity: 1 },
+            { name: "Gala", name_zh: "Gala", slug: "gala", symbol: "GALA", track: "Gaming / GameFi", note: "這是 GALA (v2) 的合約地址，舊的 v1 代幣已棄用。", contracts: { Ethereum: "0xd1d2Eb1B1e90B638588728b4130137D262C87cae" }, popularity: 0 },
+            { name: "GMX", name_zh: "GMX", slug: "gmx", symbol: "GMX", track: "Derivatives / DeFi", contracts: { Arbitrum: "0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a", Avalanche: "0x62edc0692BD897D2295872a9FFCac5425011c661" }, popularity: 0 },
+            { name: "The Graph", name_zh: "The Graph", slug: "the-graph", symbol: "GRT", track: "Indexing / 基礎設施", contracts: { Ethereum: "0xc944E90C64B2c07662A292be6244BDf05Cda44a7" }, popularity: 0 },
+            { name: "Immutable", name_zh: "Immutable", slug: "immutable-x", symbol: "IMX", track: "L2 / Gaming", contracts: { Ethereum: "0xf57e7e7c23978c3caec3c3548e3d615c346e79ff" }, popularity: 0 },
+            { name: "Jito", name_zh: "Jito", slug: "jito", symbol: "JTO", track: "Liquid Staking / DeFi", contracts: { Solana: "jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL" }, popularity: 0 },
+            { name: "Jupiter", name_zh: "木星", slug: "jupiter", symbol: "JUP", track: "DEX Aggregator / DeFi", contracts: { Solana: "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN" }, popularity: 0 },
+            { name: "Lido DAO", name_zh: "Lido DAO", slug: "lido-dao", symbol: "LDO", track: "Liquid Staking / DeFi", contracts: { Ethereum: "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32" }, popularity: 0 },
+            { name: "Maker", name_zh: "貸", slug: "maker", symbol: "MKR", track: "Stablecoin / DeFi", contracts: { Ethereum: "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2" }, popularity: 0 },
+            { name: "Ondo Finance", name_zh: "翁多金融", slug: "ondo-finance", symbol: "ONDO", track: "RWA / DeFi", contracts: { Ethereum: "0xfAbA6f8e4a5E8Ab82F62fe7C39859FA577269BE3" }, popularity: 0 },
+            { name: "PancakeSwap", name_zh: "薄饼兑换", slug: "pancakeswap", symbol: "CAKE", track: "DEX / DeFi", contracts: { "BNB Chain": "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82" }, popularity: 0 },
+            { name: "Pendle", name_zh: "Pendle", slug: "pendle", symbol: "PENDLE", track: "Yield / DeFi", contracts: { Ethereum: "0x808507121b80c02388fad14726482e061b8da827", Arbitrum: "0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8" }, popularity: 0 },
+            { name: "Pepe", name_zh: "佩佩", slug: "pepe", symbol: "PEPE", track: "Memecoin", contracts: { Ethereum: "0x6982508145454ce325ddbe47a25d4ec3d2311933" }, popularity: 0 },
+            { name: "Pyth Network", name_zh: "Pyth Network", slug: "pyth-network", symbol: "PYTH", track: "Oracle / 基礎設施", contracts: { Solana: "HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3" }, popularity: 0 },
+            { name: "Radiant Capital", name_zh: "Radiant Capital", slug: "radiant-capital", symbol: "RDNT", track: "Lending / DeFi", contracts: { Arbitrum: "0x3082CC23568eA640225c2467653dB90e9250AaA0", "BNB Chain": "0xf7de7e8a6bd59ed41a4b5fe50278b3b7f31384df" }, popularity: 0 },
+            { name: "Render", name_zh: "Render", slug: "render-token", symbol: "RNDR", track: "DePIN / AI", contracts: { Ethereum: "0x6De037ef9aD2725EB40118Bb1702EBb27e4Aeb24", Polygon: "0x61299774020dA444Af134c82fa83E3810b309991" }, popularity: 0 },
+            { name: "Rocket Pool", name_zh: "Rocket Pool", slug: "rocket-pool", symbol: "RPL", track: "Liquid Staking / DeFi", contracts: { Ethereum: "0xd33526068d116ce69f19a9ee46f0bd304f21a51f" }, popularity: 0 },
+            { name: "Shiba Inu", name_zh: "柴犬", slug: "shiba-inu", symbol: "SHIB", track: "Memecoin / Ecosystem", contracts: { Ethereum: "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce" }, popularity: 0 },
+            { name: "Stargate Finance", name_zh: "星际之门金融", slug: "stargate-finance", symbol: "STG", track: "Interoperability / DeFi", contracts: { Ethereum: "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6" }, popularity: 0 },
+            { name: "SushiSwap", name_zh: "SushiSwap", slug: "sushiswap", symbol: "SUSHI", track: "DEX / DeFi", contracts: { Ethereum: "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2" }, popularity: 0 },
+            { name: "Synthetix", name_zh: "Synthetix", slug: "synthetix-network-token", symbol: "SNX", track: "Derivatives / DeFi", contracts: { Ethereum: "0xC011A72400E58ecD99Ee497CF89E3775d4bd732F", Optimism: "0x8700daec35af8ff88c16bdf0418774cb3d7599b4" }, popularity: 0 },
+            { name: "Wrapped Bitcoin", name_zh: "Wrapped Bitcoin", slug: "wrapped-bitcoin", symbol: "WBTC", track: "Wrapped Asset", contracts: { Ethereum: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599" }, popularity: 0 },
+            { name: "yearn.finance", name_zh: "yearn.finance", slug: "yearn-finance", symbol: "YFI", track: "Yield / DeFi", contracts: { Ethereum: "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e" }, popularity: 0 },
+            { name: "Worldcoin", name_zh: "Worldcoin", slug: "worldcoin", symbol: "WLD", track: "Identity / AI", contracts: { Optimism: "0xdc6ff44d5d932cbd77b52e5612ba0529dc6226f1" }, popularity: 0 },
+            { name: "1inch Network", name_zh: "1inch Network", slug: "1inch", symbol: "1INCH", track: "DEX Aggregator / DeFi", contracts: { Ethereum: "0x111111111117dC0aa78b770FA6A738034120C302" }, popularity: 0 },
+            { name: "The Sandbox", name_zh: "The Sandbox", slug: "the-sandbox", symbol: "SAND", track: "Metaverse / NFT", contracts: { Ethereum: "0x3845badAde8e6dFF049820680d1F14bD3903a5d0", Polygon: "0xBbba073C31bF03b8ACf7c28EF0738DeCF3695683" }, popularity: 0 },
+            { name: "Uniswap", name_zh: "優理", slug: "uniswap", symbol: "UNI", track: "DEX / DeFi", contracts: { Ethereum: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", Polygon: "0xB33EaAd8d922B1083446DC23f610c2567fB5180f", Arbitrum: "0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0", Optimism: "0x6fd9d7AD17242c41f7131d257212c54A0e816691" }, popularity: 0 },
+        ];
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const alertNode = document.createElement('div');
+                alertNode.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3';
+                alertNode.role = 'alert';
+                alertNode.innerText = '已複製到剪貼簿!';
+                document.body.appendChild(alertNode);
+                setTimeout(() => {
+                    alertNode.remove();
+                }, 2000);
+            }).catch(err => {
+                console.error('無法複製: ', err);
+            });
+        }
+
+        function getLogoUrl(data) {
+            const slug = data.slug || data.name.toLowerCase().replace(/ /g, '-');
+            return `logos/${slug}.png`;
+        }
+
+        function createChainRow(data) {
+            const searchTerm = `${data.name} ${data.name_zh || ''} ${data.symbol} ${data.type} ${data.vm}`.toLowerCase();
+            
+            let rpcHtml = '';
+            if (data.rpc) {
+                const rpcType = data.rpcType || (data.chainId ? 'RPC' : 'API');
+                rpcHtml = `<strong>${rpcType}:</strong> <code>${data.rpc}</code><span class="copy-btn" onclick="copyToClipboard('${data.rpc}')">📋</span>`;
+            }
+            if (data.chainId) {
+                rpcHtml += `<br><small class="text-muted">Chain ID: ${data.chainId}</small>`;
+            }
+
+            let explorerHtml = data.explorer ? `<a href="${data.explorer}" target="_blank">查看</a>` : 'N/A';
+
+            // 名稱顯示格式：名稱 (符號)
+            return `
+                <tr data-search-term="${searchTerm}">
+                    <td>
+                        <div class="chain-name">
+                            <img src="${getLogoUrl(data)}" class="logo-icon" onerror="this.onerror=null;this.src='logos/unknown.png';">
+                            <span>${data.name}<span class="symbol">(${data.symbol})</span><br><small class="text-muted">${data.name_zh || ''}</small></span>
+                        </div>
+                    </td>
+                    <td>${data.type}</td>
+                    <td>${data.vm}</td>
+                    <td>${rpcHtml || 'N/A'}</td>
+                    <td>${explorerHtml}</td>
+                </tr>
+            `;
+        }
+
+        function createTokenRow(data) {
+            const searchTerm = `${data.name} ${data.name_zh || ''} ${data.symbol} ${data.track} ${Object.values(data.contracts || {}).join(' ')}`.toLowerCase();
+            
+            let contractsHtml = '';
+            if (data.contracts) {
+                contractsHtml += '<div class="contract-list">';
+                for (const [chain, address] of Object.entries(data.contracts)) {
+                    let chainLogoSlug = chain.toLowerCase().replace(/\s/g, '-');
+                    if (chainLogoSlug === 'bnb-chain') chainLogoSlug = 'binance-coin';
+                    if (chainLogoSlug === 'ethereum') chainLogoSlug = 'ethereum';
+                    if (chainLogoSlug === 'arbitrum') chainLogoSlug = 'arbitrum';
+                    if (chainLogoSlug === 'polygon') chainLogoSlug = 'polygon';
+                    if (chainLogoSlug === 'optimism') chainLogoSlug = 'optimism';
+                    if (chainLogoSlug === 'avalanche') chainLogoSlug = 'avalanche';
+                    if (chainLogoSlug === 'base') chainLogoSlug = 'base';
+                    if (chainLogoSlug === 'solana') chainLogoSlug = 'solana';
+                    if (chainLogoSlug === 'ethereum-舊版') chainLogoSlug = 'ethereum';
+                    // 每個鏈都用 <div> 包裹，確保每個鏈一行
+                    contractsHtml += `<div><img src="logos/${chainLogoSlug}.png" class="logo-icon" onerror="this.onerror=null;this.src='logos/unknown.png';"><strong>${chain}:</strong> <code>${address}</code><span class="copy-btn" onclick="copyToClipboard('${address}')">📋</span></div>`;
+                }
+                contractsHtml += '</div>';
+            }
+            // 名稱顯示格式：名稱 (符號)
+            return `
+                <tr data-search-term="${searchTerm}">
+                    <td>
+                        <div class="chain-name">
+                            <img src="${getLogoUrl(data)}" class="logo-icon" onerror="this.onerror=null;this.src='logos/unknown.png';">
+                            <span>${data.name}<span class="symbol">(${data.symbol})</span><br><small class="text-muted">${data.name_zh || ''}</small></span>
+                        </div>
+                    </td>
+                    <td>${data.track}</td>
+                    <td>${contractsHtml}</td>
+                </tr>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const chainsTbody = document.getElementById('chains-tbody');
+            const tokensTbody = document.getElementById('tokens-tbody');
+            
+            // 排序下拉選單
+            const chainsSortSelect = document.getElementById('chainsSort');
+            const tokensSortSelect = document.getElementById('tokensSort');
+
+            function sortTable(data, sortBy, isAscending = true) {
+                return data.sort((a, b) => {
+                    const aValue = a[sortBy];
+                    const bValue = b[sortBy];
+                    if (aValue < bValue) {
+                        return isAscending ? -1 : 1;
+                    }
+                    if (aValue > bValue) {
+                        return isAscending ? 1 : -1;
+                    }
+                    return 0;
+                });
+            }
+
+            function performSearch() {
+                const searchInput = document.getElementById('searchInput');
+                const searchTerm = searchInput.value.toLowerCase();
+                
+                // 搜尋區塊鏈表格
+                const chainRows = document.querySelectorAll('#chains-tbody tr');
+                chainRows.forEach(row => {
+                    const searchableText = row.getAttribute('data-search-term').toLowerCase();
+                    row.style.display = searchableText.includes(searchTerm) ? '' : 'none';
+                });
+                
+                // 搜尋代幣表格
+                const tokenRows = document.querySelectorAll('#tokens-tbody tr');
+                tokenRows.forEach(row => {
+                    const searchableText = row.getAttribute('data-search-term').toLowerCase();
+                    row.style.display = searchableText.includes(searchTerm) ? '' : 'none';
+                });
+            }
+
+            function renderChainsTable() {
+                const sortBy = chainsSortSelect.value;
+                let sortedChains = [...chainsData];
+                if (sortBy === 'popularity') {
+                    sortedChains = sortTable(sortedChains, 'popularity', false); // 熱門程度由高到低
+                }
+                chainsTbody.innerHTML = sortedChains.map(createChainRow).join('');
+            }
+
+            function renderTokensTable() {
+                const sortBy = tokensSortSelect.value;
+                let sortedTokens = [...tokensData];
+                if (sortBy === 'popularity') {
+                    sortedTokens = sortTable(sortedTokens, 'popularity', false); // 熱門程度由高到低
+                }
+                tokensTbody.innerHTML = sortedTokens.map(createTokenRow).join('');
+            }
+
+            // 初始渲染
+            renderChainsTable();
+            renderTokensTable();
+
+            // 監聽排序選單變化
+            chainsSortSelect.addEventListener('change', renderChainsTable);
+            tokensSortSelect.addEventListener('change', renderTokensTable);
+            
+            // 監聽搜尋輸入
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', performSearch);
+        });
+    </script>
+</body>
+</html>

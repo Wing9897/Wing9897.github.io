@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phantom Solana 測試網平台</title>
+    <style>
+        /* ====== 全局設定 ====== */
+        html {
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #fffde4 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            color: #22223b;
+        }
+        .container {
+            max-width: 1500px;
+            margin: 56px auto 0 auto;
+            background: #fff;
+            border-radius: 30px;
+            box-shadow: 0 14px 52px rgba(80,80,120,0.17);
+            overflow: hidden;
+            padding: 0 90px 56px 90px;
+        }
+        .header {
+            background: linear-gradient(135deg, #6d28d9 0%, #38bdf8 100%);
+            color: #fff;
+            padding: 32px 0 22px 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 2px 16px rgba(80,80,120,0.10);
+        }
+        .header h1 {
+            font-size: 2.1em;
+            margin-bottom: 8px;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+        .header p {
+            font-size: 1.1em;
+            margin: 0 auto;
+            max-width: 600px;
+        }
+        .main-content {
+            padding: 32px 0 0 0;
+        }
+        .card-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .card {
+            background: #f6f7fb;
+            border-radius: 18px;
+            padding: 36px 48px 40px 48px;
+            border: 1.5px solid #e0e7ff;
+            margin-bottom: 0;
+            box-shadow: 0 2px 14px rgba(80,80,120,0.10);
+            transition: box-shadow 0.18s, transform 0.18s;
+            position: relative;
+            width: 100%;
+            max-width: unset;
+            min-width: 0;
+            text-align: center;
+        }
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(80,80,120,0.16);
+            transform: translateY(-2px) scale(1.012);
+        }
+        .card h3 {
+            color: #6d28d9;
+            margin-bottom: 16px;
+            font-size: 1.25em;
+            letter-spacing: 0.7px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .card.intro-card {
+            padding: 18px 32px 18px 32px;
+            font-size: 1.08em;
+            margin-bottom: 0;
+            background: linear-gradient(90deg, #f3e8ff 0%, #e0f2fe 100%);
+            border: 1.5px solid #e9d5ff;
+            text-align: center;
+        }
+        .card.intro-card h3 {
+            font-size: 1.18em;
+            margin-bottom: 8px;
+        }
+        .card.intro-card ol {
+            margin: 0 auto;
+            display: inline-block;
+            text-align: left;
+            font-size: 1.05em;
+        }
+        .card.explorer-card {
+        }
+        /* 狀態區塊 */
+        .status-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            font-size: 1.08em;
+            justify-content: center;
+            gap: 12px;
+        }
+        .status-item:last-child { border-bottom: none; }
+        .status-label {
+            font-weight: 600;
+            color: #4b5563;
+            letter-spacing: 0.3px;
+        }
+        .status-value {
+            font-family: monospace;
+            background: #f3f4f6;
+            padding: 4px 12px;
+            border-radius: 7px;
+            font-size: 1.08em;
+            min-width: 80px;
+            text-align: center;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+        /* 按鈕 */
+        button {
+            background: linear-gradient(135deg, #6d28d9 0%, #38bdf8 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.18s;
+            min-width: 170px;
+            min-height: 42px;
+            box-shadow: 0 2px 8px rgba(80,80,120,0.09);
+            text-align: center;
+        }
+        .button-group {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: center;
+        }
+        .button-group > button:not(:last-child) {
+            margin-right: 12px;
+        }
+        button:hover { opacity: 0.97; box-shadow: 0 4px 16px #a78bfa33; }
+        button:active { opacity: 0.92; }
+        button:disabled { background: #e5e7eb; color: #bdbdbd; cursor: not-allowed; box-shadow: none; }
+        /* 表單 */
+        .form-group {
+            margin-bottom: 18px;
+            text-align: center;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 1.08em;
+            text-align: center;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1.08em;
+            margin-bottom: 2px;
+            background: #fff;
+            transition: border 0.18s, box-shadow 0.18s;
+            text-align: center;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border: 1.5px solid #6d28d9;
+            outline: none;
+            box-shadow: 0 0 0 2px #a5b4fc44;
+        }
+        /* Alert 訊息 */
+        .alert {
+            padding: 14px 20px;
+            border-radius: 10px;
+            margin: 16px 0;
+            border-left: 5px solid;
+            font-size: 1.13em;
+            box-shadow: 0 2px 12px #a5b4fc22;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+            text-align: center;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        .alert-info { background-color: #e0f2fe; border-color: #38bdf8; color: #2563eb; }
+        .alert-success { background-color: #e0ffe6; border-color: #22c55e; color: #15803d; }
+        .alert-error { background-color: #ffe4e6; border-color: #ef4444; color: #b91c1c; }
+        /* 連結列表 */
+        .link-list { list-style: none; padding: 0; font-size: 1.08em; }
+        .link-list li { margin-bottom: 10px; }
+        .link-list a { color: #2563eb; text-decoration: none; font-weight: 500; transition: color 0.15s; }
+        .link-list a:hover { text-decoration: underline; color: #6d28d9; }
+        /* QR Code 區塊 */
+        .qr-code-container { text-align: center; margin-top: 16px; }
+        #qrCode { max-width: 130px; height: auto; border: 2px solid #e0e7ff; border-radius: 10px; background: #fff; box-shadow: 0 1px 8px #a5b4fc22; }
+        .token-info { background: #f3f4f6; padding: 7px 14px; border-radius: 7px; font-family: monospace; font-size: 1.01em; margin: 8px 0; word-break: break-all; }
+        .token-info {
+            word-break: break-all;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+        /* 區塊鏈瀏覽器卡片 */
+        .card.explorer-card {
+            background: linear-gradient(90deg, #f3e8ff 0%, #e0f2fe 100%);
+            border: 1.5px solid #e0e7ff;
+        }
+        /* 滾動條美化 */
+        ::-webkit-scrollbar { width: 10px; background: #f3f4f6; }
+        ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a5b4fc; }
+        /* 響應式設計 */
+        @media (max-width: 1500px) {
+            .container { max-width: 99vw; padding: 0 2vw 10vw 2vw; }
+            .card-list { gap: 18px; grid-template-columns: repeat(2, 1fr); }
+            .card, .card.intro-card { padding: 18px 2vw 22px 2vw; max-width: 98vw; }
+            .header { padding: 18px 2vw 10px 2vw; }
+            button { min-width: 120px; padding: 10px 10px; }
+        }
+        @media (max-width: 900px) {
+            .container { max-width: 99vw; padding: 0 2vw 10vw 2vw; }
+            .card-list { gap: 14px; grid-template-columns: 1fr; }
+            .card, .card.intro-card { padding: 10px 2vw 14px 2vw; max-width: 99vw; }
+            .header { padding: 14px 2vw 8px 2vw; }
+            button { min-width: 100px; padding: 8px 6px; }
+        }
+        @media (max-width: 600px) {
+            .container { padding: 0 2px 10px 2px; }
+            .main-content { padding: 10px 0 0 0; }
+            .card-list { gap: 8px; }
+            .card, .card.intro-card { padding: 6px 2px 8px 2px; max-width: 99vw; }
+            .header { padding: 12px 2px 6px 2px; }
+            .card { max-width: 99vw; }
+            button { font-size: 0.93em; min-width: 90px; padding: 7px 2px; }
+        }
+    </style>
+    <!-- Solana web3.js CDN -->
+    <script src="https://unpkg.com/@solana/web3.js@1.92.1/lib/index.iife.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👻 Phantom Solana 測試網平台</h1>
+            <p>Solana Devnet/Testnet 測試交易與水龍頭工具</p>
+        </div>
+        <div class="main-content">
+            <div class="card-list">
+                <!-- 第一行 -->
+                <div class="card intro-card">
+                    <h3>📋 使用說明</h3>
+                    <ol>
+                        <li>安裝 Phantom 錢包擴展，並建立/導入錢包</li>
+                        <li>點擊「連接 Phantom」按鈕</li>
+                        <li>切換到 Devnet 或 Testnet，並使用水龍頭領取 SOL</li>
+                        <li>可發送 SOL 測試交易，並於區塊鏈瀏覽器查詢</li>
+                    </ol>
+                </div>
+                <div class="card">
+                    <h3>💸 發送 SOL 測試交易</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="recipientAddress">接收地址</label>
+                        <input type="text" id="recipientAddress" placeholder="Solana 公鑰 (Base58)" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="amount">金額 (SOL)</label>
+                        <input type="number" id="amount" placeholder="0.01" min="0.000000001" step="0.000000001" />
+                    </div>
+                    <button id="sendBtn" onclick="sendSol()" disabled>🚀 發送 SOL</button>
+                </div>
+                <div class="card">
+                    <h3>🔗 連接狀態</h3>
+                    <div class="status-info">
+                        <div class="status-item">
+                            <span class="status-label">連接狀態</span>
+                            <span class="status-value" id="connectionStatus">未連接</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">公鑰</span>
+                            <span class="status-value" id="publicKey">--</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">餘額 (SOL)</span>
+                            <span class="status-value" id="balance">--</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">網絡</span>
+                            <span class="status-value" id="network">--</span>
+                        </div>
+                    </div>
+                    <div class="button-group" style="margin-top: 8px;">
+                        <button id="connectBtn" onclick="connectPhantom()">🔌 連接錢包</button>
+                        <button id="refreshBtn" onclick="refreshAccount()" disabled>🔄 刷新資訊</button>
+                    </div>
+                    <div class="qr-code-container" id="qrCodeContainer" style="display: none;">
+                        <h4>📱 公鑰 QR Code</h4>
+                        <img id="qrCode" src="" alt="QR Code" />
+                        <div class="token-info" id="qrAddressInfo"></div>
+                    </div>
+                </div>
+                <!-- 第二行 -->
+                <div class="card">
+                    <h3>🌐 網絡切換</h3>
+                    <div class="button-group">
+                        <button onclick="switchNetwork('devnet')">切換 Devnet</button>
+                        <button onclick="switchNetwork('testnet')">切換 Testnet</button>
+                    </div>
+                    <div style="margin-top: 7px; font-size: 0.9em; color: #666;">
+                        <span>目前僅支援 Devnet/Testnet 測試網功能</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>🆓 Solana 官方水龍頭</h3>
+                    <ul class="link-list">
+                        <li><a href="https://faucet.solana.com/" target="_blank">Solana Devnet/Testnet 官方水龍頭</a></li>
+                    </ul>
+                    <div style="font-size: 0.9em; color: #666;">每 8 小時最多 2 次，請用 Phantom 公鑰領取</div>
+                </div>
+                <div class="card explorer-card">
+                    <h3>🔍 區塊鏈瀏覽器</h3>
+                    <ul class="link-list">
+                        <li><a href="https://explorer.solana.com/?cluster=devnet" target="_blank">Solana Devnet Explorer</a></li>
+                        <li><a href="https://explorer.solana.com/?cluster=testnet" target="_blank">Solana Testnet Explorer</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="messageBox"></div>
+        </div>
+    </div>
+    <script>
+        // Solana 連線與狀態
+        let provider = null;
+        let currentNetwork = 'devnet'; // 預設 devnet
+        let publicKey = null;
+
+        // 格式化公鑰：只顯示頭4尾4，中間...，如 4k2A...9XyZ
+        function formatPublicKey(key) {
+            if (!key || key.length <= 12) return key;
+            return key.slice(0, 4) + '...' + key.slice(-4);
+        }
+
+        // 取得 Phantom provider
+        function getProvider() {
+            if ('solana' in window) {
+                const provider = window.solana;
+                if (provider.isPhantom) return provider;
+            }
+            return null;
+        }
+
+        // 連接 Phantom
+        async function connectPhantom() {
+            provider = getProvider();
+            if (!provider) {
+                showMessage('請先安裝 Phantom 錢包擴展！', 'error');
+                return;
+            }
+            try {
+                const resp = await provider.connect();
+                publicKey = resp.publicKey.toString();
+                document.getElementById('connectionStatus').textContent = '✅ 已連接';
+                // 顯示格式化公鑰，hover 顯示完整
+                const pkElem = document.getElementById('publicKey');
+                pkElem.textContent = formatPublicKey(publicKey);
+                pkElem.title = publicKey;
+                document.getElementById('refreshBtn').disabled = false;
+                document.getElementById('sendBtn').disabled = false;
+                showAccountQRCode(publicKey);
+                await updateBalance();
+                showMessage('Phantom 連接成功！', 'success');
+            } catch (err) {
+                showMessage('連接失敗: ' + err.message, 'error');
+            }
+        }
+
+        // 刷新帳戶資訊
+        async function refreshAccount() {
+            if (!provider || !publicKey) return;
+            await updateBalance();
+            showMessage('已刷新帳戶資訊', 'info');
+        }
+
+        // 更新餘額
+        async function updateBalance() {
+            try {
+                const conn = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl(currentNetwork));
+                const balance = await conn.getBalance(new solanaWeb3.PublicKey(publicKey));
+                document.getElementById('balance').textContent = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(6);
+                document.getElementById('network').textContent = currentNetwork;
+            } catch (err) {
+                document.getElementById('balance').textContent = '--';
+            }
+        }
+
+        // 切換網絡
+        function switchNetwork(network) {
+            if (network === 'mainnet-beta') {
+                showMessage('主網僅供顯示，請使用 Devnet 或 Testnet', 'info');
+                return;
+            }
+            currentNetwork = network;
+            document.getElementById('network').textContent = currentNetwork;
+            if (publicKey) updateBalance();
+            showMessage('已切換到 ' + network, 'success');
+        }
+
+        // 發送 SOL
+        async function sendSol() {
+            const toAddress = document.getElementById('recipientAddress').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            if (!toAddress || isNaN(amount) || amount <= 0) {
+                showMessage('請輸入正確的接收地址與金額！', 'error');
+                return;
+            }
+            if (!publicKey) {
+                showMessage('請先連接 Phantom 錢包！', 'error');
+                return;
+            }
+            try {
+                const conn = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl(currentNetwork));
+                const fromPubkey = new solanaWeb3.PublicKey(publicKey);
+                const toPubkey = new solanaWeb3.PublicKey(toAddress);
+                const tx = new solanaWeb3.Transaction().add(
+                    solanaWeb3.SystemProgram.transfer({
+                        fromPubkey,
+                        toPubkey,
+                        lamports: amount * solanaWeb3.LAMPORTS_PER_SOL
+                    })
+                );
+                tx.feePayer = fromPubkey;
+                tx.recentBlockhash = (await conn.getRecentBlockhash()).blockhash;
+                // Phantom 簽名
+                const signed = await provider.signTransaction(tx);
+                const txid = await conn.sendRawTransaction(signed.serialize());
+                showMessage(`交易已發送！<br>交易哈希: ${txid}<br><a href="https://explorer.solana.com/tx/${txid}?cluster=${currentNetwork}" target="_blank">查看區塊鏈瀏覽器</a>`, 'success');
+                setTimeout(updateBalance, 3000);
+            } catch (err) {
+                showMessage('交易失敗: ' + err.message, 'error');
+            }
+        }
+
+        // 顯示訊息
+        function showMessage(message, type = 'info') {
+            const messageBox = document.getElementById('messageBox');
+            let alertClass = 'alert-info';
+            if (type === 'success') alertClass = 'alert-success';
+            if (type === 'error') alertClass = 'alert-error';
+            messageBox.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            setTimeout(() => { messageBox.innerHTML = ''; }, 8000);
+        }
+
+        // 產生帳戶 QR Code
+        function showAccountQRCode(address) {
+            const qrContainer = document.getElementById('qrCodeContainer');
+            const qrImg = document.getElementById('qrCode');
+            const qrInfo = document.getElementById('qrAddressInfo');
+            if (!address) {
+                qrContainer.style.display = 'none';
+                return;
+            }
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(address)}`;
+            qrImg.src = qrUrl;
+            qrImg.onload = function() {
+                qrInfo.textContent = address;
+                qrInfo.title = address;
+                qrContainer.style.display = '';
+            };
+        }
+    </script>
+</body>
+</html> 

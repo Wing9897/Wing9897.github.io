@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wing9897工作坊</title>
+    <title>Wing9897 Tools Hub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -403,7 +403,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="#"><i class="bi bi-code-square me-2"></i>Wing9897工作坊</a>
+            <a class="navbar-brand" href="#"><i class="bi bi-code-square me-2"></i>Wing9897 Tools Hub</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -427,8 +427,8 @@
     <header class="header">
         <div class="container">
             <div class="header-content" data-aos="fade-up">
-                <h1>Wing9897工作坊</h1>
-                <p>專業開發工具集，提升您的工作效率與創造力</p>
+                <h1>Wing9897 Tools Hub</h1>
+                <p>多個實用工具的集合，提供二維碼生成與映射、HTTP請求、圖表生成、區塊鏈測試等專業工具</p>
             </div>
         </div>
     </header>
@@ -438,7 +438,7 @@
         <div class="container">
             <div class="section-title" data-aos="fade-up">
                 <h2>我們的工具</h2>
-                <p>精心開發的專業工具，滿足不同場景的需求</p>
+                <p>精心開發的離線前端工具，無需服務器互動，滿足不同場景的需求</p>
             </div>
 
             <!-- Category Filter -->
@@ -448,6 +448,7 @@
                 <button class="category-btn" data-category="scanner">掃描工具</button>
                 <button class="category-btn" data-category="chart">圖表工具</button>
                 <button class="category-btn" data-category="crypto">區塊鏈</button>
+                <button class="category-btn" data-category="image">圖像工具</button>
             </div>
 
             <!-- Product Grid -->
@@ -716,23 +717,71 @@
                     </div>
                 </div>
 
-                                <!-- others -->
-                <div class="product-card" data-category="chart" data-aos="fade-up" data-aos-delay="50">
+                                <!-- 實時鍵值對QR Code匹配器 -->
+                <div class="product-card" data-category="scanner" data-aos="fade-up" data-aos-delay="50">
                     <div class="product-header">
                         <div class="product-icon">
-                            <i class="bi bi-file-earmark-spreadsheet"></i>
+                            <i class="bi bi-key"></i>
+                        </div>
+                        <h3 class="product-title">實時鍵值對QR Code匹配器</h3>
+                        <p class="product-category">掃描工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            支援鍵值對格式的QR碼掃描工具，可即時匹配掃描結果與預設的鍵值對數據，適合複雜的資料對應需求。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">鍵值對</span>
+                            <span class="product-tag">即時匹配</span>
+                            <span class="product-tag">複雜對應</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="RealTimeQRMatchScanner(KeyValue).html" class="btn-primary-custom">立即使用</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 圖像處理工具 -->
+                <div class="product-card" data-category="image" data-aos="fade-up" data-aos-delay="50">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-palette"></i>
+                        </div>
+                        <h3 class="product-title">圖像處理工具</h3>
+                        <p class="product-category">圖像工具</p>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-description">
+                            功能豐富的圖像處理工具，支援多種圖像編輯和處理功能，提供專業的圖像處理解決方案。
+                        </p>
+                        <div class="product-tags">
+                            <span class="product-tag">圖像編輯</span>
+                            <span class="product-tag">圖像處理</span>
+                            <span class="product-tag">專業工具</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="paint.html" class="btn-primary-custom">立即使用</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blockchain List -->
+                <div class="product-card" data-category="crypto" data-aos="fade-up" data-aos-delay="50">
+                    <div class="product-header">
+                        <div class="product-icon">
+                            <i class="bi bi-list-ul"></i>
                         </div>
                         <h3 class="product-title">Blockchain List</h3>
                         <p class="product-category">區塊鏈列表</p>
                     </div>
                     <div class="product-body">
                         <p class="product-description">
-                            可以睇哂有咩chain。
+                            完整的區塊鏈項目列表，提供各種區塊鏈項目的詳細資訊和圖標，方便查看和了解不同的區塊鏈生態系統。
                         </p>
                         <div class="product-tags">
                             <span class="product-tag">Blockchain</span>
-                            <span class="product-tag">list</span>
-                            <span class="product-tag">view</span>
+                            <span class="product-tag">項目列表</span>
+                            <span class="product-tag">生態系統</span>
                         </div>
                         <div class="product-actions">
                             <a href="blockchain_list.html" class="btn-primary-custom">立即使用</a>
@@ -748,8 +797,8 @@
     <footer class="footer" id="contact">
         <div class="container">
             <div class="footer-content">
-                <h3>Wing9897工作坊</h3>
-                <p>專注於開發高品質的數位工具，為您的工作和生活提供便利</p>
+                <h3>Wing9897 Tools Hub</h3>
+                <p>專注於開發高品質的數位工具，提供離線操作的前端工具，為您的工作和生活提供便利</p>
                 <div class="footer-links">
                     <a href="#">工具支援</a>
                     <a href="#">使用條款</a>
@@ -758,7 +807,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Wing9897工作坊. 版權所有。</p>
+                <p>&copy; 2024 Wing9897 Tools Hub. 版權所有。</p>
             </div>
         </div>
     </footer>

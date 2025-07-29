@@ -48,9 +48,9 @@
         #video-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            border-radius: 8px;
+            max-width: 100%;
+            margin: 0;
+            border-radius: 12px 0 0 12px;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
@@ -70,49 +70,7 @@
             pointer-events: none;
         }
         
-        .scan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .scan-frame {
-            width: 200px;
-            height: 200px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            border-radius: 8px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
-            position: relative;
-        }
-        
-        .scan-frame::before,
-        .scan-frame::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #007bff;
-        }
-        
-        .scan-frame::before {
-            top: -3px;
-            left: -3px;
-            border-right: none;
-            border-bottom: none;
-        }
-        
-        .scan-frame::after {
-            bottom: -3px;
-            right: -3px;
-            border-left: none;
-            border-top: none;
-        }
+
         #result {
             font-size: 18px;
             margin-top: 20px;
@@ -301,6 +259,10 @@
         @media (max-width: 576px) {
             #video-container {
                 max-width: 100%;
+                border-radius: 12px 0 0 12px;
+            }
+            .parameter-display {
+                border-radius: 0 12px 12px 0;
             }
             #result {
                 font-size: 16px;
@@ -484,6 +446,119 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
         }
+        
+        /* 移除行間距 */
+        .row.g-0 {
+            margin: 0;
+        }
+        
+        .row.g-0 > [class*="col-"] {
+            padding: 0;
+        }
+        
+        /* 參數顯示區域 */
+        .parameter-display {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 0 12px 12px 0;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid #dee2e6;
+            border-left: none;
+            height: 100%;
+            min-height: 300px;
+            margin-left: -1px;
+        }
+        
+        .parameter-header {
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .parameter-header h6 {
+            margin: 0;
+            color: #495057;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .parameter-header button {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        
+        .parameter-content {
+            min-height: 200px;
+        }
+        
+        .no-scan-message {
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px dashed #dee2e6;
+        }
+        
+        .parameter-item {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .parameter-item.success {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+        
+        .parameter-item.fail {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        }
+        
+        .parameter-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .parameter-value {
+            font-size: 16px;
+            color: #212529;
+            word-break: break-all;
+            padding: 8px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .parameter-value.success {
+            background: rgba(40, 167, 69, 0.1);
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .parameter-value.fail {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .scan-time {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 8px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -500,13 +575,26 @@
                     <div class="duplicate-warning" id="duplicate-warning" style="display:none;">⚠️ 重複</div>
                 </div>
             </div>
-            <div id="video-container">
-                <video id="video" class="img-fluid" muted playsinline></video>
-                <canvas id="overlay"></canvas>
-                <div class="scan-overlay">
-                    <div class="scan-frame"></div>
+            <div class="row g-0">
+                <div class="col-md-8">
+                    <div id="video-container">
+                        <video id="video" class="img-fluid" muted playsinline></video>
+                        <canvas id="overlay"></canvas>
+
+                    </div>
                 </div>
-        </div>
+                <div class="col-md-4">
+                    <div class="parameter-display" id="parameter-display">
+                        <div class="parameter-header">
+                            <h6>📋 當前掃描結果</h6>
+                            <button class="btn btn-sm btn-outline-secondary" id="clear-history" title="清空當前結果">🗑️</button>
+                        </div>
+                        <div class="parameter-content" id="parameter-content">
+                            <div class="no-scan-message">🔍 掃描QR碼後將顯示對應參數</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- 數據表格區 -->
@@ -577,6 +665,9 @@
         const debugInfo = document.getElementById('debug-info');
         const debugContent = document.getElementById('debug-content');
         const scanResultStatus = document.getElementById('scan-result-status');
+        
+        // 當前掃描結果
+        let currentScanResult = null;
 
         // 更新狀態指示器
         function updateStatus() {
@@ -597,6 +688,13 @@
         function clearDebugInfo() {
             debugContent.innerHTML = '';
             document.getElementById('debug-section').style.display = 'none';
+        }
+        
+        // 清空當前掃描結果
+        function clearScanHistory() {
+            currentScanResult = null;
+            updateParameterDisplay();
+            showDebugInfo('已清空當前掃描結果');
         }
 
         // 初始化表格數據
@@ -1115,6 +1213,7 @@
         document.getElementById('export-data').addEventListener('click', exportData);
         document.getElementById('import-data').addEventListener('click', importData);
         document.getElementById('clear-debug').addEventListener('click', clearDebugInfo);
+        document.getElementById('clear-history').addEventListener('click', clearScanHistory);
 
         // 初始化表格事件
         const inputs = tableBody.getElementsByTagName('input');
@@ -1133,6 +1232,9 @@
             } else {
                 showDebugInfo('頁面初始化完成，已加載保存的數據');
             }
+            
+            // 初始化參數顯示
+            updateParameterDisplay();
         });
 
         // QR 掃描相關
@@ -1229,15 +1331,14 @@
                         }
                         
                         if (matchedRows.length > 0) {
-                            const firstMatch = matchedRows[0];
-                            const rowNumber = firstMatch.rowIndex + 1;
-                            const colNumber = firstMatch.col + 1;
-                            showScanResultStatus('success', `✅ 第${rowNumber}行, 第${colNumber}列`);
-                            showDebugInfo(`匹配成功: 找到${matchedRows.length}個匹配，顯示第${rowNumber}行第${colNumber}列`);
+                            displayParameterBatch(matchedRows);
+                            showScanResultStatus('success', `✅ 找到匹配`);
+                            showDebugInfo(`匹配成功: 找到${matchedRows.length}個匹配`);
                             showDuplicateWarning(matchedRows.length);
                             
                             highlightAndScrollToRows(matchedRows);
                         } else {
+                            displayParameterNotFoundBatch(scannedQrCodeNumber);
                             showScanResultStatus('fail', `❌ 未找到`);
                             showDebugInfo(`匹配失敗: 未找到 "${scannedQrCodeNumber}"`);
                             showDuplicateWarning(0);
@@ -1310,6 +1411,58 @@
                 context.closePath();
                 context.stroke();
             }
+        }
+
+        // 參數顯示相關函數
+        function displayParameterBatch(matchedRows) {
+            const currentTime = new Date().toLocaleTimeString();
+            // 只顯示第一個匹配結果
+            const match = matchedRows[0];
+            currentScanResult = {
+                qrCode: match.row[match.col],
+                parameter: `第${match.rowIndex + 1}行, 第${match.col + 1}列` + (match.row[match.col] ? `\n值: ${match.row[match.col]}` : ''),
+                time: currentTime,
+                status: 'success',
+                rowNumber: match.rowIndex + 1,
+                colNumber: match.col + 1
+            };
+            updateParameterDisplay();
+        }
+
+        function displayParameterNotFoundBatch(qrCode) {
+            const currentTime = new Date().toLocaleTimeString();
+            currentScanResult = {
+                qrCode: qrCode,
+                parameter: '❌ 未找到對應數據',
+                time: currentTime,
+                status: 'fail',
+                rowNumber: null,
+                colNumber: null
+            };
+            updateParameterDisplay();
+        }
+
+        function updateParameterDisplay() {
+            const parameterContent = document.getElementById('parameter-content');
+            if (!currentScanResult) {
+                parameterContent.innerHTML = `
+                    <div class="no-scan-message">🔍 掃描QR碼後將顯示對應參數</div>
+                `;
+                return;
+            }
+            let rowInfo = '';
+            if (currentScanResult.rowNumber && currentScanResult.colNumber) {
+                rowInfo = ` (第${currentScanResult.rowNumber}行, 第${currentScanResult.colNumber}列)`;
+            } else if (currentScanResult.rowNumber) {
+                rowInfo = ` (第${currentScanResult.rowNumber}行)`;
+            }
+            parameterContent.innerHTML = `
+                <div class="parameter-item ${currentScanResult.status}">
+                    <div class="parameter-label">內容: ${currentScanResult.qrCode}${rowInfo}</div>
+                    <div class="parameter-value ${currentScanResult.status}">${currentScanResult.parameter.replace(/\n/g, '<br>')}</div>
+                    <div class="scan-time">掃描時間: ${currentScanResult.time}</div>
+                </div>
+            `;
         }
 
         // 初始化

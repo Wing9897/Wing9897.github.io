@@ -57,9 +57,9 @@
         #video-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            border-radius: 8px;
+            max-width: 100%;
+            margin: 0;
+            border-radius: 12px 0 0 12px;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
@@ -152,11 +152,26 @@
             letter-spacing: 0.5px;
         }
         
+        .excel-table th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 15;
+        }
+        
         .excel-table td {
             border: 1px solid #dee2e6;
             padding: 2px;
             min-width: 120px;
             position: relative;
+            transition: background-color 0.2s ease;
+        }
+        
+        .excel-table td:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .excel-table .selected-cell {
+            background-color: #e3f2fd !important;
         }
         
         .excel-table input {
@@ -168,25 +183,45 @@
             font-size: 14px;
             font-family: inherit;
             transition: all 0.2s ease;
+            box-sizing: border-box;
         }
         
         .excel-table input:focus {
             background: #e3f2fd;
             box-shadow: inset 0 0 0 2px #2196f3;
             border-radius: 2px;
+            outline: none;
         }
         
         .excel-table input:hover {
             background: #f8f9fa;
         }
         
-        .excel-table .selected {
+        .excel-table input:active {
             background: #e3f2fd;
+        }
+        
+        .excel-table .selected {
+            background: #e3f2fd !important;
             box-shadow: inset 0 0 0 2px #2196f3;
+            position: relative;
         }
         
         .excel-table .selected input {
-            background: #e3f2fd;
+            background: #e3f2fd !important;
+            font-weight: 500;
+        }
+        
+        .excel-table .selected::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid #2196f3;
+            pointer-events: none;
+            z-index: 1;
         }
         
         .excel-table .matched-row {
@@ -229,32 +264,45 @@
             background-color: #f0f8ff;
         }
         
-        @keyframes highlightRow {
-            0% { background: #fff3cd; }
-            50% { background: #d4edda; }
-            100% { background: #d4edda; }
+        .excel-table tr:hover .row-number {
+            background-color: #e9ecef;
         }
         
-        @keyframes highlightDuplicate {
-            0% { background: #ffeaa7; }
-            50% { background: #fff3cd; }
-            100% { background: #fff3cd; }
+        .excel-table .selected-row {
+            background-color: #e3f2fd !important;
         }
         
-        .excel-table tr:nth-child(even) {
-            background-color: #fafafa;
-        }
-        
-        .excel-table tr:hover {
-            background-color: #f0f8ff;
+        .excel-table .selected-row .row-number {
+            background-color: #bbdefb !important;
+            color: #1976d2;
         }
         
         .table-container {
             max-height: 500px;
-            overflow-y: auto;
+            overflow: auto;
             border: 2px solid #dee2e6;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
         
         .toolbar {
@@ -421,6 +469,9 @@
             min-width: 30px;
             max-width: 30px;
             width: 30px;
+            position: sticky;
+            left: 0;
+            z-index: 5;
         }
         
         .scan-result-status {
@@ -452,7 +503,53 @@
             color: #383d41;
             border-color: #dee2e6;
         }
-
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 2px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+        }
+        .table-header h5 {
+            margin: 0;
+            color: #495057;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .table-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .table-toolbar button {
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+        .table-toolbar button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .table-toolbar button.btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .table-toolbar button.btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
         .duplicate-warning {
             background: #fff3cd;
             color: #856404;
@@ -472,12 +569,114 @@
             50% { opacity: 0.7; }
         }
         
-
+        /* 參數顯示區域 */
+        .parameter-display {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 0 12px 12px 0;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid #dee2e6;
+            border-left: none;
+            height: 100%;
+            min-height: 300px;
+            margin-left: -1px;
+        }
+        
+        .parameter-header {
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .parameter-header h6 {
+            margin: 0;
+            color: #495057;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .parameter-header button {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        
+        .parameter-content {
+            min-height: 200px;
+        }
+        
+        .no-scan-message {
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px dashed #dee2e6;
+        }
+        
+        .parameter-item {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .parameter-item.success {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+        
+        .parameter-item.fail {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        }
+        
+        .parameter-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .parameter-value {
+            font-size: 16px;
+            color: #212529;
+            word-break: break-all;
+            padding: 8px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .parameter-value.success {
+            background: rgba(40, 167, 69, 0.1);
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .parameter-value.fail {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .scan-time {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 8px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
     <div class="container my-4">
-        <h2 class="mb-4 text-center">Excel風格QR碼映射工具 (Key-Value模式)</h2>
+        <h2 class="mb-4 text-center">Excel風格QR碼映射工具</h2>
 
         <!-- 攝像頭區 -->
         <div class="camera-section mb-4">
@@ -489,8 +688,8 @@
                     <div class="duplicate-warning" id="duplicate-warning" style="display:none;">⚠️ 重複</div>
                 </div>
             </div>
-            <div class="row justify-content-center">
-                <div class="col-md-6">
+            <div class="row g-0">
+                <div class="col-md-8">
                     <div id="video-container">
                         <video id="video" class="img-fluid" muted playsinline></video>
                         <canvas id="overlay"></canvas>
@@ -499,24 +698,45 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="parameter-display" id="parameter-display">
+                        <div class="parameter-header">
+                            <h6>📋 當前掃描結果</h6>
+                            <button class="btn btn-sm btn-outline-secondary" id="clear-history" title="清空當前結果">🗑️</button>
+                        </div>
+                        <div class="parameter-content" id="parameter-content">
+                            <div class="no-scan-message">🔍 掃描QR碼後將顯示對應參數</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- 數據表格區 -->
         <div class="table-container">
-            <div class="toolbar">
-                <button class="btn btn-primary btn-sm" id="add-row">➕ 新增行</button>
-                <button class="btn btn-danger btn-sm" id="delete-row">➖ 刪除行</button>
-                <button class="btn btn-info btn-sm" id="clear-table">🗑️ 清空表格</button>
-                <button class="btn btn-secondary btn-sm" id="export-data">📤 匯出數據</button>
-                <button class="btn btn-dark btn-sm" id="import-data" title="支援TSV、CSV、Excel格式">📥 匯入數據</button>
-                <div class="status-indicator info" id="data-status">
-                    📊 數據行數: <span id="row-count">1</span> | 格式: QR碼 ↔ 參數
-                    <span id="storage-status" class="ms-2" style="font-size: 0.8em; color: #6c757d;">💾 已保存</span>
+            <div class="table-header">
+                <h5 class="fw-bold">數據表格</h5>
+                <div class="table-toolbar">
+                    <button class="btn btn-primary btn-sm" id="add-row" title="新增一行 (Ctrl+N)">➕ 新增行</button>
+                    <button class="btn btn-danger btn-sm" id="delete-row" title="刪除選中行 (Delete)">➖ 刪除行</button>
+                    <button class="btn btn-success btn-sm" id="add-column" title="Key-Value模式固定2列">➕ 新增列</button>
+                    <button class="btn btn-warning btn-sm" id="delete-column" title="Key-Value模式固定2列">➖ 刪除列</button>
+                    <button class="btn btn-info btn-sm" id="clear-table" title="清空所有數據">🗑️ 清空表格</button>
+                    <button class="btn btn-secondary btn-sm" id="export-data" title="匯出為TSV格式">📤 匯出數據</button>
+                    <button class="btn btn-dark btn-sm" id="import-data" title="支援TSV、CSV、Excel格式">📥 匯入數據</button>
+                    <button class="btn btn-outline-primary btn-sm" id="select-all" title="全選所有數據 (Ctrl+A)">📋 全選</button>
+                    <button class="btn btn-outline-secondary btn-sm" id="duplicate-row" title="複製選中行">📄 複製行</button>
+                    <div class="status-indicator info" id="data-status">
+                        📊 數據行數: <span id="row-count">1</span> | 格式: QR碼 ↔ 參數
+                        <span id="storage-status" class="ms-2" style="font-size: 0.8em; color: #6c757d;">💾 已保存</span>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            💡 匯入格式：TSV (Tab分隔)、CSV (逗號分隔)、Excel (.xlsx/.xls) | 
+                            ⌨️ 快捷鍵：Tab/Enter移動，Ctrl+A全選，Ctrl+C複製，Ctrl+V貼上
+                        </small>
+                    </div>
                 </div>
-            </div>
-            <div class="paste-hint">
-                💡 <strong>Excel操作提示：</strong> 支援鍵盤導航 (Tab/Enter/方向鍵)、複製貼上、匯入匯出。Key-Value模式固定為兩列：QR碼 (Key) 和 對應參數 (Value)
             </div>
             <table class="excel-table" id="excel-table">
                 <thead>
@@ -586,7 +806,7 @@
         // 清空當前掃描結果
         function clearScanHistory() {
             currentScanResult = null;
-            showScanResultStatus('info', '🔍 掃描結果將顯示在這裡');
+            updateParameterDisplay();
             showDebugInfo('已清空當前掃描結果');
         }
 
@@ -758,6 +978,7 @@
             qrInput.placeholder = '輸入QR碼';
             qrInput.addEventListener('input', updateTableData);
             qrInput.addEventListener('focus', () => selectCell(qrInput));
+            qrInput.addEventListener('dblclick', () => selectCell(qrInput));
             qrCell.appendChild(qrInput);
             newRow.appendChild(qrCell);
             
@@ -770,32 +991,57 @@
             paramInput.placeholder = '輸入對應參數';
             paramInput.addEventListener('input', updateTableData);
             paramInput.addEventListener('focus', () => selectCell(paramInput));
+            paramInput.addEventListener('dblclick', () => selectCell(paramInput));
             paramCell.appendChild(paramInput);
             newRow.appendChild(paramCell);
             
             tableBody.appendChild(newRow);
             updateTableData();
             showDebugInfo(`新增行: ${rowCount + 1}`);
+            
+            // 自動聚焦到新行的第一個輸入框
+            setTimeout(() => {
+                qrInput.focus();
+            }, 50);
         }
 
         // 刪除行
         function deleteRow() {
-            if (tableBody.rows.length > 1) {
-                tableBody.deleteRow(tableBody.rows.length - 1);
-                updateTableData();
-                showDebugInfo('刪除最後一行');
+            if (selectedCell) {
+                // 刪除選中的行
+                const rowIndex = parseInt(selectedCell.dataset.row);
+                if (tableBody.rows.length > 1) {
+                    tableBody.deleteRow(rowIndex);
+                    // 重新設置所有行的索引
+                    const inputs = tableBody.getElementsByTagName('input');
+                    for (let i = 0; i < inputs.length; i++) {
+                        const input = inputs[i];
+                        const newRowIndex = Math.floor(i / 2);
+                        input.dataset.row = newRowIndex;
+                    }
+                    updateTableData();
+                    showDebugInfo(`刪除第${rowIndex + 1}行`);
+                }
+            } else {
+                // 刪除最後一行
+                if (tableBody.rows.length > 1) {
+                    tableBody.deleteRow(tableBody.rows.length - 1);
+                    updateTableData();
+                    showDebugInfo('刪除最後一行');
+                }
             }
         }
 
-        // Key-Value模式固定為兩列，不支援新增/刪除列
+        // 新增列 - 在key-value模式下禁用，保持固定兩列
         function addColumn() {
-            showDebugInfo('Key-Value模式固定為兩列：QR碼 (Key) 和 對應參數 (Value)');
-            alert('Key-Value模式固定為兩列：QR碼 (Key) 和 對應參數 (Value)');
+            showDebugInfo('key-value模式下保持固定兩列，無法新增列');
+            alert('key-value模式下保持固定兩列：QR碼 (Key) 和 對應參數 (Value)');
         }
 
+        // 刪除列 - 在key-value模式下禁用，保持固定兩列
         function deleteColumn() {
-            showDebugInfo('Key-Value模式固定為兩列：QR碼 (Key) 和 對應參數 (Value)');
-            alert('Key-Value模式固定為兩列：QR碼 (Key) 和 對應參數 (Value)');
+            showDebugInfo('key-value模式下保持固定兩列，無法刪除列');
+            alert('key-value模式下保持固定兩列：QR碼 (Key) 和 對應參數 (Value)');
         }
 
         // 清空表格並還原預設
@@ -866,9 +1112,58 @@
         function selectCell(input) {
             if (selectedCell) {
                 selectedCell.classList.remove('selected');
+                selectedCell.parentElement.classList.remove('selected-cell');
             }
             selectedCell = input;
             input.classList.add('selected');
+            input.parentElement.classList.add('selected-cell');
+            
+            // 高亮整行
+            const allRows = tableBody.getElementsByTagName('tr');
+            for (let i = 0; i < allRows.length; i++) {
+                allRows[i].classList.remove('selected-row');
+            }
+            input.closest('tr').classList.add('selected-row');
+            
+            // 滾動到可見區域
+            input.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        }
+
+        // 全選功能
+        function selectAll() {
+            const inputs = tableBody.getElementsByTagName('input');
+            if (inputs.length > 0) {
+                // 選擇第一個輸入框
+                selectCell(inputs[0]);
+                inputs[0].select();
+                showDebugInfo('已全選表格數據');
+            }
+        }
+
+        // 複製行功能
+        function duplicateRow() {
+            if (selectedCell) {
+                const rowIndex = parseInt(selectedCell.dataset.row);
+                const row = tableBody.rows[rowIndex];
+                const qrInput = row.cells[1].querySelector('input');
+                const paramInput = row.cells[2].querySelector('input');
+                
+                // 新增一行
+                addRow();
+                
+                // 複製數據到新行
+                const newRow = tableBody.rows[tableBody.rows.length - 1];
+                const newQrInput = newRow.cells[1].querySelector('input');
+                const newParamInput = newRow.cells[2].querySelector('input');
+                
+                newQrInput.value = qrInput.value;
+                newParamInput.value = paramInput.value;
+                
+                updateTableData();
+                showDebugInfo(`複製第${rowIndex + 1}行數據`);
+            } else {
+                showDebugInfo('請先選擇要複製的行');
+            }
         }
 
         // 匯出數據
@@ -1000,16 +1295,23 @@
                         break;
                     case 'Enter':
                         e.preventDefault();
-                        if (row < rows.length - 1) {
-                            rows[row + 1].cells[col + 1].querySelector('input').focus();
+                        if (e.shiftKey) {
+                            // Shift+Enter 向上移動
+                            if (row > 0) {
+                                rows[row - 1].cells[col + 1].querySelector('input').focus();
+                            }
                         } else {
-                            // 如果是最後一行，新增一行
-                            addRow();
-                            // 聚焦到新行的對應列
-                            setTimeout(() => {
-                                const newRows = tableBody.getElementsByTagName('tr');
-                                newRows[newRows.length - 1].cells[col + 1].querySelector('input').focus();
-                            }, 100);
+                            // Enter 向下移動
+                            if (row < rows.length - 1) {
+                                rows[row + 1].cells[col + 1].querySelector('input').focus();
+                            } else {
+                                // 如果是最後一行，新增一行
+                                addRow();
+                                setTimeout(() => {
+                                    const newRows = tableBody.getElementsByTagName('tr');
+                                    newRows[newRows.length - 1].cells[col + 1].querySelector('input').focus();
+                                }, 100);
+                            }
                         }
                         break;
                     case 'ArrowUp':
@@ -1036,9 +1338,25 @@
                             rows[row].cells[col + 2].querySelector('input').focus();
                         }
                         break;
+                    case 'Delete':
+                    case 'Backspace':
+                        // 如果單元格為空且按下刪除鍵，清空單元格
+                        if (selectedCell.value === '') {
+                            e.preventDefault();
+                            selectedCell.value = '';
+                            updateTableData();
+                        }
+                        break;
+                    case 'Escape':
+                        // 取消選擇
+                        if (selectedCell) {
+                            selectedCell.blur();
+                            selectedCell = null;
+                        }
+                        break;
                 }
-                }
-            });
+            }
+        });
 
         // 複製貼上處理
         document.addEventListener('paste', function(e) {
@@ -1093,6 +1411,42 @@
             }
         });
 
+        // 複製功能
+        document.addEventListener('copy', function(e) {
+            if (selectedCell) {
+                e.preventDefault();
+                const textToCopy = selectedCell.value;
+                e.clipboardData.setData('text/plain', textToCopy);
+                showDebugInfo(`已複製: "${textToCopy}"`);
+            }
+        });
+
+        // 快捷鍵支持
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case 'a':
+                        e.preventDefault();
+                        if (selectedCell) {
+                            selectedCell.select();
+                        }
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        addRow();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        saveTableData();
+                        break;
+                }
+            } else if (e.key === 'Delete' && !selectedCell) {
+                // 如果沒有選中單元格，刪除最後一行
+                e.preventDefault();
+                deleteRow();
+            }
+        });
+
         // 事件監聽器
         document.getElementById('add-row').addEventListener('click', addRow);
         document.getElementById('delete-row').addEventListener('click', deleteRow);
@@ -1102,13 +1456,16 @@
         document.getElementById('export-data').addEventListener('click', exportData);
         document.getElementById('import-data').addEventListener('click', importData);
         document.getElementById('clear-debug').addEventListener('click', clearDebugInfo);
-
+        document.getElementById('clear-history').addEventListener('click', clearScanHistory);
+        document.getElementById('select-all').addEventListener('click', selectAll);
+        document.getElementById('duplicate-row').addEventListener('click', duplicateRow);
 
         // 初始化表格事件
         const inputs = tableBody.getElementsByTagName('input');
         for (let input of inputs) {
             input.addEventListener('input', updateTableData);
             input.addEventListener('focus', () => selectCell(input));
+            input.addEventListener('dblclick', () => selectCell(input));
         }
 
         // 頁面加載時自動加載本地存儲的數據
@@ -1122,7 +1479,8 @@
                 showDebugInfo('頁面初始化完成，已加載保存的數據');
             }
             
-
+            // 初始化參數顯示
+            updateParameterDisplay();
         });
 
         // QR 掃描相關
@@ -1278,8 +1636,7 @@
                 rowNumber: match.rowIndex + 1
             };
             
-            // 在Key-Value模式下，掃描結果直接顯示在狀態欄中
-            showScanResultStatus('success', `✅ 第${match.rowIndex + 1}行: ${match.parameter}`);
+            updateParameterDisplay();
         }
         
         // 顯示未找到的提示
@@ -1294,8 +1651,29 @@
                 rowNumber: null
             };
             
-            // 在Key-Value模式下，掃描結果直接顯示在狀態欄中
-            showScanResultStatus('fail', `❌ 未找到: ${qrCode}`);
+            updateParameterDisplay();
+        }
+        
+        // 更新參數顯示
+        function updateParameterDisplay() {
+            const parameterContent = document.getElementById('parameter-content');
+            
+            if (!currentScanResult) {
+                parameterContent.innerHTML = `
+                    <div class="no-scan-message">🔍 掃描QR碼後將顯示對應參數</div>
+                `;
+                return;
+            }
+            
+            const rowInfo = currentScanResult.rowNumber ? ` (第${currentScanResult.rowNumber}行)` : '';
+            
+            parameterContent.innerHTML = `
+                <div class="parameter-item ${currentScanResult.status}">
+                    <div class="parameter-label">QR碼: ${currentScanResult.qrCode}${rowInfo}</div>
+                    <div class="parameter-value ${currentScanResult.status}">${currentScanResult.parameter}</div>
+                    <div class="scan-time">掃描時間: ${currentScanResult.time}</div>
+                </div>
+            `;
         }
         
         // 高亮所有匹配的行並滾動到第一個匹配的行

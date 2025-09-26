@@ -441,35 +441,45 @@
                 <p>精心開發的離線前端工具，無需服務器互動，滿足不同場景的需求</p>
             </div>
 
-            <!-- Category Filter -->
-            <div class="category-filter" data-aos="fade-up" data-aos-delay="50">
-                <button class="category-btn active" data-category="all">全部工具</button>
-                <button class="category-btn" data-category="api">API工具</button>
-                <button class="category-btn" data-category="scanner">掃描工具</button>
-                <button class="category-btn" data-category="chart">圖表工具</button>
-                <button class="category-btn" data-category="crypto">區塊鏈</button>
-                <button class="category-btn" data-category="image">圖像工具</button>
-                <button class="category-btn" data-category="downloader">Downloader</button>
+            <!-- Search and Filter -->
+            <div data-aos="fade-up" data-aos-delay="50">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="input-group mb-4">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" id="search-input" class="form-control" placeholder="搜索工具...">
+                        </div>
+                    </div>
+                </div>
+                <div class="category-filter">
+                    <button class="category-btn active" data-category="all">全部工具</button>
+                    <button class="category-btn" data-category="api">API工具</button>
+                    <button class="category-btn" data-category="scanner">掃描工具</button>
+                    <button class="category-btn" data-category="chart">圖表工具</button>
+                    <button class="category-btn" data-category="crypto">區塊鏈</button>
+                    <button class="category-btn" data-category="image">圖像工具</button>
+                    <button class="category-btn" data-category="data">數據工具</button>
+                </div>
             </div>
 
             <!-- Product Grid -->
             <div class="product-grid">
-                <!-- Stock Downloader -->
-                <div class="product-card" data-category="downloader" data-aos="fade-up" data-aos-delay="50">
+                <!-- 股票數據下載器 -->
+                <div class="product-card" data-category="data" data-aos="fade-up" data-aos-delay="50">
                     <div class="product-header">
                         <div class="product-icon">
                             <i class="bi bi-download"></i>
                         </div>
-                        <h3 class="product-title">Stock Downloader</h3>
-                        <p class="product-category">Downloader</p>
+                        <h3 class="product-title">股票數據下載器</h3>
+                        <p class="product-category">數據工具</p>
                     </div>
                     <div class="product-body">
                         <p class="product-description">
-                            A tool to download stock data.
+                            一個用於下載股票市場數據的工具，支援多種數據源和格式。
                         </p>
                         <div class="product-tags">
-                            <span class="product-tag">Stock</span>
-                            <span class="product-tag">Downloader</span>
+                            <span class="product-tag">股票</span>
+                            <span class="product-tag">數據下載</span>
                         </div>
                         <div class="product-actions">
                             <a href="stock_downloader.html" class="btn-primary-custom">立即使用</a>
@@ -846,35 +856,48 @@
             offset: 50
         });
 
-        // Category Filter
+        // Search and Filter
         document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
             const categoryBtns = document.querySelectorAll('.category-btn');
             const productCards = document.querySelectorAll('.product-card');
 
+            function filterAndSearch() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const activeCategory = document.querySelector('.category-btn.active').dataset.category;
+
+                productCards.forEach(card => {
+                    const title = card.querySelector('.product-title').textContent.toLowerCase();
+                    const description = card.querySelector('.product-description').textContent.toLowerCase();
+                    const tags = Array.from(card.querySelectorAll('.product-tag')).map(tag => tag.textContent.toLowerCase());
+                    const cardCategory = card.dataset.category;
+
+                    const matchesSearch = searchTerm === '' || title.includes(searchTerm) || description.includes(searchTerm) || tags.some(tag => tag.includes(searchTerm));
+                    const matchesCategory = activeCategory === 'all' || cardCategory.includes(activeCategory);
+
+                    if (matchesSearch && matchesCategory) {
+                        card.style.display = 'block';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, 50);
+                    } else {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            }
+
+            searchInput.addEventListener('input', filterAndSearch);
+
             categoryBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const category = this.dataset.category;
-                    
-                    // Update active button
                     categoryBtns.forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-                    
-                    // Filter products
-                    productCards.forEach(card => {
-                        if (category === 'all' || card.dataset.category.includes(category)) {
-                            card.style.display = 'block';
-                            setTimeout(() => {
-                                card.style.opacity = '1';
-                                card.style.transform = 'translateY(0)';
-                            }, 50);
-                        } else {
-                            card.style.opacity = '0';
-                            card.style.transform = 'translateY(20px)';
-                            setTimeout(() => {
-                                card.style.display = 'none';
-                            }, 30);
-                        }
-                    });
+                    filterAndSearch();
                 });
             });
 

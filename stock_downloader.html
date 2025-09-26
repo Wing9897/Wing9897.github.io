@@ -26,6 +26,9 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- SQL.js for SQLite database generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
     <style>
         :root {
             --primary-color: #2196F3;
@@ -346,11 +349,14 @@
                                             <label class="btn btn-outline-primary" for="format-Excel">Excel</label>
                                             <input type="radio" class="btn-check" name="output_format" id="format-SQLite" value="SQLite">
                                             <label class="btn btn-outline-primary" for="format-SQLite">SQLite</label>
+                                            <input type="radio" class="btn-check" name="output_format" id="format-JSON" value="JSON">
+                                            <label class="btn btn-outline-primary" for="format-JSON">JSON</label>
                                         </div>
                                         <div class="form-text">
                                             <small>• CSV: 通用格式，易於處理<br>
                                             • Excel: 適合數據分析<br>
-                                            • SQLite: 數據庫格式，支持查詢</small>
+                                            • SQLite: 真正的數據庫文件(.db)，可直接查詢<br>
+                                            • JSON: 結構化數據，程式友好</small>
                                         </div>
                                     </div>
                                 </div>
@@ -1385,12 +1391,12 @@
         }
 
         // 下載單個結果
-        function downloadSingle(index) {
+        async function downloadSingle(index) {
             const result = downloadResults[index];
             if (!result.success || !result.data) return;
-            
+
             const filename = `${result.symbol}_${result.outputFormat.toLowerCase()}_data`;
-            downloadData(result.data, filename, result.outputFormat);
+            await downloadData(result.data, filename, result.outputFormat);
         }
 
         // 重試單個下載
@@ -1424,20 +1430,31 @@
         }
 
         // 下載全部成功的結果
-        function downloadAllResults() {
+        async function downloadAllResults() {
             const successResults = downloadResults.filter(r => r.success);
             if (successResults.length === 0) {
                 showError(['沒有成功的下載結果']);
                 return;
             }
-            
-            // 創建ZIP文件 (這裡簡化處理，實際應用中需要使用JSZip等庫)
-            successResults.forEach(result => {
-                const filename = `${result.symbol}_data`;
-                downloadData(result.data, filename, result.outputFormat);
-            });
-            
-            showSuccess(`已開始下載 ${successResults.length} 個文件`);
+
+            // 依次下載所有文件
+            let downloadCount = 0;
+            for (const result of successResults) {
+                try {
+                    const filename = `${result.symbol}_data`;
+                    await downloadData(result.data, filename, result.outputFormat);
+                    downloadCount++;
+                    addLog(`✅ 已下載 ${result.symbol} (${downloadCount}/${successResults.length})`, 'success');
+                } catch (error) {
+                    addLog(`❌ 下載 ${result.symbol} 失敗: ${error.message}`, 'error');
+                }
+                // 在文件下載之間添加短暫延遲
+                if (downloadCount < successResults.length) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+            }
+
+            showSuccess(`已完成下載 ${downloadCount} 個文件`);
         }
 
         // 重試失敗的下載
@@ -1457,7 +1474,7 @@
         }
 
         // 下載數據文件
-        function downloadData(data, filename, format) {
+        async function downloadData(data, filename, format) {
             let content, mimeType, extension;
 
             switch (format) {
@@ -1472,12 +1489,12 @@
                     extension = 'xlsx';
                     break;
                 case 'SQLite':
-                    content = convertToSQLite(data, filename);
+                    content = await convertToSQLite(data, filename);
                     mimeType = 'application/x-sqlite3';
                     extension = 'db';
                     break;
                 case 'JSON':
-                    content = JSON.stringify(data, null, 2);
+                    content = convertToJSON(data, filename);
                     mimeType = 'application/json;charset=utf-8';
                     extension = 'json';
                     break;
@@ -1550,43 +1567,122 @@
             return convertToCSV(data);
         }
 
-        // 轉換為SQLite格式
-        function convertToSQLite(data, tableName) {
-            // 簡化的SQLite生成器 - 生成SQL腳本
-            const safeName = tableName.replace(/[^a-zA-Z0-9_]/g, '_');
-            let sql = `-- SQLite數據腳本 - ${new Date().toLocaleString()}\n`;
-            sql += `-- 表名: stock_${safeName}\n\n`;
+        // 轉換為SQLite .db格式（使用sql.js生成真正的數據庫文件）
+        async function convertToSQLite(data, tableName) {
+            try {
+                // 初始化 SQL.js
+                const SQL = await initSqlJs({
+                    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+                });
 
-            // 創建表結構
-            sql += `DROP TABLE IF EXISTS stock_${safeName};\n`;
-            sql += `CREATE TABLE stock_${safeName} (\n`;
-            sql += `    id INTEGER PRIMARY KEY AUTOINCREMENT,\n`;
-            sql += `    date TEXT NOT NULL,\n`;
-            sql += `    open REAL NOT NULL,\n`;
-            sql += `    high REAL NOT NULL,\n`;
-            sql += `    low REAL NOT NULL,\n`;
-            sql += `    close REAL NOT NULL,\n`;
-            sql += `    volume INTEGER NOT NULL\n`;
-            sql += `);\n\n`;
+                // 創建新的數據庫
+                const db = new SQL.Database();
 
-            // 插入數據
-            sql += `-- 插入數據\n`;
-            sql += `BEGIN TRANSACTION;\n`;
+                const safeName = tableName.replace(/[^a-zA-Z0-9_]/g, '_');
 
-            data.forEach(row => {
-                sql += `INSERT INTO stock_${safeName} (date, open, high, low, close, volume) VALUES `;
-                sql += `('${row.Date}', ${row.Open}, ${row.High}, ${row.Low}, ${row.Close}, ${row.Volume});\n`;
-            });
+                // 創建表結構
+                db.run(`
+                    CREATE TABLE stock_${safeName} (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        symbol TEXT NOT NULL DEFAULT '${tableName}',
+                        date TEXT NOT NULL,
+                        open REAL NOT NULL,
+                        high REAL NOT NULL,
+                        low REAL NOT NULL,
+                        close REAL NOT NULL,
+                        volume INTEGER NOT NULL,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+                `);
 
-            sql += `COMMIT;\n\n`;
+                // 創建索引
+                db.run(`CREATE INDEX idx_${safeName}_date ON stock_${safeName}(date)`);
+                db.run(`CREATE INDEX idx_${safeName}_symbol ON stock_${safeName}(symbol)`);
 
-            // 添加查詢示例
-            sql += `-- 查詢示例\n`;
-            sql += `-- SELECT * FROM stock_${safeName} ORDER BY date DESC LIMIT 10;\n`;
-            sql += `-- SELECT AVG(close) as avg_price FROM stock_${safeName};\n`;
-            sql += `-- SELECT MAX(high) as max_price, MIN(low) as min_price FROM stock_${safeName};\n`;
+                // 準備插入語句
+                const stmt = db.prepare(`
+                    INSERT INTO stock_${safeName} (symbol, date, open, high, low, close, volume)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `);
 
-            return sql;
+                // 批量插入數據
+                db.exec('BEGIN TRANSACTION');
+                data.forEach(row => {
+                    stmt.run([tableName, row.Date, row.Open, row.High, row.Low, row.Close, row.Volume]);
+                });
+                db.exec('COMMIT');
+
+                // 釋放prepared statement
+                stmt.free();
+
+                // 導出為二進制數據
+                const binaryArray = db.export();
+
+                // 關閉數據庫
+                db.close();
+
+                return binaryArray;
+
+            } catch (error) {
+                console.error('SQLite生成失敗:', error);
+                addLog(`❌ SQLite數據庫生成失敗: ${error.message}`, 'error');
+                throw new Error(`SQLite數據庫生成失敗: ${error.message}`);
+            }
+        }
+
+        // 轉換為JSON格式（增強版，包含元數據）
+        function convertToJSON(data, symbol) {
+            const jsonData = {
+                metadata: {
+                    symbol: symbol,
+                    dataSource: "Yahoo Finance API (via corsproxy.io)",
+                    generatedAt: new Date().toISOString(),
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    recordCount: data.length,
+                    dateRange: data.length > 0 ? {
+                        start: data[0].Date,
+                        end: data[data.length - 1].Date
+                    } : null,
+                    columns: [
+                        { name: "Date", type: "string", description: "交易日期 (YYYY-MM-DD)" },
+                        { name: "Open", type: "number", description: "開盤價" },
+                        { name: "High", type: "number", description: "最高價" },
+                        { name: "Low", type: "number", description: "最低價" },
+                        { name: "Close", type: "number", description: "收盤價" },
+                        { name: "Volume", type: "integer", description: "成交量" }
+                    ]
+                },
+                summary: data.length > 0 ? {
+                    priceRange: {
+                        highest: Math.max(...data.map(row => row.High)),
+                        lowest: Math.min(...data.map(row => row.Low)),
+                        latestClose: data[data.length - 1].Close,
+                        firstClose: data[0].Close
+                    },
+                    volume: {
+                        total: data.reduce((sum, row) => sum + row.Volume, 0),
+                        average: Math.round(data.reduce((sum, row) => sum + row.Volume, 0) / data.length),
+                        max: Math.max(...data.map(row => row.Volume)),
+                        min: Math.min(...data.map(row => row.Volume))
+                    }
+                } : null,
+                data: data.map(row => ({
+                    date: row.Date,
+                    open: parseFloat(row.Open.toFixed(2)),
+                    high: parseFloat(row.High.toFixed(2)),
+                    low: parseFloat(row.Low.toFixed(2)),
+                    close: parseFloat(row.Close.toFixed(2)),
+                    volume: parseInt(row.Volume),
+                    // 計算當日漲跌幅（如果有前一日數據）
+                    changePercent: data.indexOf(row) > 0 ?
+                        parseFloat((((row.Close - data[data.indexOf(row) - 1].Close) / data[data.indexOf(row) - 1].Close) * 100).toFixed(2)) :
+                        null
+                })),
+                version: "1.0",
+                format: "Yahoo Finance Stock Data JSON"
+            };
+
+            return JSON.stringify(jsonData, null, 2);
         }
 
         // 批量下載所有結果
@@ -1625,7 +1721,7 @@
         }
 
         // 高級批量下載：合併所有數據到單一文件
-        function downloadCombinedResults() {
+        async function downloadCombinedResults() {
             const successResults = downloadResults.filter(r => r.success);
             if (successResults.length === 0) {
                 showError(['沒有成功的下載結果']);
@@ -1654,8 +1750,12 @@
             const outputFormat = document.querySelector('input[name="output_format"]:checked').value;
             const filename = `combined_stock_data_${new Date().toISOString().split('T')[0]}`;
 
-            downloadData(combinedData, filename, outputFormat);
-            showSuccess(`已下載合併文件，包含 ${combinedData.length} 筆記錄`);
+            try {
+                await downloadData(combinedData, filename, outputFormat);
+                showSuccess(`已下載合併文件，包含 ${combinedData.length} 筆記錄`);
+            } catch (error) {
+                showError([`合併文件下載失敗: ${error.message}`]);
+            }
         }
 
         // 轉換為CSV格式

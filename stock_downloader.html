@@ -1106,6 +1106,8 @@
                     // 如果不是最後一個端點，繼續嘗試
                     if (i < apiUrls.length - 1) {
                         addLog(`🔄 嘗試下一個API端點...`, 'info');
+                        // 在嘗試下一個API端點前加入短暫延遲
+                        await new Promise(resolve => setTimeout(resolve, 500));
                         continue;
                     } else {
                         // 所有端點都失敗
@@ -1297,9 +1299,15 @@
                     downloadResults.push(result);
                     addLog(`❌ ${symbol}: ${result.message}`, 'error');
                 }
-                
+
                 completed++;
                 updateProgress(completed, symbols.length);
+
+                // 在股票下載之間添加延遲，避免請求過於頻繁
+                if (completed < symbols.length && isDownloading) {
+                    addLog(`⏳ 等待 1.5 秒後繼續下載下一個股票...`, 'info');
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                }
             }
             
             // 完成下載

@@ -1063,57 +1063,42 @@
             const period1 = Math.floor(new Date(startDate).getTime() / 1000);
             const period2 = Math.floor(new Date(endDate).getTime() / 1000);
 
-            // 使用多個可用的API端點和代理
-            const apiUrls = [
-                // 方法1: 直接調用Yahoo Finance API (可能有CORS問題)
-                `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${period1}&period2=${period2}&interval=${interval}&includePrePost=false&events=div%2Csplit`,
+            // 使用 corsproxy.io CORS代理服務
+            const apiUrl = `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${period1}&period2=${period2}&interval=${interval}&includePrePost=false&events=div%2Csplit`)}`;
 
-                // 方法2: 使用公共CORS代理
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${period1}&period2=${period2}&interval=${interval}&includePrePost=false&events=div%2Csplit`)}`,
+            try {
+                addLog(`📡 通過 corsproxy.io 獲取 ${symbol} 數據...`);
 
-                // 方法3: 使用另一個CORS代理
-                `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${period1}&period2=${period2}&interval=${interval}&includePrePost=false&events=div%2Csplit`)}`,
-
-                // 方法4: 使用第三個CORS代理
-                `https://cors-anywhere.herokuapp.com/https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${period1}&period2=${period2}&interval=${interval}&includePrePost=false&events=div%2Csplit`
-            ];
-
-            // 依次嘗試不同的API端點
-            for (let i = 0; i < apiUrls.length; i++) {
-                try {
-                    addLog(`嘗試API端點 ${i + 1}: 獲取 ${symbol} 數據...`);
-
-                    const response = await fetch(apiUrls[i], {
-                        method: 'GET',
-                        headers: {
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
                     }
+                });
 
-                    const data = await response.json();
-                    addLog(`✅ API端點 ${i + 1} 成功返回數據`);
-
-                    // 解析Yahoo Finance API響應
-                    return parseYahooFinanceResponse(data, symbol);
-
-                } catch (error) {
-                    addLog(`❌ API端點 ${i + 1} 失敗: ${error.message}`, 'warning');
-
-                    // 如果不是最後一個端點，繼續嘗試
-                    if (i < apiUrls.length - 1) {
-                        addLog(`🔄 嘗試下一個API端點...`, 'info');
-                        // 在嘗試下一個API端點前加入短暫延遲
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        continue;
-                    } else {
-                        // 所有端點都失敗
-                        throw new Error('所有API端點都無法訪問，可能是網絡問題或CORS限制');
+                if (!response.ok) {
+                    // 檢查是否為速率限制錯誤
+                    if (response.status === 429) {
+                        throw new Error(`速率限制超出 (HTTP 429)：請稍後再試`);
                     }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
+
+                const data = await response.json();
+                addLog(`✅ 成功獲取 ${symbol} 數據`);
+
+                // 解析Yahoo Finance API響應
+                return parseYahooFinanceResponse(data, symbol);
+
+            } catch (error) {
+                addLog(`❌ corsproxy.io 請求失敗: ${error.message}`, 'error');
+
+                // 如果是速率限制錯誤，提供更詳細的建議
+                if (error.message.includes('429') || error.message.includes('速率限制')) {
+                    throw new Error('corsproxy.io 速率限制：請等待幾分鐘後再試，或考慮減少同時下載的股票數量');
+                }
+
+                throw new Error(`無法通過 corsproxy.io 獲取數據：${error.message}`);
             }
         }
 
@@ -1303,10 +1288,10 @@
                 completed++;
                 updateProgress(completed, symbols.length);
 
-                // 在股票下載之間添加延遲，避免請求過於頻繁
+                // 在股票下載之間添加延遲，遵守 corsproxy.io 速率限制
                 if (completed < symbols.length && isDownloading) {
-                    addLog(`⏳ 等待 1.5 秒後繼續下載下一個股票...`, 'info');
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    addLog(`⏳ 等待 2 秒後繼續下載下一個股票（遵守服務限制）...`, 'info');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                 }
             }
             

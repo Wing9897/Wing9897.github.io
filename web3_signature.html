@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>錢包手動簽名工具 - 多鏈多錢包</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      flex: 1;
+      min-width: 150px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-metamask {
+      background: linear-gradient(135deg, #f6851b 0%, #e2761b 100%);
+      color: white;
+    }
+
+    .btn-phantom {
+      background: linear-gradient(135deg, #ab9ff2 0%, #8b7fce 100%);
+      color: white;
+    }
+
+    .btn-coinbase {
+      background: linear-gradient(135deg, #1652f0 0%, #0052cc 100%);
+      color: white;
+    }
+
+    .btn-trust {
+      background: linear-gradient(135deg, #3375bb 0%, #1a4d7a 100%);
+      color: white;
+    }
+
+    .btn-okx {
+      background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+      color: white;
+    }
+
+    .btn-solflare {
+      background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+      color: #000;
+    }
+
+    .btn-copy {
+      background: #667eea;
+      color: white;
+      margin-top: 12px;
+      width: 100%;
+    }
+
+    .result-section {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px solid #f0f0f0;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .result-title {
+      color: #333;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    #result {
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 100px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .result-empty {
+      color: #999;
+      font-style: italic;
+    }
+
+    .status {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .wallet-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .wallet-address {
+      font-family: 'Courier New', monospace;
+      color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 錢包手動簽名工具</h1>
+    <p class="subtitle">支援 MetaMask、Coinbase、Trust Wallet、OKX、Phantom、Solflare 簽名</p>
+
+    <div class="input-group">
+      <label for="message">輸入待簽名的訊息：</label>
+      <textarea id="message" rows="6" placeholder="請在此輸入要簽名的內容..."></textarea>
+    </div>
+
+    <div class="button-group">
+      <button class="btn-metamask" onclick="signWithMetaMask()" id="btnMetaMask">
+        <span id="metaMaskText">🦊 MetaMask</span>
+      </button>
+      <button class="btn-coinbase" onclick="signWithCoinbase()" id="btnCoinbase">
+        <span id="coinbaseText">💰 Coinbase</span>
+      </button>
+      <button class="btn-trust" onclick="signWithTrust()" id="btnTrust">
+        <span id="trustText">🔐 Trust Wallet</span>
+      </button>
+      <button class="btn-okx" onclick="signWithOKX()" id="btnOKX">
+        <span id="okxText">🪙 OKX Wallet</span>
+      </button>
+      <button class="btn-phantom" onclick="signWithPhantom()" id="btnPhantom">
+        <span id="phantomText">👻 Phantom</span>
+      </button>
+      <button class="btn-solflare" onclick="signWithSolflare()" id="btnSolflare">
+        <span id="solflareText">☀️ Solflare</span>
+      </button>
+    </div>
+
+    <div id="walletStatus" style="margin-top: 12px; font-size: 12px; color: #666;">
+      <div id="metaMaskStatus"></div>
+      <div id="coinbaseStatus"></div>
+      <div id="trustStatus"></div>
+      <div id="okxStatus"></div>
+      <div id="phantomStatus"></div>
+      <div id="solflareStatus"></div>
+    </div>
+
+    <div class="result-section">
+      <div class="result-header">
+        <span class="result-title">簽名結果：</span>
+      </div>
+      <div id="walletInfo"></div>
+      <pre id="result" class="result-empty">等待簽名...</pre>
+      <button class="btn-copy" onclick="copyResult()" id="btnCopy" style="display: none;">
+        複製簽名結果
+      </button>
+      <div id="status" class="status"></div>
+    </div>
+  </div>
+
+  <script>
+    // 通用 EVM 簽名函數
+    async function signWithEVM(providerName, getProvider) {
+      const btn = document.getElementById(`btn${providerName}`);
+      const textSpan = document.getElementById(`${providerName.charAt(0).toLowerCase() + providerName.slice(1)}Text`);
+      const result = document.getElementById('result');
+      const walletInfo = document.getElementById('walletInfo');
+
+      try {
+        btn.disabled = true;
+        textSpan.innerHTML = '<span class="loading"></span>連接中...';
+        clearStatus();
+
+        const ethereum = getProvider();
+        if (!ethereum) {
+          showStatus('error', `請先安裝 ${providerName} 擴充功能！`);
+          return;
+        }
+
+        const msg = document.getElementById('message').value.trim();
+        if (!msg) {
+          showStatus('error', '請先輸入要簽名的訊息！');
+          return;
+        }
+
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        if (!accounts || accounts.length === 0) {
+          throw new Error('未選擇帳戶');
+        }
+
+        const from = accounts[0];
+        walletInfo.innerHTML = `
+          <div class="wallet-info">
+            <strong>錢包：</strong><span>${providerName}</span>
+            <strong>地址：</strong><span class="wallet-address">${from}</span>
+          </div>
+        `;
+
+        textSpan.innerHTML = '<span class="loading"></span>請在 ' + providerName + ' 確認簽名...';
+        const signature = await ethereum.request({
+          method: 'personal_sign',
+          params: [msg, from],
+        });
+
+        // 將訊息轉換為十六進制格式
+        const msgHex = '0x' + Array.from(new TextEncoder().encode(msg))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+
+        const resultObj = {
+          msg: msgHex,
+          version: "1.0",
+          signer: "wing9897",
+          signature: signature
+        };
+
+        result.textContent = `${providerName} 簽名結果：\n\n${JSON.stringify(resultObj, null, 2)}`;
+        result.classList.remove('result-empty');
+        document.getElementById('btnCopy').style.display = 'block';
+        showStatus('success', '簽名成功！');
+
+      } catch (error) {
+        const errorMsg = error.code === 4001 ? '簽名失敗：用戶拒絕了簽名請求' :
+                         `簽名失敗：${error.message || '未知錯誤'}`;
+        result.textContent = errorMsg;
+        result.classList.remove('result-empty');
+        showStatus('error', errorMsg);
+      } finally {
+        btn.disabled = false;
+        // 恢復按鈕文字
+        if (providerName === 'MetaMask') textSpan.textContent = '🦊 MetaMask';
+        else if (providerName === 'Coinbase Wallet') textSpan.textContent = '💰 Coinbase';
+        else if (providerName === 'Trust Wallet') textSpan.textContent = '🔐 Trust Wallet';
+        else if (providerName === 'OKX Wallet') textSpan.textContent = '🪙 OKX Wallet';
+      }
+    }
+
+    // 取得 MetaMask provider
+    function getMetaMaskProvider() {
+      if (typeof window.ethereum !== 'undefined') {
+        if (window.ethereum.isMetaMask) return window.ethereum;
+        if (window.ethereum.providers) {
+          const mm = window.ethereum.providers.find(p => p?.isMetaMask);
+          if (mm) return mm;
+        }
+        return window.ethereum;
+      }
+      return null;
+    }
+
+    // 取得 Coinbase Wallet provider
+    function getCoinbaseProvider() {
+      if (typeof window.ethereum !== 'undefined') {
+        if (window.ethereum.isCoinbaseWallet) return window.ethereum;
+        if (window.ethereum.providers) {
+          const cb = window.ethereum.providers.find(p => p?.isCoinbaseWallet);
+          if (cb) return cb;
+        }
+      }
+      return null;
+    }
+
+    // 取得 Trust Wallet provider
+    function getTrustProvider() {
+      if (typeof window.ethereum !== 'undefined') {
+        if (window.ethereum.isTrustWallet) return window.ethereum;
+        if (window.ethereum.providers) {
+          const tw = window.ethereum.providers.find(p => p?.isTrustWallet);
+          if (tw) return tw;
+        }
+      }
+      return null;
+    }
+
+    // 取得 OKX Wallet provider
+    function getOKXProvider() {
+      if (window.okx?.wallet?.ethereum) return window.okx.wallet.ethereum;
+      if (window.okexchain) return window.okexchain;
+      return null;
+    }
+
+    // MetaMask 簽名
+    async function signWithMetaMask() {
+      await signWithEVM('MetaMask', getMetaMaskProvider);
+    }
+
+    // Coinbase Wallet 簽名
+    async function signWithCoinbase() {
+      await signWithEVM('Coinbase Wallet', getCoinbaseProvider);
+    }
+
+    // Trust Wallet 簽名
+    async function signWithTrust() {
+      await signWithEVM('Trust Wallet', getTrustProvider);
+    }
+
+    // OKX Wallet 簽名
+    async function signWithOKX() {
+      await signWithEVM('OKX Wallet', getOKXProvider);
+    }
+
+    // 取得 Phantom provider
+    function getPhantomProvider() {
+      if ('solana' in window && window.solana?.isPhantom) return window.solana;
+      if (window.phantom?.solana?.isPhantom) return window.phantom.solana;
+      return null;
+    }
+
+    // 取得 Solflare provider
+    function getSolflareProvider() {
+      if (window.solflare?.isConnected || window.solflare) return window.solflare;
+      return null;
+    }
+
+
+    // Base58 編碼函數（用於 Solana 簽名）
+    function base58encode(buffer) {
+      const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+      let digits = [0];
+      for (let i = 0; i < buffer.length; ++i) {
+        let carry = buffer[i];
+        for (let j = 0; j < digits.length; ++j) {
+          carry += digits[j] << 8;
+          digits[j] = carry % 58;
+          carry = (carry / 58) | 0;
+        }
+        while (carry) {
+          digits.push(carry % 58);
+          carry = (carry / 58) | 0;
+        }
+      }
+      // 處理前導0
+      let zeros = 0;
+      while (zeros < buffer.length && buffer[zeros] === 0) ++zeros;
+      let result = alphabet[0].repeat(zeros);
+      for (let i = digits.length - 1; i >= 0; --i) result += alphabet[digits[i]];
+      return result;
+    }
+
+    // Phantom 簽名
+    async function signWithPhantom() {
+      const btn = document.getElementById('btnPhantom');
+      const textSpan = document.getElementById('phantomText');
+      const result = document.getElementById('result');
+      const walletInfo = document.getElementById('walletInfo');
+
+      try {
+        btn.disabled = true;
+        textSpan.innerHTML = '<span class="loading"></span>連接中...';
+        clearStatus();
+
+        const solana = getPhantomProvider();
+        if (!solana) {
+          showStatus('error', '請先安裝 Phantom 擴充功能！');
+          return;
+        }
+
+        const msg = document.getElementById('message').value.trim();
+        if (!msg) {
+          showStatus('error', '請先輸入要簽名的訊息！');
+          return;
+        }
+
+        // 連接到錢包
+        if (!solana.isConnected) {
+          await solana.connect();
+        }
+        const publicKey = solana.publicKey?.toString() || solana.publicKey;
+
+        walletInfo.innerHTML = `
+          <div class="wallet-info">
+            <strong>錢包：</strong><span>Phantom</span>
+            <strong>地址：</strong><span class="wallet-address">${publicKey}</span>
+          </div>
+        `;
+
+        textSpan.innerHTML = '<span class="loading"></span>請在 Phantom 確認簽名...';
+
+        // 使用 request API 進行簽名（更新的方法）
+        const encodedMsg = new TextEncoder().encode(msg);
+        const signed = await solana.request({
+          method: "signMessage",
+          params: { message: encodedMsg, display: "utf8" }
+        });
+
+        if (!signed?.signature) throw new Error('簽名返回格式不正確');
+
+        // 處理簽名格式（可能是字串、Uint8Array 或陣列）
+        let signature = signed.signature;
+        let base58Signature = "";
+
+        if (typeof signature === "string") {
+          // Phantom 可能直接給 base58 字串
+          base58Signature = signature;
+        } else if (signature instanceof Uint8Array) {
+          base58Signature = base58encode(signature);
+        } else if (Array.isArray(signature)) {
+          base58Signature = base58encode(Uint8Array.from(signature));
+        } else {
+          throw new Error('簽名型別未知');
+        }
+
+        // 生成其他格式
+        const hex = '0x' + Array.from(new Uint8Array(signature instanceof Uint8Array ? signature : new Uint8Array(signature)),
+                                       b => b.toString(16).padStart(2, '0')).join('');
+        const pubKey = signed.publicKey?.toString() || publicKey;
+
+        result.textContent = `Phantom 簽名結果：\n\n訊息：${msg}\n\nBase58（用於 OSL）：\n${base58Signature}\n\nHex：\n${hex}\n\n公鑰：\n${pubKey}`;
+        result.classList.remove('result-empty');
+        document.getElementById('btnCopy').style.display = 'block';
+        showStatus('success', '簽名成功！');
+
+      } catch (error) {
+        const errorMsg = (error.code === 4001 || error.message?.includes('rejected') || error.message?.includes('cancelled'))
+                        ? '簽名失敗：用戶拒絕了簽名請求'
+                        : `簽名失敗：${error.message || '未知錯誤'}`;
+        result.textContent = errorMsg;
+        result.classList.remove('result-empty');
+        showStatus('error', errorMsg);
+      } finally {
+        btn.disabled = false;
+        textSpan.textContent = '👻 Phantom';
+      }
+    }
+
+    // Solflare 簽名
+    async function signWithSolflare() {
+      const btn = document.getElementById('btnSolflare');
+      const textSpan = document.getElementById('solflareText');
+      const result = document.getElementById('result');
+      const walletInfo = document.getElementById('walletInfo');
+
+      try {
+        btn.disabled = true;
+        textSpan.innerHTML = '<span class="loading"></span>連接中...';
+        clearStatus();
+
+        const solflare = getSolflareProvider();
+        if (!solflare) {
+          showStatus('error', '請先安裝 Solflare 擴充功能！');
+          return;
+        }
+
+        const msg = document.getElementById('message').value.trim();
+        if (!msg) {
+          showStatus('error', '請先輸入要簽名的訊息！');
+          return;
+        }
+
+        // 連接到錢包
+        if (!solflare.isConnected) {
+          await solflare.connect();
+        }
+        const publicKey = solflare.publicKey?.toString() || solflare.publicKey;
+
+        walletInfo.innerHTML = `
+          <div class="wallet-info">
+            <strong>錢包：</strong><span>Solflare</span>
+            <strong>地址：</strong><span class="wallet-address">${publicKey}</span>
+          </div>
+        `;
+
+        textSpan.innerHTML = '<span class="loading"></span>請在 Solflare 確認簽名...';
+
+        // 使用 signMessage 進行簽名
+        const encodedMsg = new TextEncoder().encode(msg);
+        const signed = await solflare.signMessage(encodedMsg, 'utf8');
+
+        if (!signed?.signature) throw new Error('簽名返回格式不正確');
+
+        // 處理簽名格式
+        let signature = signed.signature;
+        let base58Signature = "";
+
+        if (typeof signature === "string") {
+          base58Signature = signature;
+        } else if (signature instanceof Uint8Array) {
+          base58Signature = base58encode(signature);
+        } else if (Array.isArray(signature)) {
+          base58Signature = base58encode(Uint8Array.from(signature));
+        } else {
+          throw new Error('簽名型別未知');
+        }
+
+        // 生成其他格式
+        const hex = '0x' + Array.from(new Uint8Array(signature instanceof Uint8Array ? signature : new Uint8Array(signature)),
+                                       b => b.toString(16).padStart(2, '0')).join('');
+        const pubKey = signed.publicKey?.toString() || publicKey;
+
+        result.textContent = `Solflare 簽名結果：\n\n訊息：${msg}\n\nBase58（用於 OSL）：\n${base58Signature}\n\nHex：\n${hex}\n\n公鑰：\n${pubKey}`;
+        result.classList.remove('result-empty');
+        document.getElementById('btnCopy').style.display = 'block';
+        showStatus('success', '簽名成功！');
+
+      } catch (error) {
+        const errorMsg = (error.code === 4001 || error.message?.includes('rejected') || error.message?.includes('cancelled'))
+                        ? '簽名失敗：用戶拒絕了簽名請求'
+                        : `簽名失敗：${error.message || '未知錯誤'}`;
+        result.textContent = errorMsg;
+        result.classList.remove('result-empty');
+        showStatus('error', errorMsg);
+      } finally {
+        btn.disabled = false;
+        textSpan.textContent = '☀️ Solflare';
+      }
+    }
+
+    // 複製結果
+    async function copyResult() {
+      const text = document.getElementById('result').textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        showStatus('success', '已複製到剪貼簿！');
+        setTimeout(clearStatus, 2000);
+      } catch (error) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showStatus('success', '已複製到剪貼簿！');
+          setTimeout(clearStatus, 2000);
+        } catch {
+          showStatus('error', '複製失敗，請手動複製');
+        }
+        document.body.removeChild(textArea);
+      }
+    }
+
+    function showStatus(type, message) {
+      const status = document.getElementById('status');
+      status.className = `status ${type}`;
+      status.textContent = message;
+    }
+
+    function clearStatus() {
+      document.getElementById('status').className = 'status';
+      document.getElementById('status').textContent = '';
+    }
+
+    // 更新錢包狀態
+    function updateWalletStatus() {
+      const mmEl = document.getElementById('metaMaskStatus');
+      const cbEl = document.getElementById('coinbaseStatus');
+      const twEl = document.getElementById('trustStatus');
+      const okxEl = document.getElementById('okxStatus');
+      const phEl = document.getElementById('phantomStatus');
+      const sfEl = document.getElementById('solflareStatus');
+
+      const updateStatusElement = (el, provider, name) => {
+        if (provider) {
+          el.innerHTML = '✅ ' + name + ' 已檢測到';
+          el.style.color = '#28a745';
+        } else {
+          el.innerHTML = '❌ ' + name + ' 未檢測到';
+          el.style.color = '#dc3545';
+        }
+      };
+
+      updateStatusElement(mmEl, getMetaMaskProvider(), 'MetaMask');
+      updateStatusElement(cbEl, getCoinbaseProvider(), 'Coinbase Wallet');
+      updateStatusElement(twEl, getTrustProvider(), 'Trust Wallet');
+      updateStatusElement(okxEl, getOKXProvider(), 'OKX Wallet');
+      updateStatusElement(phEl, getPhantomProvider(), 'Phantom');
+      updateStatusElement(sfEl, getSolflareProvider(), 'Solflare');
+    }
+
+    window.addEventListener('load', updateWalletStatus);
+
+    // 監聽 MetaMask 事件
+    const eth = getMetaMaskProvider();
+    if (eth) {
+      eth.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) {
+          showStatus('info', 'MetaMask 帳戶已斷開連接');
+          document.getElementById('walletInfo').innerHTML = '';
+        }
+      });
+      eth.on('chainChanged', () => showStatus('info', '網絡已切換，請重新簽名'));
+    }
+  </script>
+</body>
+</html>
+

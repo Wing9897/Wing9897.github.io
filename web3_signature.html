@@ -46,12 +46,32 @@
       margin-bottom: 25px;
     }
 
+    .network-selector {
+      margin-bottom: 25px;
+    }
+
     label {
       display: block;
       margin-bottom: 8px;
       color: #333;
       font-weight: 500;
       font-size: 14px;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      background-color: white;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #667eea;
     }
 
     textarea {
@@ -243,6 +263,28 @@
     <h1>🔐 錢包手動簽名工具</h1>
     <p class="subtitle">支援 MetaMask、Coinbase、Trust Wallet、OKX、Phantom、Solflare 簽名</p>
 
+    <div class="network-selector">
+      <label for="network">選擇網絡（EVM 錢包）：</label>
+      <select id="network">
+        <optgroup label="以太坊">
+          <option value="ethereum-mainnet">以太坊主網</option>
+          <option value="sepolia">Sepolia 測試網</option>
+          <option value="holesky">Holesky 測試網</option>
+        </optgroup>
+        <optgroup label="第二層">
+          <option value="polygon">Polygon（matic）</option>
+          <option value="arbitrum">Arbitrum One</option>
+          <option value="optimism">Optimism</option>
+          <option value="base">Base</option>
+        </optgroup>
+        <optgroup label="其他">
+          <option value="bsc">幣安智能鏈（BSC）</option>
+          <option value="avalanche">Avalanche C-Chain</option>
+          <option value="fantom">Fantom</option>
+        </optgroup>
+      </select>
+    </div>
+
     <div class="input-group">
       <label for="message">輸入待簽名的訊息：</label>
       <textarea id="message" rows="6" placeholder="請在此輸入要簽名的內容..."></textarea>
@@ -292,6 +334,131 @@
   </div>
 
   <script>
+    // 網絡配置
+    const networkConfig = {
+      'ethereum-mainnet': {
+        name: '以太坊主網',
+        chainId: '0x1',
+        chainIdInt: 1,
+        rpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/demo',
+        symbol: 'ETH',
+        blockExplorer: 'https://etherscan.io'
+      },
+      'sepolia': {
+        name: 'Sepolia 測試網',
+        chainId: '0xaa36a7',
+        chainIdInt: 11155111,
+        rpcUrl: 'https://eth-sepolia.alchemyapi.io/v2/demo',
+        symbol: 'ETH',
+        blockExplorer: 'https://sepolia.etherscan.io'
+      },
+      'holesky': {
+        name: 'Holesky 測試網',
+        chainId: '0x4268',
+        chainIdInt: 17000,
+        rpcUrl: 'https://eth-holesky.alchemyapi.io/v2/demo',
+        symbol: 'ETH',
+        blockExplorer: 'https://holesky.etherscan.io'
+      },
+      'polygon': {
+        name: 'Polygon',
+        chainId: '0x89',
+        chainIdInt: 137,
+        rpcUrl: 'https://polygon-rpc.com',
+        symbol: 'MATIC',
+        blockExplorer: 'https://polygonscan.com'
+      },
+      'arbitrum': {
+        name: 'Arbitrum One',
+        chainId: '0xa4b1',
+        chainIdInt: 42161,
+        rpcUrl: 'https://arb1.arbitrum.io/rpc',
+        symbol: 'ETH',
+        blockExplorer: 'https://arbiscan.io'
+      },
+      'optimism': {
+        name: 'Optimism',
+        chainId: '0xa',
+        chainIdInt: 10,
+        rpcUrl: 'https://mainnet.optimism.io',
+        symbol: 'ETH',
+        blockExplorer: 'https://optimistic.etherscan.io'
+      },
+      'base': {
+        name: 'Base',
+        chainId: '0x2105',
+        chainIdInt: 8453,
+        rpcUrl: 'https://mainnet.base.org',
+        symbol: 'ETH',
+        blockExplorer: 'https://basescan.org'
+      },
+      'bsc': {
+        name: '幣安智能鏈',
+        chainId: '0x38',
+        chainIdInt: 56,
+        rpcUrl: 'https://bsc-dataseed.binance.org',
+        symbol: 'BNB',
+        blockExplorer: 'https://bscscan.com'
+      },
+      'avalanche': {
+        name: 'Avalanche C-Chain',
+        chainId: '0xa86a',
+        chainIdInt: 43114,
+        rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+        symbol: 'AVAX',
+        blockExplorer: 'https://snowtrace.io'
+      },
+      'fantom': {
+        name: 'Fantom',
+        chainId: '0xfa',
+        chainIdInt: 250,
+        rpcUrl: 'https://rpc.ftm.tools',
+        symbol: 'FTM',
+        blockExplorer: 'https://ftmscan.com'
+      }
+    };
+
+    // 獲取選中的網絡
+    function getSelectedNetwork() {
+      const networkId = document.getElementById('network').value;
+      return networkConfig[networkId];
+    }
+
+    // 切換網絡
+    async function switchNetwork(ethereum, chainId) {
+      try {
+        await ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: chainId }],
+        });
+      } catch (switchError) {
+        // 如果網絡不存在，則添加網絡
+        if (switchError.code === 4902) {
+          const network = getSelectedNetwork();
+          try {
+            await ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: network.chainId,
+                chainName: network.name,
+                rpcUrls: [network.rpcUrl],
+                nativeCurrency: {
+                  name: network.symbol,
+                  symbol: network.symbol,
+                  decimals: 18,
+                },
+                blockExplorerUrls: [network.blockExplorer],
+              }],
+            });
+          } catch (addError) {
+            throw new Error('添加網絡失敗：' + addError.message);
+          }
+        } else {
+          throw switchError;
+        }
+      }
+    }
+
     // 通用 EVM 簽名函數
     async function signWithEVM(providerName, getProvider) {
       const btn = document.getElementById(`btn${providerName}`);
@@ -322,10 +489,19 @@
         }
 
         const from = accounts[0];
+
+        // 切換到選定的網絡
+        const selectedNetwork = getSelectedNetwork();
+        if (selectedNetwork) {
+          textSpan.innerHTML = '<span class="loading"></span>切換網絡中...';
+          await switchNetwork(ethereum, selectedNetwork.chainId);
+        }
+
         walletInfo.innerHTML = `
           <div class="wallet-info">
             <strong>錢包：</strong><span>${providerName}</span>
             <strong>地址：</strong><span class="wallet-address">${from}</span>
+            <strong>網絡：</strong><span>${selectedNetwork ? selectedNetwork.name : '未知'}</span>
           </div>
         `;
 
@@ -344,7 +520,9 @@
           msg: msgHex,
           version: "1.0",
           signer: "wing9897",
-          signature: signature
+          signature: signature,
+          network: selectedNetwork ? selectedNetwork.name : '未知',
+          chainId: selectedNetwork ? selectedNetwork.chainIdInt : null
         };
 
         result.textContent = `${providerName} 簽名結果：\n\n${JSON.stringify(resultObj, null, 2)}`;

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Token 生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+            margin-top: 10px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .output {
+            background: #fff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .flex-row .btn {
+            margin-top: 0;
+        }
+
+        .jwt-part {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .jwt-header {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+
+        .jwt-payload {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .jwt-signature {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+
+        .jwt-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .jwt-decoded {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 JWT Token 生成器與驗證器</h1>
+
+        <!-- JWT Secret 設定 -->
+        <div class="section">
+            <h2>JWT Secret Key (用來簽名和驗證的密鑰)</h2>
+            <div class="input-group">
+                <label>Secret Key (最少 32 字符)</label>
+                <input type="text" id="secretKey" value="" placeholder="your-secret-key-min-32-chars (輸入或點擊隨機生成)">
+            </div>
+            <div class="flex-row">
+                <button class="btn" onclick="generateRandomSecret('base64')">隨機生成 (Base64URL)</button>
+                <button class="btn" onclick="generateRandomSecret('hex')">隨機生成 (Hex)</button>
+                <button class="btn" onclick="copySecret()">複製 Secret Key</button>
+            </div>
+            <div class="info">
+                💡 Secret key 僅在本地瀏覽器中使用，不會發送到任何伺服器。可以是任意字符串，但建議使用至少 256-bit 強度的隨機字串（Base64URL 或 Hex 格式）。
+            </div>
+        </div>
+
+        <!-- JWT 生成 -->
+        <div class="section">
+            <h2>生成 JWT Token</h2>
+            <div class="input-group">
+                <label>Payload (JSON 格式)</label>
+                <textarea id="payload" placeholder='{"userId": "123", "username": "user", "role": "admin"}'>{"userId": "123", "username": "user", "role": "admin"}</textarea>
+            </div>
+            <div class="input-group">
+                <label>過期時間 (秒，選填)</label>
+                <input type="number" id="expiresIn" placeholder="例如: 3600 (1小時)" value="3600">
+            </div>
+            <button class="btn" onclick="generateJWT()">生成 JWT</button>
+            <button class="btn" onclick="copyToken()">複製 JWT</button>
+
+            <div class="input-group" style="margin-top: 15px;">
+                <label>生成的 JWT Token</label>
+                <div class="output" id="generatedToken">點擊生成按鈕...</div>
+            </div>
+        </div>
+
+        <!-- JWT 驗證與解碼 -->
+        <div class="section">
+            <h2>驗證與解碼 JWT Token</h2>
+            <div class="input-group">
+                <label>JWT Token</label>
+                <textarea id="tokenToVerify" placeholder="貼上要驗證或解碼的 JWT token"></textarea>
+            </div>
+            <button class="btn" onclick="verifyJWT()">驗證 JWT (需要 Secret Key)</button>
+            <button class="btn" onclick="decodeJWT()">解碼 JWT (不需要 Secret Key)</button>
+            <div class="input-group" style="margin-top: 15px;">
+                <label>結果</label>
+                <div class="output" id="verifyResult">等待操作...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base64 URL 編碼/解碼
+        function base64UrlEncode(buffer) {
+            return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=+$/, '');
+        }
+
+        function base64UrlDecode(str) {
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) {
+                str += '=';
+            }
+            return Uint8Array.from(atob(str), c => c.charCodeAt(0));
+        }
+
+        // HMAC-SHA256 簽名
+        async function hmacSHA256(message, secret) {
+            const encoder = new TextEncoder();
+            const keyData = encoder.encode(secret);
+            const messageData = encoder.encode(message);
+
+            const key = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign', 'verify']
+            );
+
+            const signature = await crypto.subtle.sign('HMAC', key, messageData);
+            return base64UrlEncode(signature);
+        }
+
+        // 隨機生成 Secret Key（支持 Base64URL 和 Hex）
+        function generateRandomSecret(format = 'base64') {
+            const array = new Uint8Array(32); // 32 bytes = 256 bits
+            crypto.getRandomValues(array);    // 瀏覽器安全隨機數
+
+            let result = '';
+
+            if (format === 'hex') {
+                // 轉換為 Hex 格式 (64 個字符)
+                for (let i = 0; i < array.length; i++) {
+                    result += array[i].toString(16).padStart(2, '0');
+                }
+            } else {
+                // 轉換為 Base64URL 格式 (約 43 個字符)
+                let binary = "";
+                for (let i = 0; i < array.length; i++) {
+                    binary += String.fromCharCode(array[i]);
+                }
+                result = btoa(binary)
+                    .replace(/\+/g, "-")
+                    .replace(/\//g, "_")
+                    .replace(/=+$/, "");
+            }
+
+            document.getElementById("secretKey").value = result;
+        }
+
+        // 複製 Secret
+        function copySecret() {
+            const input = document.getElementById("secretKey");
+            if (!input.value) {
+                alert('請先輸入或生成 Secret Key！');
+                return;
+            }
+            input.select();
+            document.execCommand("copy");
+            alert('已複製 Secret Key！');
+        }
+
+        // 複製 JWT
+        function copyToken() {
+            const tokenDiv = document.getElementById("generatedToken");
+            const text = tokenDiv.textContent.trim();
+
+            // 提取 JWT token (格式: xxx.yyy.zzz)
+            const jwtMatch = text.match(/[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/);
+
+            if (jwtMatch) {
+                const el = document.createElement("textarea");
+                el.value = jwtMatch[0];
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand("copy");
+                document.body.removeChild(el);
+                alert('已複製 JWT Token！');
+            } else {
+                alert('尚未生成 JWT Token！');
+            }
+        }
+
+        // 生成 JWT
+        async function generateJWT() {
+            try {
+                const secret = document.getElementById('secretKey').value;
+                const payloadStr = document.getElementById('payload').value;
+                const expiresIn = document.getElementById('expiresIn').value;
+
+                if (!secret) {
+                    alert('請先輸入或生成 Secret Key！');
+                    return;
+                }
+
+                if (secret.length < 32) {
+                    alert('Secret key 必須至少 32 個字符！');
+                    return;
+                }
+
+                let payload = JSON.parse(payloadStr);
+
+                const now = Math.floor(Date.now() / 1000);
+                payload.iat = now;
+                if (expiresIn && expiresIn > 0) {
+                    payload.exp = now + parseInt(expiresIn);
+                }
+
+                const header = {
+                    alg: 'HS256',
+                    typ: 'JWT'
+                };
+
+                const encoder = new TextEncoder();
+                const encodedHeader = base64UrlEncode(encoder.encode(JSON.stringify(header)));
+                const encodedPayload = base64UrlEncode(encoder.encode(JSON.stringify(payload)));
+
+                const signatureInput = encodedHeader + '.' + encodedPayload;
+                const signature = await hmacSHA256(signatureInput, secret);
+
+                const jwt = signatureInput + '.' + signature;
+
+                // 只顯示完整 JWT
+                document.getElementById('generatedToken').innerHTML = 
+                    '<span class="success">✓ 成功生成</span><br><br>' + jwt;
+
+            } catch (error) {
+                document.getElementById('generatedToken').innerHTML = 
+                    '<span class="error">✗ 錯誤: ' + error.message + '</span>';
+            }
+        }
+
+        // 驗證 JWT（需要 Secret Key）
+        async function verifyJWT() {
+            try {
+                const secret = document.getElementById('secretKey').value;
+                const token = document.getElementById('tokenToVerify').value.trim();
+
+                if (!secret) {
+                    alert('請先輸入 Secret Key！驗證功能需要 Secret Key。\n如果只想查看 Token 內容，請使用「解碼 JWT」功能。');
+                    return;
+                }
+
+                if (!token) {
+                    alert('請輸入 JWT token！');
+                    return;
+                }
+
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    throw new Error('無效的 JWT 格式');
+                }
+
+                const signatureInput = parts[0] + '.' + parts[1];
+                const expectedSignature = await hmacSHA256(signatureInput, secret);
+
+                if (expectedSignature !== parts[2]) {
+                    throw new Error('簽名驗證失敗！Token 可能被篡改或使用了錯誤的 secret key');
+                }
+
+                const header = JSON.parse(
+                    new TextDecoder().decode(base64UrlDecode(parts[0]))
+                );
+                const payload = JSON.parse(
+                    new TextDecoder().decode(base64UrlDecode(parts[1]))
+                );
+
+                const now = Math.floor(Date.now() / 1000);
+                let expStatus = '';
+                if (payload.exp) {
+                    if (now > payload.exp) {
+                        expStatus = '<br><span class="error">⚠ Token 已過期</span>';
+                    } else {
+                        const remaining = payload.exp - now;
+                        expStatus = '<br><span class="success">✓ Token 有效，剩餘 ' + remaining + ' 秒</span>';
+                    }
+                }
+
+                let output = '<span class="success">✓ 簽名驗證成功</span>' + expStatus + '<br><br>';
+
+                output += '<strong>Header:</strong><br>' + JSON.stringify(header, null, 2);
+                output += '<br><br><strong>Payload:</strong><br>' + JSON.stringify(payload, null, 2);
+
+                document.getElementById('verifyResult').innerHTML = output;
+
+            } catch (error) {
+                document.getElementById('verifyResult').innerHTML = 
+                    '<span class="error">✗ 驗證失敗: ' + error.message + '</span>';
+            }
+        }
+
+        // 解碼 JWT (不驗證，不需要 Secret Key) - 包含完整結構解析
+        function decodeJWT() {
+            try {
+                const token = document.getElementById('tokenToVerify').value.trim();
+
+                if (!token) {
+                    alert('請輸入 JWT token！');
+                    return;
+                }
+
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    throw new Error('無效的 JWT 格式');
+                }
+
+                const header = JSON.parse(
+                    new TextDecoder().decode(base64UrlDecode(parts[0]))
+                );
+                const payload = JSON.parse(
+                    new TextDecoder().decode(base64UrlDecode(parts[1]))
+                );
+
+                let output = '<strong>📋 JWT 結構解析 (三部分用 . 分隔):</strong><br><br>';
+
+                // Header 部分 - 完整說明
+                output += '<div class="jwt-part jwt-header">';
+                output += '<div class="jwt-label">🟡 第一部分: Header (標頭)</div>';
+                output += '<strong>Base64URL 編碼:</strong> ' + parts[0];
+                output += '<div class="jwt-decoded"><strong>解碼後:</strong><br>' + JSON.stringify(header, null, 2) + '</div>';
+                output += '<div style="font-size: 11px; color: #666; margin-top: 5px;">💡 說明：Header 定義了 Token 的類型 (typ) 和使用的簽名算法 (alg)。這部分只是 Base64URL 編碼，任何人都能解碼查看。</div>';
+                output += '</div>';
+
+                // Payload 部分 - 完整說明
+                output += '<div class="jwt-part jwt-payload">';
+                output += '<div class="jwt-label">🔵 第二部分: Payload (負載)</div>';
+                output += '<strong>Base64URL 編碼:</strong> ' + parts[1];
+                output += '<div class="jwt-decoded"><strong>解碼後:</strong><br>' + JSON.stringify(payload, null, 2) + '</div>';
+                output += '<div style="font-size: 11px; color: #666; margin-top: 5px;">💡 說明：Payload 包含實際的用戶數據和標準聲明。常見欄位：<br>';
+                output += '• <strong>iat</strong> (issued at): Token 簽發時間 (Unix 時間戳)<br>';
+                output += '• <strong>exp</strong> (expiration): Token 過期時間 (Unix 時間戳)<br>';
+                output += '• 其他自定義數據 (如 userId, username, role 等)<br>';
+                output += '⚠️ Payload 也只是 Base64URL 編碼，不要在這裡存放敏感信息（如密碼）！</div>';
+                output += '</div>';
+
+                // Signature 部分 - 完整說明
+                output += '<div class="jwt-part jwt-signature">';
+                output += '<div class="jwt-label">🔴 第三部分: Signature (簽名)</div>';
+                output += '<strong>簽名值:</strong> ' + parts[2];
+                output += '<div style="font-size: 11px; color: #666; margin-top: 8px;">💡 說明：Signature 是使用 Secret Key 對前兩部分 (Header.Payload) 進行 HMAC-SHA256 簽名的結果。<br><br>';
+                output += '<strong>計算公式:</strong><br>';
+                output += '<code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 4px;">';
+                output += 'HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret)';
+                output += '</code><br><br>';
+                output += '🔒 <strong>安全性：</strong>只有持有正確 Secret Key 的人才能生成或驗證有效的簽名。如果有人修改了 Header 或 Payload，簽名就會對不上，確保 Token 未被篡改。<br><br>';
+                output += '⚠️ <strong>注意：</strong>此處僅顯示簽名值，未驗證其有效性。若要驗證簽名，請使用「驗證 JWT」功能。</div>';
+                output += '</div>';
+
+                // 總結說明
+                output += '<div class="info" style="background: #fff3cd; border-left-color: #ffc107; margin-top: 15px;">';
+                output += '📌 <strong>JWT 安全機制總結：</strong><br>';
+                output += '• <strong>編碼 ≠ 加密：</strong>Header 和 Payload 只是 Base64URL 編碼，任何人都能解碼查看<br>';
+                output += '• <strong>安全來自簽名：</strong>Signature 使用 Secret Key 簽名，防止篡改<br>';
+                output += '• <strong>完整性保證：</strong>修改任何部分都會導致簽名驗證失敗<br>';
+                output += '• <strong>使用建議：</strong>不要在 Payload 中存放敏感信息，Secret Key 必須保密';
+                output += '</div>';
+
+                document.getElementById('verifyResult').innerHTML = output;
+
+            } catch (error) {
+                document.getElementById('verifyResult').innerHTML = 
+                    '<span class="error">✗ 解碼失敗: ' + error.message + '</span>';
+            }
+        }
+    </script>
+</body>
+</html>

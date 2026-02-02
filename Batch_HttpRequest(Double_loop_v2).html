@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,14 +28,14 @@
             --gradient-success: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
             --gradient-warning: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
             --gradient-danger: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
-            
+
             /* 主項表格 - 粉藍色系 */
             --main-primary: #3b82f6;
             --main-primary-hover: #2563eb;
             --main-light: #dbeafe;
             --main-lighter: #eff6ff;
             --main-gradient: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            
+
             /* 參數組表格 - 粉紫色系 */
             --param-primary: #a855f7;
             --param-primary-hover: #9333ea;
@@ -42,95 +43,117 @@
             --param-lighter: #faf5ff;
             --param-gradient: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%);
         }
-        body { 
+
+        body {
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             color: var(--text-primary);
             line-height: 1.6;
         }
-        .container { 
-            max-width: 1200px; 
-            padding: 20px; 
+
+        .container {
+            max-width: 1200px;
+            padding: 20px;
             margin: 0 auto;
         }
-        .card { 
-            background-color: var(--card-bg); 
+
+        .card {
+            background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px; 
-            box-shadow: var(--shadow); 
-            margin-bottom: 24px; 
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
             transition: all 0.2s ease;
             overflow: hidden;
         }
-        .card:hover { 
-            transform: translateY(-2px); 
+
+        .card:hover {
+            transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
-        .card-body { 
-            padding: 20px; 
+
+        .card-body {
+            padding: 20px;
         }
-        .card-title { 
-            font-size: 1rem; 
-            font-weight: 600; 
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .flow-arrow { 
-            font-size: 1.8rem; 
-            color: var(--primary-color); 
-            text-align: center; 
+
+        .flow-arrow {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            text-align: center;
             margin: 16px 0;
             opacity: 0.7;
             animation: bounce 2s infinite;
         }
-        
+
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
                 transform: translateY(0);
             }
+
             40% {
                 transform: translateY(-10px);
             }
+
             60% {
                 transform: translateY(-5px);
             }
         }
-        .table-container, .request-status { 
-            max-height: 400px; 
-            overflow-y: auto; 
+
+        .table-container,
+        .request-status {
+            max-height: 400px;
+            overflow-y: auto;
             border-radius: 8px;
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow);
         }
-        
-        .table-container::-webkit-scrollbar, .request-status::-webkit-scrollbar {
+
+        .table-container::-webkit-scrollbar,
+        .request-status::-webkit-scrollbar {
             width: 6px;
         }
-        
-        .table-container::-webkit-scrollbar-track, .request-status::-webkit-scrollbar-track {
+
+        .table-container::-webkit-scrollbar-track,
+        .request-status::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.05);
             border-radius: 3px;
         }
-        
-        .table-container::-webkit-scrollbar-thumb, .request-status::-webkit-scrollbar-thumb {
+
+        .table-container::-webkit-scrollbar-thumb,
+        .request-status::-webkit-scrollbar-thumb {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 3px;
         }
-        
-        .table-container::-webkit-scrollbar-thumb:hover, .request-status::-webkit-scrollbar-thumb:hover {
+
+        .table-container::-webkit-scrollbar-thumb:hover,
+        .request-status::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 0, 0, 0.3);
         }
-        .request-status { 
+
+        .request-status {
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             padding: 10px 12px;
             border: 1px solid var(--border-color);
         }
-        .btn { 
-            padding: 6px 12px; 
-            border-radius: 6px; 
+
+        .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
             transition: all 0.2s ease;
             font-weight: 500;
             font-size: 0.8rem;
@@ -139,73 +162,84 @@
             align-items: center;
             gap: 4px;
         }
-        .btn:hover { 
-            transform: translateY(-1px); 
+
+        .btn:hover {
+            transform: translateY(-1px);
             box-shadow: var(--shadow);
         }
+
         .btn-primary {
             background: var(--primary-color);
             color: white;
         }
+
         .btn-primary:hover {
             background: var(--primary-hover);
             color: white;
         }
+
         .btn-secondary {
             background: var(--secondary-color);
             color: white;
         }
+
         .btn-secondary:hover {
             background: #475569;
             color: white;
         }
+
         .btn-success {
             background: var(--success-color);
             color: white;
         }
+
         .btn-success:hover {
             background: #047857;
             color: white;
         }
+
         .btn-outline-secondary {
             background-color: transparent;
             color: var(--secondary-color);
             border: 1px solid var(--border-color);
         }
+
         .btn-outline-secondary:hover {
             background-color: var(--secondary-color);
             color: white;
             border-color: var(--secondary-color);
         }
-        .btn-group { 
-            display: inline-flex; 
-            gap: 4px; 
-            flex-wrap: wrap; 
+
+        .btn-group {
+            display: inline-flex;
+            gap: 4px;
+            flex-wrap: wrap;
             margin-bottom: 8px;
             float: right;
             width: auto;
         }
-        
-        .btn-group + * {
+
+        .btn-group+* {
             clear: both;
         }
-        
+
         .btn-group .btn {
             padding: 4px 8px;
             font-size: 0.75rem;
             border-radius: 4px;
             gap: 3px;
         }
-        
-        .btn-group-custom { 
-            display: flex; 
-            gap: 6px; 
-            justify-content: flex-start; 
+
+        .btn-group-custom {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-start;
             flex-wrap: wrap;
         }
-        .status-item { 
-            padding: 8px 10px; 
-            border-bottom: 1px solid var(--border-color); 
+
+        .status-item {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border-color);
             margin-bottom: 12px;
             background: rgba(255, 255, 255, 0.8);
             border-radius: 6px;
@@ -215,6 +249,7 @@
             overflow: visible;
             transition: all 0.3s ease;
         }
+
         .status-item::before {
             content: '';
             position: absolute;
@@ -225,31 +260,37 @@
             background: var(--primary-color);
             opacity: 0.6;
         }
+
         .status-item:hover {
             transform: translateY(-1px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        .status-success { 
+
+        .status-success {
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
             border-left: 4px solid var(--success-color);
         }
+
         .status-success::before {
             background: var(--success-color);
         }
-        .status-error { 
+
+        .status-error {
             background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
             border-left: 4px solid var(--danger-color);
         }
+
         .status-error::before {
             background: var(--danger-color);
         }
-        .result { 
-            word-wrap: break-word; 
-            font-size: 0.75rem; 
-            padding: 6px 8px; 
+
+        .result {
+            word-wrap: break-word;
+            font-size: 0.75rem;
+            padding: 6px 8px;
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
-            border-radius: 4px; 
-            margin-top: 6px; 
+            border-radius: 4px;
+            margin-top: 6px;
             white-space: pre-wrap;
             border: 1px solid rgba(0, 0, 0, 0.08);
             font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
@@ -261,43 +302,49 @@
             max-height: 120px;
             overflow-y: auto;
         }
-        .result.success { 
-            color: var(--success-color); 
+
+        .result.success {
+            color: var(--success-color);
             border-left: 3px solid var(--success-color);
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
             box-shadow: 0 1px 4px rgba(34, 197, 94, 0.15);
         }
-        .result.error { 
-            color: var(--danger-color); 
+
+        .result.error {
+            color: var(--danger-color);
             border-left: 3px solid var(--danger-color);
             background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
             box-shadow: 0 1px 4px rgba(239, 68, 68, 0.15);
         }
-        .preview-box { 
+
+        .preview-box {
             background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.8) 100%);
-            padding: 16px; 
-            border-radius: 8px; 
-            max-height: 400px; 
-            overflow-y: auto; 
+            padding: 16px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
             font-size: 0.875rem;
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow);
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
         }
-        .step-icon { 
-            font-size: 0.85rem; 
+
+        .step-icon {
+            font-size: 0.85rem;
             margin-right: 5px;
             padding: 2px 5px;
             border-radius: 3px;
             background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.15) 100%);
             display: inline-block;
         }
-        .form-label { 
-            font-weight: 600; 
+
+        .form-label {
+            font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 6px;
             font-size: 0.8rem;
         }
+
         .form-control {
             border: 1px solid var(--border-color);
             border-radius: 6px;
@@ -305,17 +352,20 @@
             transition: all 0.2s ease;
             font-size: 0.875rem;
         }
+
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
             outline: none;
         }
+
         .form-text {
-            font-size: 0.7rem; 
-            color: var(--text-muted); 
+            font-size: 0.7rem;
+            color: var(--text-muted);
             margin-top: 3px;
         }
-        .advanced-settings { 
+
+        .advanced-settings {
             display: none;
             background: rgba(248, 250, 252, 0.8);
             border-radius: 8px;
@@ -323,31 +373,40 @@
             border: 1px solid var(--border-color);
             margin-top: 16px;
         }
-        .advanced-settings.show { 
+
+        .advanced-settings.show {
             display: block;
             animation: slideDown 0.3s ease;
         }
-        
+
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
-        .progress { 
-            height: 4px; 
+
+        .progress {
+            height: 4px;
             border-radius: 3px;
             background: rgba(100, 116, 139, 0.15);
             overflow: hidden;
             margin: 6px 0;
             box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
         }
+
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, var(--primary-color) 0%, #3b82f6 100%);
             transition: width 0.3s ease;
             box-shadow: 0 0 4px rgba(59, 130, 246, 0.3);
         }
-        
+
         .progress-info {
             font-size: 0.6rem;
             color: var(--text-secondary);
@@ -356,7 +415,7 @@
             font-weight: 500;
             letter-spacing: 0.001em;
         }
-        
+
         .status-compact {
             font-size: 0.55rem;
             color: var(--text-muted);
@@ -365,27 +424,27 @@
             font-weight: 400;
             letter-spacing: 0.001em;
         }
-        
+
         /* 改善滾動條樣式 */
         .result::-webkit-scrollbar {
             width: 4px;
             height: 4px;
         }
-        
+
         .result::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.05);
             border-radius: 2px;
         }
-        
+
         .result::-webkit-scrollbar-thumb {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 2px;
         }
-        
+
         .result::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 0, 0, 0.3);
         }
-        
+
         /* Excel風格表格 */
         .excel-table {
             border-collapse: collapse;
@@ -396,7 +455,7 @@
             border-radius: 6px;
             overflow: hidden;
         }
-        
+
         .excel-table th {
             background: var(--primary-color);
             border: none;
@@ -411,7 +470,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+
         .excel-table td {
             border: 1px solid #e2e8f0;
             padding: 2px;
@@ -419,7 +478,7 @@
             position: relative;
             transition: all 0.2s ease;
         }
-        
+
         .excel-table input {
             border: none;
             outline: none;
@@ -432,33 +491,33 @@
             border-radius: 4px;
             color: #1e293b;
         }
-        
+
         .excel-table input:focus {
             background: #dbeafe;
             box-shadow: inset 0 0 0 2px var(--primary-color);
         }
-        
+
         .excel-table input:hover {
             background: rgba(248, 250, 252, 0.8);
         }
-        
+
         .excel-table tr:nth-child(even) {
             background-color: rgba(248, 250, 252, 0.5);
         }
-        
+
         .excel-table tr:hover {
             background: #f0f9ff;
         }
-        
+
         .excel-table .selected {
             background: #dbeafe;
             box-shadow: inset 0 0 0 2px var(--primary-color);
         }
-        
+
         .excel-table .selected input {
             background: #dbeafe;
         }
-        
+
         .excel-table .row-number {
             background: #e2e8f0;
             color: #64748b;
@@ -470,39 +529,55 @@
             border-right: 2px solid #cbd5e1;
             font-size: 0.8rem;
         }
-        
+
         .excel-table .matched-row {
             background: #dcfce7 !important;
             animation: highlightRow 2s ease-in-out;
         }
-        
+
         .excel-table .matched-row input {
             background: #dcfce7;
             font-weight: 600;
         }
-        
+
         .excel-table .duplicate-row {
             background: #fef3c7 !important;
             animation: highlightDuplicate 1s ease-in-out;
         }
-        
+
         .excel-table .duplicate-row input {
             background: #fef3c7;
             font-weight: 600;
         }
-        
+
         @keyframes highlightRow {
-            0% { background: #dcfce7; }
-            50% { background: #bbf7d0; }
-            100% { background: #dcfce7; }
+            0% {
+                background: #dcfce7;
+            }
+
+            50% {
+                background: #bbf7d0;
+            }
+
+            100% {
+                background: #dcfce7;
+            }
         }
-        
+
         @keyframes highlightDuplicate {
-            0% { background: #fef3c7; }
-            50% { background: #fed7aa; }
-            100% { background: #fef3c7; }
+            0% {
+                background: #fef3c7;
+            }
+
+            50% {
+                background: #fed7aa;
+            }
+
+            100% {
+                background: #fef3c7;
+            }
         }
-        
+
         /* 雙重循環示意圖樣式 */
         .loop-diagram {
             padding: 16px;
@@ -511,13 +586,13 @@
             border: 2px solid #e2e8f0;
             transition: all 0.3s ease;
         }
-        
+
         .loop-diagram:hover {
             border-color: var(--primary-color);
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
             transform: translateY(-2px);
         }
-        
+
         .loop-container {
             display: flex;
             align-items: center;
@@ -525,8 +600,10 @@
             gap: 16px;
             flex-wrap: wrap;
         }
-        
-        .loop-outer, .loop-inner, .loop-result {
+
+        .loop-outer,
+        .loop-inner,
+        .loop-result {
             background: white;
             border-radius: 6px;
             padding: 12px;
@@ -534,32 +611,43 @@
             min-width: 120px;
             transition: all 0.3s ease;
         }
-        
+
         .loop-outer {
             border: 2px solid var(--main-primary);
             background: var(--main-gradient);
         }
-        
+
         .loop-inner {
             border: 2px solid var(--param-primary);
             background: var(--param-gradient);
         }
-        
+
         .loop-result {
             border: 2px solid var(--success-color);
             background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
         }
-        
-        .loop-outer:hover, .loop-inner:hover, .loop-result:hover {
+
+        .loop-outer:hover,
+        .loop-inner:hover,
+        .loop-result:hover {
             transform: translateY(-1px);
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
         }
-        
+
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
         }
-        
+
         .loop-label {
             font-weight: 600;
             font-size: 0.8rem;
@@ -567,13 +655,13 @@
             text-align: center;
             color: var(--text-primary);
         }
-        
+
         .loop-content {
             display: flex;
             flex-direction: column;
             gap: 3px;
         }
-        
+
         .loop-item {
             background: rgba(255, 255, 255, 0.8);
             padding: 4px 8px;
@@ -588,27 +676,29 @@
             justify-content: center;
             gap: 4px;
         }
-        
+
         .loop-item:hover {
             background: rgba(255, 255, 255, 0.95);
             transform: scale(1.02);
         }
-        
+
         .result-item {
             background: rgba(34, 197, 94, 0.1);
             border-color: var(--success-color);
             color: var(--success-color);
             font-weight: 500;
         }
-        
+
         /* 箭頭動畫樣式 */
-        .main-arrow, .param-arrow, .result-arrow {
+        .main-arrow,
+        .param-arrow,
+        .result-arrow {
             opacity: 0;
             transform: translateX(-3px);
             transition: all 0.3s ease;
             font-size: 0.8rem;
         }
-        
+
         .loop-item.active .main-arrow,
         .loop-item.active .param-arrow,
         .loop-item.active .result-arrow {
@@ -616,22 +706,22 @@
             transform: translateX(0);
             animation: arrowBounce 1s ease-in-out infinite;
         }
-        
+
         .loop-item.active {
             background: rgba(255, 255, 255, 1);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             transform: scale(1.05);
         }
-        
+
         .loop-item.active.result-item {
             background: rgba(34, 197, 94, 0.2);
             box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
         }
-        
+
         .item-text {
             flex: 1;
         }
-        
+
         .loop-status {
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -641,20 +731,23 @@
             border: 1px solid var(--border-color);
             display: inline-block;
         }
-        
+
         .status-text {
             font-weight: 500;
         }
-        
+
         #loop-status {
             color: var(--primary-color);
             font-weight: 600;
         }
-        
+
         @keyframes arrowBounce {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateX(0);
             }
+
             50% {
                 transform: translateX(2px);
             }
@@ -691,7 +784,7 @@
         .param-table-row-active td {
             background-color: rgba(236, 72, 153, 0.08) !important;
         }
-        
+
         .loop-connector {
             display: flex;
             flex-direction: column;
@@ -701,13 +794,13 @@
             font-size: 1rem;
             font-weight: 600;
         }
-        
+
         .loop-connector span {
             font-size: 1.4rem;
             font-weight: 700;
             animation: pulse 2s infinite;
         }
-        
+
         .loop-formula {
             background: var(--primary-color);
             color: white;
@@ -718,34 +811,36 @@
             font-size: 0.8rem;
             box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
         }
-        
+
         .formula-text {
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        
+
         .formula-text::before {
             content: "🧮";
             font-size: 1rem;
         }
-        
+
         /* 響應式設計 */
         @media (max-width: 768px) {
             .loop-container {
                 flex-direction: column;
                 gap: 16px;
             }
-            
+
             .loop-connector {
                 transform: rotate(90deg);
             }
-            
-            .loop-outer, .loop-inner, .loop-result {
+
+            .loop-outer,
+            .loop-inner,
+            .loop-result {
                 min-width: 200px;
             }
         }
-        
+
         /* 預覽部分的循環結構樣式 */
         .preview-header {
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -754,12 +849,12 @@
             margin-bottom: 12px;
             border: 1px solid var(--border-color);
         }
-        
+
         .preview-header h6 {
             font-size: 0.9rem;
             margin-bottom: 6px;
         }
-        
+
         .loop-summary {
             display: flex;
             gap: 6px;
@@ -767,17 +862,17 @@
             justify-content: center;
             margin-top: 6px;
         }
-        
+
         .loop-summary .badge {
             font-size: 0.7rem;
             padding: 4px 8px;
             border-radius: 4px;
         }
-        
+
         .preview-content {
             margin-top: 12px;
         }
-        
+
         .loop-outer-item {
             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             border: 2px solid var(--primary-color);
@@ -786,7 +881,7 @@
             margin-bottom: 12px;
             box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
         }
-        
+
         .loop-header {
             font-weight: 600;
             color: var(--primary-color);
@@ -796,17 +891,17 @@
             align-items: center;
             gap: 6px;
         }
-        
+
         .loop-header span {
             font-size: 1rem;
         }
-        
+
         .loop-inner-container {
             padding-left: 16px;
             border-left: 2px solid rgba(37, 99, 235, 0.3);
             margin-left: 6px;
         }
-        
+
         .loop-inner-item {
             background: rgba(255, 255, 255, 0.8);
             padding: 8px;
@@ -816,12 +911,12 @@
             font-size: 0.8rem;
             transition: all 0.2s ease;
         }
-        
+
         .loop-inner-item span {
             font-size: 0.7rem;
             margin-right: 2px;
         }
-        
+
         .request-url {
             font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
             font-size: 0.6rem;
@@ -836,7 +931,7 @@
             letter-spacing: 0.005em;
             line-height: 1.2;
         }
-        
+
         .request-body {
             font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
             font-size: 0.6rem;
@@ -851,11 +946,11 @@
             letter-spacing: 0.005em;
             line-height: 1.2;
         }
-        
+
         .request-info {
             margin-bottom: 6px;
         }
-        
+
         .request-title {
             font-weight: 600;
             color: var(--text-primary);
@@ -867,39 +962,40 @@
             font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             letter-spacing: 0.003em;
         }
-        
+
         .request-title span {
             font-size: 0.75rem;
         }
-        
+
         .loop-badge {
             display: flex;
             gap: 3px;
             margin-left: auto;
         }
-        
-        .outer-loop, .inner-loop {
+
+        .outer-loop,
+        .inner-loop {
             font-size: 0.45rem;
             padding: 1px 2px;
             border-radius: 2px;
             font-weight: 500;
         }
-        
+
         .outer-loop {
             background: var(--main-primary);
             color: white;
         }
-        
+
         .inner-loop {
             background: var(--param-primary);
             color: white;
         }
-        
+
         .loop-inner-item:hover {
             background: rgba(255, 255, 255, 0.95);
             transform: translateX(2px);
         }
-        
+
         .request-details {
             font-size: 0.6rem;
             color: var(--text-secondary);
@@ -915,7 +1011,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        
+
         .request-details:hover {
             color: var(--text-primary);
             background: rgba(248, 250, 252, 0.5);
@@ -925,7 +1021,7 @@
             word-wrap: break-word;
             overflow: visible;
         }
-        
+
         .expandable-text {
             font-size: 0.55rem;
             color: var(--text-secondary);
@@ -945,7 +1041,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        
+
         .expandable-text:hover {
             color: var(--text-primary);
             background: rgba(248, 250, 252, 0.9);
@@ -956,24 +1052,24 @@
             overflow-y: auto;
         }
 
-        
+
         .badge {
             font-size: 0.6rem;
             padding: 3px 6px;
             border-radius: 3px;
         }
-        
+
         .alert {
             padding: 8px 10px;
             margin-bottom: 10px;
             border-radius: 5px;
             font-size: 0.65rem;
         }
-        
+
         .alert strong {
             font-size: 0.65rem;
         }
-        
+
         /* 結果區域標題字體優化 */
         .text-primary.mb-2 {
             font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -981,107 +1077,107 @@
             font-size: 0.8rem;
             letter-spacing: 0.005em;
         }
-        
+
         /* 狀態項目整體字體優化 */
         .status-item {
             font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-        
+
         /* 主項表格特定樣式 */
         .main-excel-table th {
             background: var(--main-primary) !important;
             color: white !important;
         }
-        
+
         .main-excel-table input:focus {
             background: var(--main-light) !important;
             box-shadow: inset 0 0 0 2px var(--main-primary) !important;
         }
-        
+
         .main-excel-table tr:hover {
             background: var(--main-lighter) !important;
         }
-        
+
         .main-excel-table .selected {
             background: var(--main-light) !important;
             box-shadow: inset 0 0 0 2px var(--main-primary) !important;
         }
-        
+
         .main-excel-table .selected input {
             background: var(--main-light) !important;
         }
-        
+
         /* 參數組表格特定樣式 */
         .param-excel-table th {
             background: var(--param-primary) !important;
             color: white !important;
         }
-        
+
         .param-excel-table input:focus {
             background: var(--param-light) !important;
             box-shadow: inset 0 0 0 2px var(--param-primary) !important;
         }
-        
+
         .param-excel-table tr:hover {
             background: var(--param-lighter) !important;
         }
-        
+
         .param-excel-table .selected {
             background: var(--param-light) !important;
             box-shadow: inset 0 0 0 2px var(--param-primary) !important;
         }
-        
+
         .param-excel-table .selected input {
             background: var(--param-light) !important;
         }
-        
+
         /* 主項表格按鈕組樣式 */
         .main-btn-group .btn-primary {
             background: var(--main-primary) !important;
             border-color: var(--main-primary) !important;
         }
-        
+
         .main-btn-group .btn-primary:hover {
             background: var(--main-primary-hover) !important;
             border-color: var(--main-primary-hover) !important;
         }
-        
+
         /* 參數組表格按鈕組樣式 */
         .param-btn-group .btn-primary {
             background: var(--param-primary) !important;
             border-color: var(--param-primary) !important;
         }
-        
+
         .param-btn-group .btn-primary:hover {
             background: var(--param-primary-hover) !important;
             border-color: var(--param-primary-hover) !important;
         }
-        
+
         /* 主項表格卡片標題樣式 */
         .main-card-title {
             color: var(--main-primary) !important;
         }
-        
+
         .main-card-title .step-icon {
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.15) 100%) !important;
         }
-        
+
         /* 參數組表格卡片標題樣式 */
         .param-card-title {
             color: var(--param-primary) !important;
         }
-        
+
         .param-card-title .step-icon {
             background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(236, 72, 153, 0.15) 100%) !important;
         }
-        
+
         /* 主項表格提示框樣式 */
         .main-alert {
             background: var(--main-lighter) !important;
             border: 1px solid var(--main-light) !important;
             color: var(--main-primary) !important;
         }
-        
+
         /* 參數組表格提示框樣式 */
         .param-alert {
             background: var(--param-lighter) !important;
@@ -1090,10 +1186,12 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="text-center mb-5">
-            <h1 class="display-6 fw-bold text-primary mb-2" style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            <h1 class="display-6 fw-bold text-primary mb-2"
+                style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
                 🚀 批量自訂參數的HTTP請求器
             </h1>
             <p class="text-muted mb-0" style="font-size: 0.9rem; letter-spacing: 0.5px;">
@@ -1101,11 +1199,34 @@
             </p>
         </div>
 
+        <!-- 配置管理工具列 -->
+        <div class="card mb-4"
+            style="background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%); border: none; box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);">
+            <div class="card-body py-2">
+                <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap">
+                    <span style="color: white; font-weight: 500; font-size: 0.85rem;"><i class="bi bi-gear-fill"></i>
+                        配置管理</span>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <input type="file" id="import-config" accept=".json" style="display: none;">
+                        <button class="btn btn-light btn-sm" id="import-config-btn" title="從 JSON 檔案匯入先前保存的配置"><i
+                                class="bi bi-folder2-open"></i>
+                            匯入配置</button>
+                        <button class="btn btn-light btn-sm" id="export-config" title="將當前配置匯出為 JSON 檔案"><i
+                                class="bi bi-floppy"></i>
+                            匯出配置</button>
+                        <button class="btn btn-outline-light btn-sm" id="clear-storage" title="清空所有表格和設定"><i
+                                class="bi bi-trash"></i>
+                            清空</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 雙重循環示意圖 -->
         <div class="card bg-light mb-4">
             <div class="card-body text-center">
                 <h6 class="card-title text-primary mb-3">
-                    🎯 雙重循環示意圖 
+                    <i class="bi bi-diagram-3-fill"></i> 雙重循環示意圖
                     <small class="text-muted">(點擊暫停動畫)</small>
                 </h6>
                 <div class="loop-diagram" style="cursor: pointer;" title="點擊暫停動畫">
@@ -1200,7 +1321,8 @@
                     <button class="btn btn-secondary" id="clear-main-table" title="清空表格">🧹 清空表格</button>
                     <button class="btn btn-primary" id="export-main-table" title="匯出為TSV格式，可用Excel開啟">📤 匯出TSV</button>
                     <input type="file" id="import-main-table" accept=".txt,.tsv,.csv,.xlsx,.xls" style="display:none;">
-                    <button class="btn btn-primary" id="import-main-table-btn" title="支援TSV、CSV、Excel格式">📥 匯入</button>
+                    <button class="btn btn-primary" id="import-main-table-btn" title="支援TSV、CSV、Excel格式">📥
+                        匯入TSV</button>
                 </div>
                 <div class="table-container">
                     <table class="excel-table main-excel-table" id="main-excel-table">
@@ -1233,7 +1355,7 @@
                     <button class="btn btn-secondary" id="clear-table" title="清空表格">🧹 清空表格</button>
                     <button class="btn btn-primary" id="export-table" title="匯出為TSV格式，可用Excel開啟">📤 匯出TSV</button>
                     <input type="file" id="import-table" accept=".txt,.tsv,.csv,.xlsx,.xls" style="display:none;">
-                    <button class="btn btn-primary" id="import-table-btn" title="支援TSV、CSV、Excel格式">📥 匯入</button>
+                    <button class="btn btn-primary" id="import-table-btn" title="支援TSV、CSV、Excel格式">📥 匯入TSV</button>
                 </div>
                 <div class="table-container">
                     <table class="excel-table param-excel-table" id="excel-table">
@@ -1255,6 +1377,38 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title"><span class="step-icon">3️⃣</span>設置請求模板</h5>
+
+                        <!-- 佔位符說明區塊 -->
+                        <div class="placeholder-guide mb-3"
+                            style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bae6fd; border-radius: 8px; padding: 12px; font-size: 0.85rem;">
+                            <div style="font-weight: 600; color: #0369a1; margin-bottom: 8px;">📌 佔位符對照說明</div>
+                            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 200px;">
+                                    <div
+                                        style="background: var(--main-light); padding: 8px 10px; border-radius: 6px; border-left: 3px solid var(--main-primary);">
+                                        <code style="color: var(--main-primary); font-weight: 600;">{MainItem1}</code>,
+                                        <code
+                                            style="color: var(--main-primary); font-weight: 600;">{MainItem2}</code>...
+                                        <div style="color: #475569; font-size: 0.75rem; margin-top: 4px;">👆 對應
+                                            <strong>步驟1 主項表格</strong> 的第1列、第2列...
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="flex: 1; min-width: 200px;">
+                                    <div
+                                        style="background: var(--param-light); padding: 8px 10px; border-radius: 6px; border-left: 3px solid var(--param-primary);">
+                                        <code
+                                            style="color: var(--param-primary); font-weight: 600;">{Parameter1}</code>,
+                                        <code
+                                            style="color: var(--param-primary); font-weight: 600;">{Parameter2}</code>...
+                                        <div style="color: #475569; font-size: 0.75rem; margin-top: 4px;">👆 對應
+                                            <strong>步驟2 參數組表格</strong> 的第1列、第2列...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="request-method" class="form-label">請求方法</label>
                             <select class="form-select" id="request-method">
@@ -1265,21 +1419,25 @@
                         </div>
                         <div class="mb-3">
                             <label for="url-template" class="form-label">URL 模板</label>
-                            <input type="text" class="form-control" id="url-template" placeholder="例如: https://api.example.com/?id={MainItem1}&key={Parameter1}">
-                            <small class="form-text text-muted">使用 {MainItemX} 和 {ParameterX} 作為動態占位符</small>
+                            <input type="text" class="form-control" id="url-template"
+                                placeholder="例如: https://api.example.com/?id={MainItem1}&key={Parameter1}">
+                            <small class="form-text text-muted">在 URL 中使用上方的佔位符，系統會自動替換為表格中的實際數據</small>
                         </div>
                         <div id="post-config" hidden>
                             <div class="mb-3">
                                 <label for="post-body-template" class="form-label">POST 請求體模板</label>
-                                <textarea class="form-control" id="post-body-template" rows="2" placeholder='例如: {"id": "{MainItem1}", "key": "{Parameter1}"}'></textarea>
-                                <small class="form-text text-muted">輸入有效的 JSON 格式，使用 {MainItemX} 和 {ParameterX} 替換</small>
+                                <textarea class="form-control" id="post-body-template" rows="2"
+                                    placeholder='例如: {"id": "{MainItem1}", "key": "{Parameter1}"}'></textarea>
+                                <small class="form-text text-muted">輸入有效的 JSON 格式，使用上方的佔位符替換動態數據</small>
                             </div>
                         </div>
-                        <button class="btn btn-outline-secondary mt-2" id="toggle-advanced">⚙️ 進階設置</button>
+                        <button class="btn btn-outline-secondary mt-2" id="toggle-advanced"><i class="bi bi-gear"></i>
+                            進階設置</button>
                         <div class="advanced-settings" id="advanced-settings">
                             <div class="mt-3">
                                 <label for="request-delay" class="form-label">每次請求間隔 (毫秒)</label>
-                                <input type="number" class="form-control" id="request-delay" min="0" value="3000" step="100">
+                                <input type="number" class="form-control" id="request-delay" min="0" value="3000"
+                                    step="100">
                                 <small class="form-text text-muted">設置為 0 表示無間隔，建議 500ms 或以上以避免過載</small>
                             </div>
                             <div class="mt-3">
@@ -1307,47 +1465,54 @@
                                     </div>
                                     <div class="mt-3">
                                         <label for="auth-password" class="form-label">密碼</label>
-                                        <input type="password" class="form-control" id="auth-password" placeholder="輸入密碼">
+                                        <input type="password" class="form-control" id="auth-password"
+                                            placeholder="輸入密碼">
                                         <small class="form-text text-muted">用於 Basic 認證</small>
                                     </div>
                                 </div>
                                 <div id="bearer-auth-field" hidden>
                                     <div class="mt-3">
                                         <label for="auth-token" class="form-label">Bearer Token</label>
-                                        <input type="text" class="form-control" id="auth-token" placeholder="輸入 API Token">
+                                        <input type="text" class="form-control" id="auth-token"
+                                            placeholder="輸入 API Token">
                                         <small class="form-text text-muted">輸入完整的 Bearer Token</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="btn-group-custom mt-4">
-                            <button class="btn btn-secondary" id="clear-storage">🗑️ 清空配置</button>
-                            <button class="btn btn-primary" id="export-config">💾 匯出配置</button>
-                            <input type="file" id="import-config" accept=".json" style="display: none;">
-                            <button class="btn btn-primary" id="import-config-btn">📁 匯入配置</button>
-                        </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- 右側：發送請求並查看結果 -->
             <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-body">
-                                                                          <h5 class="card-title"><span class="step-icon">4️⃣</span>發送請求並查看結果</h5>
-                         <button class="btn btn-success mb-2" id="send-request" title="發送所有生成的請求">🚀 發送</button>
-                        
-                        <div class="mt-4">
-                            <h6 class="text-primary mb-2">📊 執行進度</h6>
+                        <h5 class="card-title"><span class="step-icon">4️⃣</span>發送請求並查看結果</h5>
+
+                        <div class="d-flex gap-2 mb-3">
+                            <button class="btn btn-success" id="send-request" title="發送所有生成的請求"><i
+                                    class="bi bi-rocket-takeoff"></i> 開始發送</button>
+                            <button class="btn btn-outline-secondary btn-sm" id="copy-results" title="複製所有請求結果"><i
+                                    class="bi bi-clipboard"></i></button>
+
+                            <button class="btn btn-outline-danger btn-sm" id="clear-results" title="清空結果"><i
+                                    class="bi bi-trash"></i></button>
+                            <button class="btn btn-outline-success btn-sm" id="scroll-indicator" title="自動滾動開啟中 (點擊暫停)">
+                                <i class="bi bi-arrow-down-circle"></i>
+                            </button>
+                        </div>
+
+                        <div>
+                            <h6 class="text-primary mb-2"><i class="bi bi-bar-chart-fill"></i> 執行進度</h6>
                             <div class="progress mb-2" id="total-progress">
-                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0"
+                                    aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
-                        
+
                         <div class="request-status mt-3">
-                            <h6 class="text-primary mb-2">📋 請求結果 
-                                <span id="scroll-indicator" class="badge badge-success" style="font-size: 0.4rem; margin-left: 6px;">🔄 自動滾動</span>
-                            </h6>
+                            <h6 class="text-primary mb-2">📋 請求結果</h6>
                             <div id="status-container"></div>
                         </div>
                     </div>
@@ -1362,15 +1527,15 @@
             statusContainer: document.getElementById('status-container'),
             totalProgress: document.getElementById('total-progress').querySelector('.progress-bar')
         };
-        
+
         // 主項表格資料結構
-        let mainExcelData = [["",""]]; // 預設1行2列
+        let mainExcelData = [["", ""]]; // 預設1行2列
         const mainExcelBody = document.getElementById('main-excel-body');
         const mainExcelHeader = document.getElementById('main-excel-header');
         let selectedMainCell = null; // 當前選中的主項表格單元格
-        
+
         // 參數組表格資料結構
-        let paramExcelData = [["",""]]; // 預設1行2列
+        let paramExcelData = [["", ""]]; // 預設1行2列
         const paramExcelBody = document.getElementById('excel-body');
         const paramExcelHeader = document.getElementById('excel-header');
         let selectedParamCell = null; // 當前選中的參數表格單元格
@@ -1378,21 +1543,21 @@
         // 主項表格操作
         function renderMainExcelTable() {
             // 渲染表頭
-            mainExcelHeader.innerHTML = '<th class="row-number">#</th>' + mainExcelData[0].map((_,i)=>`<th>主項${i+1}</th>`).join('');
+            mainExcelHeader.innerHTML = '<th class="row-number">#</th>' + mainExcelData[0].map((_, i) => `<th>主項${i + 1}</th>`).join('');
             // 渲染表身
-            mainExcelBody.innerHTML = mainExcelData.map((row,ri)=>
-                `<tr data-main-row="${ri}"><td class="row-number">${ri+1}</td>`+
-                row.map((cell,ci)=>`<td><input type="text" value="${cell}" data-row="${ri}" data-col="${ci}" class="form-control main-excel-input" placeholder="輸入主項數據"></td>`).join('')+
+            mainExcelBody.innerHTML = mainExcelData.map((row, ri) =>
+                `<tr data-main-row="${ri}"><td class="row-number">${ri + 1}</td>` +
+                row.map((cell, ci) => `<td><input type="text" value="${cell}" data-row="${ri}" data-col="${ci}" class="form-control main-excel-input" placeholder="輸入主項數據"></td>`).join('') +
                 '</tr>'
             ).join('');
             // 綁定事件
-            document.querySelectorAll('.main-excel-input').forEach(input=>{
-                input.addEventListener('input',e=>{
-                    const r=+input.dataset.row,c=+input.dataset.col;
-                    mainExcelData[r][c]=input.value;
+            document.querySelectorAll('.main-excel-input').forEach(input => {
+                input.addEventListener('input', e => {
+                    const r = +input.dataset.row, c = +input.dataset.col;
+                    mainExcelData[r][c] = input.value;
                     saveConfig();
                 });
-                input.addEventListener('focus',()=>{
+                input.addEventListener('focus', () => {
                     selectMainCell(input);
                     input.select();
                 });
@@ -1415,28 +1580,28 @@
         }
 
         function addMainExcelCol() {
-            mainExcelData.forEach(row=>row.push(""));
+            mainExcelData.forEach(row => row.push(""));
             renderMainExcelTable();
             saveConfig();
         }
 
         function delMainExcelRow() {
-            if(mainExcelData.length>1){mainExcelData.pop();renderMainExcelTable();saveConfig();}
+            if (mainExcelData.length > 1) { mainExcelData.pop(); renderMainExcelTable(); saveConfig(); }
         }
 
         function delMainExcelCol() {
-            if(mainExcelData[0].length>1){mainExcelData.forEach(row=>row.pop());renderMainExcelTable();saveConfig();}
+            if (mainExcelData[0].length > 1) { mainExcelData.forEach(row => row.pop()); renderMainExcelTable(); saveConfig(); }
         }
 
         function clearMainExcelTable() {
-            mainExcelData = [["",""]];
+            mainExcelData = [["", ""]];
             renderMainExcelTable();
             saveConfig();
         }
 
         function exportMainExcelTable() {
-            const tsv = mainExcelData.map(row=>row.join('\t')).join('\n');
-            const blob = new Blob([tsv],{type:'text/plain'});
+            const tsv = mainExcelData.map(row => row.join('\t')).join('\n');
+            const blob = new Blob([tsv], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1447,12 +1612,12 @@
 
         function importMainExcelTableFile(e) {
             const file = e.target.files[0];
-            if(!file)return;
+            if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(ev){
+            reader.onload = function (ev) {
                 const lines = ev.target.result.split(/\r?\n/).filter(Boolean);
-                mainExcelData = lines.map(line=>line.split(/\t|,/)); // 使用制表符和逗號作為分隔符
-                if(mainExcelData.length===0)mainExcelData=[["",""]];
+                mainExcelData = lines.map(line => line.split(/\t|,/)); // 使用制表符和逗號作為分隔符
+                if (mainExcelData.length === 0) mainExcelData = [["", ""]];
                 renderMainExcelTable();
                 saveConfig();
             };
@@ -1463,21 +1628,21 @@
         // 參數組表格操作
         function renderParamExcelTable() {
             // 渲染表頭
-            paramExcelHeader.innerHTML = '<th class="row-number">#</th>' + paramExcelData[0].map((_,i)=>`<th>參數${i+1}</th>`).join('');
+            paramExcelHeader.innerHTML = '<th class="row-number">#</th>' + paramExcelData[0].map((_, i) => `<th>參數${i + 1}</th>`).join('');
             // 渲染表身
-            paramExcelBody.innerHTML = paramExcelData.map((row,ri)=>
-                `<tr data-param-row="${ri}"><td class="row-number">${ri+1}</td>`+
-                row.map((cell,ci)=>`<td><input type="text" value="${cell}" data-row="${ri}" data-col="${ci}" class="form-control param-excel-input" placeholder="輸入參數數據"></td>`).join('')+
+            paramExcelBody.innerHTML = paramExcelData.map((row, ri) =>
+                `<tr data-param-row="${ri}"><td class="row-number">${ri + 1}</td>` +
+                row.map((cell, ci) => `<td><input type="text" value="${cell}" data-row="${ri}" data-col="${ci}" class="form-control param-excel-input" placeholder="輸入參數數據"></td>`).join('') +
                 '</tr>'
             ).join('');
             // 綁定事件
-            document.querySelectorAll('.param-excel-input').forEach(input=>{
-                input.addEventListener('input',e=>{
-                    const r=+input.dataset.row,c=+input.dataset.col;
-                    paramExcelData[r][c]=input.value;
+            document.querySelectorAll('.param-excel-input').forEach(input => {
+                input.addEventListener('input', e => {
+                    const r = +input.dataset.row, c = +input.dataset.col;
+                    paramExcelData[r][c] = input.value;
                     saveConfig();
                 });
-                input.addEventListener('focus',()=>{
+                input.addEventListener('focus', () => {
                     selectParamCell(input);
                     input.select();
                 });
@@ -1500,28 +1665,28 @@
         }
 
         function addParamExcelCol() {
-            paramExcelData.forEach(row=>row.push(""));
+            paramExcelData.forEach(row => row.push(""));
             renderParamExcelTable();
             saveConfig();
         }
 
         function delParamExcelRow() {
-            if(paramExcelData.length>1){paramExcelData.pop();renderParamExcelTable();saveConfig();}
+            if (paramExcelData.length > 1) { paramExcelData.pop(); renderParamExcelTable(); saveConfig(); }
         }
 
         function delParamExcelCol() {
-            if(paramExcelData[0].length>1){paramExcelData.forEach(row=>row.pop());renderParamExcelTable();saveConfig();}
+            if (paramExcelData[0].length > 1) { paramExcelData.forEach(row => row.pop()); renderParamExcelTable(); saveConfig(); }
         }
 
         function clearParamExcelTable() {
-            paramExcelData = [["",""]];
+            paramExcelData = [["", ""]];
             renderParamExcelTable();
             saveConfig();
         }
 
         function exportParamExcelTable() {
-            const tsv = paramExcelData.map(row=>row.join('\t')).join('\n');
-            const blob = new Blob([tsv],{type:'text/plain'});
+            const tsv = paramExcelData.map(row => row.join('\t')).join('\n');
+            const blob = new Blob([tsv], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1532,12 +1697,12 @@
 
         function importParamExcelTableFile(e) {
             const file = e.target.files[0];
-            if(!file)return;
+            if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(ev){
+            reader.onload = function (ev) {
                 const lines = ev.target.result.split(/\r?\n/).filter(Boolean);
-                paramExcelData = lines.map(line=>line.split(/\t|,/)); // 使用制表符和逗號作為分隔符
-                if(paramExcelData.length===0)paramExcelData=[["",""]];
+                paramExcelData = lines.map(line => line.split(/\t|,/)); // 使用制表符和逗號作為分隔符
+                if (paramExcelData.length === 0) paramExcelData = [["", ""]];
                 renderParamExcelTable();
                 saveConfig();
             };
@@ -1561,18 +1726,30 @@
                 authToken: $('#auth-token').value
             };
             localStorage.setItem('requestConfig', JSON.stringify(config));
+            updateRequestPreview();
+        }
+
+        // 更新請求預覽統計
+        function updateRequestPreview() {
+            const mainRows = mainExcelData.length;
+            const paramRows = paramExcelData.length;
+            const totalRequests = mainRows * paramRows;
+            const previewElement = document.getElementById('request-preview-count');
+            if (previewElement) {
+                previewElement.innerHTML = `主項 <strong>${mainRows}</strong> 行 × 參數組 <strong>${paramRows}</strong> 行 = <strong style="color: var(--success-color); font-size: 1.1em;">${totalRequests}</strong> 個請求`;
+            }
         }
 
         function loadConfig() {
             const config = JSON.parse(localStorage.getItem('requestConfig') || '{}');
-            
+
             // 載入主項表格數據
             if (config.mainExcelData) {
                 mainExcelData = config.mainExcelData;
             } else {
-                mainExcelData = [["",""]];
+                mainExcelData = [["", ""]];
             }
-            
+
             // 載入參數表格數據
             if (config.paramExcelData) {
                 paramExcelData = config.paramExcelData;
@@ -1580,12 +1757,12 @@
                 // 向後兼容：如果有舊的excelData，將其作為參數表格數據
                 paramExcelData = config.excelData;
             } else {
-                paramExcelData = [["",""]];
+                paramExcelData = [["", ""]];
             }
-            
+
             renderMainExcelTable();
             renderParamExcelTable();
-            
+
             $('#request-method').value = config.method || 'GET';
             $('#url-template').value = config.urlTemplate || '';
             $('#post-body-template').value = config.postBody || '';
@@ -1599,6 +1776,7 @@
             $('#auth-config').hidden = !config.enableAuth;
             $('#basic-auth-fields').hidden = !(config.enableAuth && config.authType === 'Basic');
             $('#bearer-auth-field').hidden = !(config.enableAuth && config.authType === 'Bearer');
+            updateRequestPreview();
         }
 
         function clearConfig() {
@@ -1671,13 +1849,13 @@
         function updateTableHighlight(mainRowIndex, paramRowIndex) {
             // 清除所有行高亮
             clearTableHighlight();
-            
+
             // 設置主項表格行高亮
             const mainRow = document.querySelector(`[data-main-row="${mainRowIndex}"]`);
             if (mainRow) {
                 mainRow.classList.add('main-table-row-active');
             }
-            
+
             // 設置參數組表格行高亮
             const paramRow = document.querySelector(`[data-param-row="${paramRowIndex}"]`);
             if (paramRow) {
@@ -1701,7 +1879,7 @@
         $('#export-main-table').addEventListener('click', exportMainExcelTable);
         $('#import-main-table-btn').addEventListener('click', () => $('#import-main-table').click());
         $('#import-main-table').addEventListener('change', importMainExcelTableFile);
-        
+
         // 參數表格事件綁定
         $('#add-row').addEventListener('click', addParamExcelRow);
         $('#add-column').addEventListener('click', addParamExcelCol);
@@ -1711,6 +1889,35 @@
         $('#export-table').addEventListener('click', exportParamExcelTable);
         $('#import-table-btn').addEventListener('click', () => $('#import-table').click());
         $('#import-table').addEventListener('change', importParamExcelTableFile);
+
+        // 結果操作按鈕
+        $('#copy-results').addEventListener('click', copyAllResults);
+        $('#clear-results').addEventListener('click', clearAllResults);
+
+        function copyAllResults() {
+            const container = document.getElementById('status-container');
+            if (!container || !container.innerText.trim()) {
+                alert('沒有可複製的結果');
+                return;
+            }
+            navigator.clipboard.writeText(container.innerText).then(() => {
+                const btn = $('#copy-results');
+                btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+                setTimeout(() => { btn.innerHTML = '<i class="bi bi-clipboard"></i>'; }, 1500);
+            }).catch(() => {
+                alert('複製失敗');
+            });
+        }
+
+        function clearAllResults() {
+            const container = document.getElementById('status-container');
+            if (container) {
+                container.innerHTML = '';
+            }
+            // 重置進度條
+            elements.totalProgress.style.width = '0%';
+            elements.totalProgress.textContent = '';
+        }
         $('#request-method').addEventListener('change', e => { $('#post-config').hidden = e.target.value !== 'POST'; saveConfig(); });
         $('#toggle-advanced').addEventListener('click', () => $('#advanced-settings').classList.toggle('show'));
         $('#enable-auth').addEventListener('change', e => {
@@ -1732,13 +1939,13 @@
         });
 
         // 鍵盤導航
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             // 主項表格鍵盤導航
             if (selectedMainCell) {
                 const row = parseInt(selectedMainCell.dataset.row);
                 const col = parseInt(selectedMainCell.dataset.col);
-                
-                switch(e.key) {
+
+                switch (e.key) {
                     case 'Tab':
                         e.preventDefault();
                         if (e.shiftKey) {
@@ -1825,8 +2032,8 @@
             else if (selectedParamCell) {
                 const row = parseInt(selectedParamCell.dataset.row);
                 const col = parseInt(selectedParamCell.dataset.col);
-                
-                switch(e.key) {
+
+                switch (e.key) {
                     case 'Tab':
                         e.preventDefault();
                         if (e.shiftKey) {
@@ -1912,84 +2119,84 @@
         });
 
         // 主項表格複製貼上處理
-        $('#main-excel-table').addEventListener('paste', function(e) {
+        $('#main-excel-table').addEventListener('paste', function (e) {
             if (selectedMainCell) {
                 e.preventDefault();
                 const pastedData = e.clipboardData.getData('text');
                 const lines = pastedData.split('\n');
-                
+
                 let startRow = parseInt(selectedMainCell.dataset.row);
                 let startCol = parseInt(selectedMainCell.dataset.col);
-                
+
                 const validLines = lines.filter(line => line.trim() !== '');
-                
+
                 if (validLines.length === 0) {
                     return;
                 }
-                
+
                 validLines.forEach((line, rowOffset) => {
                     const cells = line.split('\t');
                     const currentRow = startRow + rowOffset;
-                    
+
                     while (currentRow >= mainExcelData.length) {
                         addMainExcelRow();
                     }
-                    
+
                     cells.forEach((cell, colOffset) => {
                         const currentCol = startCol + colOffset;
-                        
+
                         while (currentCol >= mainExcelData[0].length) {
                             addMainExcelCol();
                         }
-                        
+
                         if (mainExcelData[currentRow] && mainExcelData[currentRow][currentCol] !== undefined) {
                             mainExcelData[currentRow][currentCol] = cell.trim();
                         }
                     });
                 });
-                
+
                 renderMainExcelTable();
                 saveConfig();
             }
         });
-        
+
         // 參數表格複製貼上處理
-        $('#excel-table').addEventListener('paste', function(e) {
+        $('#excel-table').addEventListener('paste', function (e) {
             if (selectedParamCell) {
                 e.preventDefault();
                 const pastedData = e.clipboardData.getData('text');
                 const lines = pastedData.split('\n');
-                
+
                 let startRow = parseInt(selectedParamCell.dataset.row);
                 let startCol = parseInt(selectedParamCell.dataset.col);
-                
+
                 const validLines = lines.filter(line => line.trim() !== '');
-                
+
                 if (validLines.length === 0) {
                     return;
                 }
-                
+
                 validLines.forEach((line, rowOffset) => {
                     const cells = line.split('\t');
                     const currentRow = startRow + rowOffset;
-                    
+
                     while (currentRow >= paramExcelData.length) {
                         addParamExcelRow();
                     }
-                    
+
                     cells.forEach((cell, colOffset) => {
                         const currentCol = startCol + colOffset;
-                        
+
                         while (currentCol >= paramExcelData[0].length) {
                             addParamExcelCol();
                         }
-                        
+
                         if (paramExcelData[currentRow] && paramExcelData[currentRow][currentCol] !== undefined) {
                             paramExcelData[currentRow][currentCol] = cell.trim();
                         }
                     });
                 });
-                
+
                 renderParamExcelTable();
                 saveConfig();
             }
@@ -2018,23 +2225,23 @@
             for (let i = 0; i < mainExcelData.length; i++) {
                 const mainRowData = mainExcelData[i];
                 const mainParams = {};
-                
+
                 // 設置主項參數
                 mainRowData.forEach((value, k) => mainParams[`MainItem${k + 1}`] = value);
-                
+
                 // 顯示主項資訊 (外層循環)
                 const mainItemsDisplay = mainRowData.map((item, idx) => `主項${idx + 1}: ${item}`).join(', ');
 
                 for (let j = 0; j < paramExcelData.length; j++) {
                     const paramRowData = paramExcelData[j];
                     const allParams = { ...mainParams };
-                    
+
                     // 設置參數組參數
                     paramRowData.forEach((value, k) => allParams[`Parameter${k + 1}`] = value);
-                    
+
                     // 更新表格行高亮指示當前正在處理的行
                     updateTableHighlight(i, j);
-                    
+
                     const statusItem = elements.statusContainer.appendChild(document.createElement('div'));
                     statusItem.className = 'status-item';
                     statusItem.innerHTML = `
@@ -2054,7 +2261,7 @@
                         <div class="progress"><div class="progress-bar" style="width: 50%;"></div></div>
                         <div class="result-container mt-2"></div>
                     `;
-                    
+
                     // 添加新項目後立即滾動到最新項目
                     setTimeout(() => {
                         scrollToBottom();
@@ -2064,15 +2271,15 @@
 
                     let url = $('#url-template').value;
                     let body;
-                    
+
                     // 替換URL中的占位符
                     for (const [key, val] of Object.entries(allParams)) {
                         url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(val));
                     }
-                    
+
                     // 顯示請求詳細信息
                     let requestInfo = `<div class="request-url expandable-text">🌐 ${url}</div>`;
-                    
+
                     if (method === 'POST') {
                         let postBodyTemplate = $('#post-body-template').value;
                         // 替換POST請求體中的占位符
@@ -2083,7 +2290,7 @@
                         const bodyText = JSON.stringify(body);
                         requestInfo += `<div class="request-body expandable-text">📦 資料: ${bodyText}</div>`;
                     }
-                    
+
                     resultContainer.innerHTML = requestInfo;
 
                     const response = await sendRequest(method, url, body);
@@ -2096,17 +2303,17 @@
 
                     count++;
                     elements.totalProgress.style.width = `${(count / total) * 100}%`;
-                    
+
                     // 更新執行進度標題顯示當前請求數
                     document.querySelector('#total-progress').previousElementSibling.textContent = `📊 執行進度 (🔄 外層循環: ${mainExcelData.length} 行主項 | 🔁 內層循環: ${paramExcelData.length} 行參數 | 🚀 總請求數: ${count}/${total})`;
-                    
+
                     // 自動滾動到最新的結果
                     scrollToBottom();
-                    
+
                     if (delay) await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
-            
+
             // 所有請求完成後清除表格行高亮
             clearTableHighlight();
         });
@@ -2124,15 +2331,15 @@
         $('#import-config').addEventListener('change', importConfig);
 
         function $(selector) { return document.getElementById(selector.replace('#', '')); }
-        
+
         // 自動滾動功能管理
         let autoScrollEnabled = true;
         let scrollTimeout = null;
-        
+
         // 自動滾動到請求結果區域底部
         function scrollToBottom() {
             if (!autoScrollEnabled) return;
-            
+
             const requestStatusContainer = document.querySelector('.request-status');
             if (requestStatusContainer) {
                 requestStatusContainer.scrollTo({
@@ -2141,74 +2348,74 @@
                 });
             }
         }
-        
+
         // 更新滾動指示器
         function updateScrollIndicator() {
             const indicator = document.getElementById('scroll-indicator');
             if (indicator) {
                 if (autoScrollEnabled) {
-                    indicator.textContent = '🔄 自動滾動';
-                    indicator.className = 'badge badge-success';
-                    indicator.style.background = 'var(--success-color)';
-                    indicator.style.color = 'white';
+                    indicator.innerHTML = '<i class="bi bi-arrow-down-circle"></i>';
+                    indicator.className = 'btn btn-outline-success btn-sm';
+                    indicator.title = '自動滾動開啟中 (點擊暫停)';
                 } else {
-                    indicator.textContent = '⏸️ 暫停滾動';
-                    indicator.className = 'badge badge-warning';
-                    indicator.style.background = 'var(--warning-color)';
-                    indicator.style.color = 'white';
+                    indicator.innerHTML = '<i class="bi bi-pause-circle"></i>';
+                    indicator.className = 'btn btn-outline-secondary btn-sm';
+                    indicator.title = '自動滾動已暫停 (點擊開啟)';
                 }
             }
         }
-        
+
         // 設置滾動事件監聽器來檢測用戶手動滾動
         function setupScrollListener() {
             const requestStatusContainer = document.querySelector('.request-status');
             if (requestStatusContainer) {
-                requestStatusContainer.addEventListener('scroll', function() {
-                    // 清除之前的timeout
-                    if (scrollTimeout) {
-                        clearTimeout(scrollTimeout);
-                    }
-                    
+                requestStatusContainer.addEventListener('scroll', function () {
                     // 檢查是否滾動到底部
                     const isAtBottom = this.scrollTop + this.clientHeight >= this.scrollHeight - 5;
-                    
+
                     if (isAtBottom) {
                         // 如果在底部，啟用自動滾動
-                        autoScrollEnabled = true;
-                        updateScrollIndicator();
-                    } else {
-                        // 如果不在底部，暫停自動滾動
-                        autoScrollEnabled = false;
-                        updateScrollIndicator();
-                        
-                        // 3秒後重新啟用自動滾動
-                        scrollTimeout = setTimeout(() => {
+                        if (!autoScrollEnabled) {
                             autoScrollEnabled = true;
                             updateScrollIndicator();
-                        }, 3000);
+                        }
+                    } else {
+                        // 如果不在底部，暫停自動滾動 (但不設置自動恢復，交由用戶控制或滾動到底部恢復)
+                        if (autoScrollEnabled) {
+                            autoScrollEnabled = false;
+                            updateScrollIndicator();
+                        }
                     }
                 });
             }
         }
-        
+
+        // 綁定滾動指示器按鈕點擊事件
+        document.getElementById('scroll-indicator') && document.getElementById('scroll-indicator').addEventListener('click', () => {
+            autoScrollEnabled = !autoScrollEnabled;
+            updateScrollIndicator();
+            if (autoScrollEnabled) {
+                scrollToBottom();
+            }
+        });
+
         // 改善文本顯示的功能
         function formatText(text, maxLength = 80) {
             if (!text || text.length <= maxLength) return text;
             return text.substring(0, maxLength) + '...';
         }
-        
+
         function createExpandableElement(element) {
             const originalText = element.textContent;
             const shortText = formatText(originalText);
-            
+
             if (originalText.length <= 80) return;
-            
+
             element.textContent = shortText;
             element.title = '點擊展開完整內容';
             element.style.cursor = 'pointer';
-            
-            element.addEventListener('click', function() {
+
+            element.addEventListener('click', function () {
                 if (this.textContent.includes('...')) {
                     this.textContent = originalText;
                     this.title = '點擊縮短內容';
@@ -2218,9 +2425,9 @@
                 }
             });
         }
-        
+
         // 頁面加載完成後處理所有可展開的文本
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const expandableElements = document.querySelectorAll('.expandable-text');
             expandableElements.forEach(createExpandableElement);
         });
@@ -2228,55 +2435,55 @@
         // 雙重循環動畫控制
         let animationRunning = false;
         let animationInterval = null;
-        
+
         function startLoopAnimation() {
             if (animationRunning) return;
-            
+
             animationRunning = true;
             let currentMainIndex = 0;
             let currentParamIndex = 0;
             const totalMainItems = 3;
             const totalParamItems = 3;
-            
+
             function updateAnimation() {
                 // 清除所有active狀態
                 document.querySelectorAll('.loop-item').forEach(item => {
                     item.classList.remove('active');
                 });
-                
+
                 // 設置當前主項為active
                 const mainItem = document.querySelector(`[data-main-index="${currentMainIndex}"]`);
                 if (mainItem) {
                     mainItem.classList.add('active');
                 }
-                
+
                 // 設置當前參數組為active
                 const paramItem = document.querySelector(`[data-param-index="${currentParamIndex}"]`);
                 if (paramItem) {
                     paramItem.classList.add('active');
                 }
-                
+
                 // 計算當前請求編號
                 const requestIndex = currentMainIndex * totalParamItems + currentParamIndex;
-                
+
                 // 更新所有請求項目的文本
                 document.querySelectorAll('.request-text').forEach((text, index) => {
                     const baseRequestNum = currentMainIndex * totalParamItems + index + 1;
                     text.textContent = `📡 請求${baseRequestNum}`;
                 });
-                
+
                 // 設置當前請求為active
                 const requestItem = document.querySelector(`[data-request-index="${currentParamIndex}"]`);
                 if (requestItem) {
                     requestItem.classList.add('active');
                 }
-                
+
                 // 更新狀態文本
                 const statusElement = document.getElementById('loop-status');
                 if (statusElement) {
                     statusElement.textContent = `主項行${currentMainIndex + 1} × 參數組${currentParamIndex + 1} = 請求${requestIndex + 1}`;
                 }
-                
+
                 // 更新索引
                 currentParamIndex++;
                 if (currentParamIndex >= totalParamItems) {
@@ -2287,54 +2494,54 @@
                     }
                 }
             }
-            
+
             // 立即執行一次
             updateAnimation();
-            
+
             // 每2秒更新一次動畫
             animationInterval = setInterval(updateAnimation, 2000);
         }
-        
+
         function stopLoopAnimation() {
             if (animationInterval) {
                 clearInterval(animationInterval);
                 animationInterval = null;
             }
             animationRunning = false;
-            
+
             // 清除所有active狀態
             document.querySelectorAll('.loop-item').forEach(item => {
                 item.classList.remove('active');
             });
-            
+
             // 重置請求文本
             document.querySelectorAll('.request-text').forEach((text, index) => {
                 text.textContent = `📡 請求${index + 1}`;
             });
-            
+
             // 重置狀態文本
             const statusElement = document.getElementById('loop-status');
             if (statusElement) {
                 statusElement.textContent = '主項行1 × 參數組1 = 請求1';
             }
         }
-        
+
         // 當頁面加載完成後啟動動畫
         document.addEventListener('DOMContentLoaded', () => {
             loadConfig();
-            
+
             // 設置滾動監聽器
             setupScrollListener();
-            
+
             // 初始化滾動指示器
             updateScrollIndicator();
-            
+
             // 立即啟動動畫
             setTimeout(() => {
                 startLoopAnimation();
             }, 500);
         });
-        
+
         // 當用戶點擊循環示意圖時切換動畫
         document.addEventListener('click', (e) => {
             if (e.target.closest('.loop-diagram')) {
@@ -2365,4 +2572,5 @@
         });
     </script>
 </body>
+
 </html>

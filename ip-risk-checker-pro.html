@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IP 風控分析器 Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{
+  --bg:#f5f4f0;--surface:#f0efe9;--surface2:#fafaf8;--offset:#e8e6e0;
+  --border:#d2cfc8;--divider:#dbd8d1;
+  --text:#24211a;--muted:#787570;--faint:#b5b3ad;
+  --primary:#016870;--primary-h:#0b4d54;--primary-hl:rgba(1,104,112,.11);
+  --success:#3d7020;--success-hl:rgba(61,112,32,.11);
+  --warn:#b05e08;--warn-hl:rgba(176,94,8,.13);
+  --danger:#b83228;--danger-hl:rgba(184,50,40,.11);
+  --info:#1a5ea8;--info-hl:rgba(26,94,168,.10);
+  --purple:#6b35bb;--purple-hl:rgba(107,53,187,.10);
+  --neutral-hl:rgba(0,0,0,.055);
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+  --r:.5rem;--r-lg:.875rem;--r-xl:1.125rem;--r-full:9999px;
+  --tr:180ms cubic-bezier(.16,1,.3,1);
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2128;--offset:#21262d;
+  --border:#30363d;--divider:#21262d;
+  --text:#c9d1d9;--muted:#8b949e;--faint:#484f58;
+  --primary:#4f98a3;--primary-h:#3a8291;--primary-hl:rgba(79,152,163,.14);
+  --success:#6daa45;--success-hl:rgba(109,170,69,.12);
+  --warn:#e8a23a;--warn-hl:rgba(232,162,58,.13);
+  --danger:#e05c5c;--danger-hl:rgba(224,92,92,.12);
+  --info:#5b9bd5;--info-hl:rgba(91,155,213,.12);
+  --purple:#a67fde;--purple-hl:rgba(166,127,222,.12);
+  --neutral-hl:rgba(255,255,255,.04);
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{min-height:100dvh;font-family:var(--sans);font-size:14px;color:var(--text);background:var(--bg);line-height:1.6}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+svg,img{display:block;max-width:100%}
+a,button,input{transition:color var(--tr),background var(--tr),border-color var(--tr),box-shadow var(--tr)}
+:focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:var(--r)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.25rem;border-bottom:1px solid var(--divider);background:var(--surface);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+.logo-tag{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:var(--primary-hl);color:var(--primary);margin-left:.25rem;letter-spacing:.05em}
+.icon-btn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--r);color:var(--muted)}
+.icon-btn:hover{background:var(--offset);color:var(--text)}
+
+.main{max-width:960px;margin:0 auto;padding:1.75rem 1.25rem 4rem}
+.hero{margin-bottom:1.5rem}
+.hero-title{font-family:var(--mono);font-size:clamp(1.3rem,3vw,1.8rem);font-weight:700;letter-spacing:-.03em;margin-bottom:.2rem}
+.hero-sub{color:var(--muted);font-size:13px;margin-bottom:1.25rem;max-width:60ch}
+
+/* Tabs */
+.tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:1.25rem;background:var(--surface)}
+.tab{flex:1;padding:.5rem .75rem;font-size:12px;font-weight:600;color:var(--muted);text-align:center;cursor:pointer;border-right:1px solid var(--border)}
+.tab:last-child{border-right:none}
+.tab.active{background:var(--primary-hl);color:var(--primary)}
+.tab:hover:not(.active){background:var(--offset)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* API config */
+.api-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:1rem 1.25rem;margin-bottom:1.25rem}
+.section-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.section-title{font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+.section-body{display:none;margin-top:.875rem;border-top:1px solid var(--divider);padding-top:.875rem}
+.section-body.open{display:block}
+.api-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem}
+.api-field label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:.3rem;font-family:var(--mono);display:flex;align-items:center;gap:.4rem}
+.api-field label .src-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.api-field input{width:100%;padding:.45rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);font-family:var(--mono);font-size:12px;color:var(--text);outline:none}
+.api-field input:focus{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-hl)}
+.api-field input::placeholder{color:var(--faint)}
+.api-links{font-size:11px;color:var(--faint);margin-top:.75rem;line-height:1.8}
+.api-links a{color:var(--primary);text-decoration:none;margin-right:.75rem}
+.api-links a:hover{text-decoration:underline}
+
+/* Search */
+.search-row{display:flex;gap:.625rem;margin-bottom:.5rem}
+.search-input{flex:1;padding:.625rem .875rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);font-family:var(--mono);font-size:13px;color:var(--text);outline:none}
+.search-input::placeholder{color:var(--faint)}
+.search-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-hl)}
+.btn{padding:.625rem 1.25rem;border-radius:var(--r-lg);font-size:13px;font-weight:600;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-h)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.hint{font-size:11px;color:var(--faint);margin-bottom:1.5rem}
+.hint a{color:var(--primary);cursor:pointer;text-decoration:none}
+.hint a:hover{text-decoration:underline}
+
+.status{display:flex;align-items:center;gap:.625rem;padding:.5rem .875rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);font-size:12px;font-family:var(--mono);color:var(--muted);margin-bottom:1.25rem}
+.spinner{width:12px;height:12px;border:1.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-ok{background:var(--success)}.dot-warn{background:var(--warn)}.dot-bad{background:var(--danger)}
+
+/* Source pill row */
+.src-pills{display:flex;flex-wrap:wrap;gap:.375rem;margin-bottom:1.25rem}
+.pill{display:inline-flex;align-items:center;gap:.3rem;padding:3px 9px;border-radius:var(--r-full);font-size:11px;font-family:var(--mono);font-weight:600;border:1px solid}
+.pill-ok{border-color:var(--success);color:var(--success);background:var(--success-hl)}
+.pill-skip{border-color:var(--border);color:var(--faint);background:var(--neutral-hl)}
+.pill-err{border-color:var(--warn);color:var(--warn);background:var(--warn-hl)}
+
+/* Score */
+.score-card{display:flex;align-items:center;gap:2rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.25rem 1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow)}
+.gauge-wrap{flex-shrink:0}
+.g-val{font-family:var(--mono);font-weight:700;fill:var(--text);font-size:22px;dominant-baseline:middle;text-anchor:middle}
+.g-lbl{fill:var(--muted);font-size:9px;text-anchor:middle;dominant-baseline:middle}
+.score-body{flex:1;min-width:0}
+.score-level{font-size:15px;font-weight:700;margin-bottom:.25rem}
+.score-desc{font-size:12px;color:var(--muted);margin-bottom:.75rem;max-width:46ch}
+.badges{display:flex;flex-wrap:wrap;gap:.375rem}
+.badge{display:inline-flex;align-items:center;gap:.25rem;padding:2px 8px;border-radius:var(--r-full);font-size:11px;font-weight:600;font-family:var(--mono)}
+.b-green{background:var(--success-hl);color:var(--success)}
+.b-yellow{background:var(--warn-hl);color:var(--warn)}
+.b-red{background:var(--danger-hl);color:var(--danger)}
+.b-blue{background:var(--primary-hl);color:var(--primary)}
+.b-gray{background:var(--neutral-hl);color:var(--muted)}
+.b-purple{background:var(--purple-hl);color:var(--purple)}
+.b-info{background:var(--info-hl);color:var(--info)}
+
+/* Result tabs */
+.result-tabs{display:flex;gap:.375rem;margin-bottom:1rem;border-bottom:1px solid var(--divider);padding-bottom:.5rem;flex-wrap:wrap}
+.rtab{padding:.375rem .75rem;font-size:12px;font-weight:600;color:var(--muted);border-radius:var(--r);cursor:pointer}
+.rtab.active{background:var(--primary-hl);color:var(--primary)}
+.rtab:hover:not(.active){background:var(--offset)}
+.rpanel{display:none}.rpanel.active{display:block}
+
+/* Flags */
+.flags-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(142px,1fr));gap:.5rem;margin-bottom:1.25rem}
+.flag{display:flex;align-items:center;gap:.5rem;padding:.5rem .625rem;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--surface);font-size:12px}
+.flag.f-risk{border-color:var(--danger);background:var(--danger-hl)}
+.flag.f-warn{border-color:var(--warn);background:var(--warn-hl)}
+.flag.f-ok{border-color:var(--success);background:var(--success-hl)}
+.flag.f-info{border-color:var(--info);background:var(--info-hl)}
+.flag-ico{font-size:15px;flex-shrink:0;line-height:1}
+.flag-name{font-weight:600;font-size:11.5px;line-height:1.3}
+.flag-val{font-size:11px;color:var(--muted);font-family:var(--mono)}
+
+/* Breakdown bars */
+.breakdown{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:1rem 1.25rem;margin-bottom:1.25rem}
+.bd-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin-bottom:.75rem}
+.bd-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;font-size:12px}
+.bd-label{width:140px;flex-shrink:0;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bd-bar-bg{flex:1;height:6px;background:var(--offset);border-radius:var(--r-full);overflow:hidden}
+.bd-bar{height:100%;border-radius:var(--r-full);transition:width 1s cubic-bezier(.16,1,.3,1)}
+.bd-num{width:38px;text-align:right;font-family:var(--mono);font-weight:600;font-size:11px}
+
+/* Grid panels */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:.875rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.875rem;margin-bottom:.875rem}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:1rem 1.125rem}
+.panel-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+.panel-title .ptag{font-size:10px;padding:1px 5px;border-radius:3px;text-transform:none;letter-spacing:0;font-weight:600}
+.kv{display:flex;flex-direction:column;gap:.45rem}
+.kv-row{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;font-size:12px}
+.kv-k{color:var(--muted);flex-shrink:0;white-space:nowrap}
+.kv-v{font-family:var(--mono);text-align:right;word-break:break-all;color:var(--text)}
+.kv-v.accent{color:var(--primary)}.kv-v.ok{color:var(--success)}.kv-v.danger{color:var(--danger)}.kv-v.warn{color:var(--warn)}.kv-v.info{color:var(--info)}.kv-v.purple{color:var(--purple)}
+hr.div{border:none;border-top:1px solid var(--divider);margin:.45rem 0}
+
+/* Shodan ports */
+.port-list{display:flex;flex-wrap:wrap;gap:.375rem;margin-top:.5rem}
+.port-tag{padding:2px 7px;border-radius:var(--r);font-size:11px;font-family:var(--mono);background:var(--danger-hl);color:var(--danger);border:1px solid var(--danger)}
+.port-tag.safe{background:var(--neutral-hl);color:var(--muted);border-color:var(--border)}
+
+/* Timeline / history */
+.timeline{display:flex;flex-direction:column;gap:.5rem}
+.tl-item{display:flex;gap:.75rem;font-size:12px}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.tl-content{flex:1}
+.tl-label{font-weight:600;color:var(--text)}
+.tl-meta{color:var(--muted);font-family:var(--mono);font-size:11px}
+
+/* Raw */
+.raw-header{display:flex;align-items:center;justify-content:space-between;padding:.5rem .875rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg) var(--r-lg) 0 0;cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;user-select:none;margin-top:1.25rem}
+.raw-header:hover{background:var(--offset)}
+.raw-body{display:none;background:var(--surface2);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r-lg) var(--r-lg);padding:.875rem 1rem;font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:pre-wrap;word-break:break-all;max-height:400px;overflow-y:auto;line-height:1.9}
+.raw-body.open{display:block}
+.err{background:var(--danger-hl);border:1px solid var(--danger);border-radius:var(--r-lg);padding:.75rem 1rem;font-size:12px;font-family:var(--mono);color:var(--danger);margin-bottom:1.25rem}
+.empty{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.empty-ico{font-size:2.5rem;margin-bottom:.875rem;opacity:.6}
+.empty-t{font-size:15px;font-weight:600;color:var(--text);margin-bottom:.375rem}
+.empty-d{font-size:12px;max-width:42ch;margin:0 auto;line-height:1.7}
+.hidden{display:none!important}
+@media(max-width:700px){
+  .grid2,.grid3{grid-template-columns:1fr}
+  .score-card{flex-direction:column;gap:1rem;align-items:flex-start}
+  .search-row{flex-direction:column}
+  .main{padding:1.25rem 1rem 3rem}
+  .api-grid{grid-template-columns:1fr}
+  .bd-label{width:100px}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="logo" href="#">
+    <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+      <path d="M11 1.5L2.5 6v7c0 4.7 3.6 9 8.5 10.2C15.9 22 19.5 17.7 19.5 13V6L11 1.5z" fill="var(--primary)" fill-opacity=".15" stroke="var(--primary)" stroke-width="1.4"/>
+      <circle cx="11" cy="11" r="2.8" fill="var(--primary)"/>
+      <path d="M11 6.5v2M11 15.5v-2M6.5 11h2M15.5 11h-2" stroke="var(--primary)" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+    IP 風控分析
+    <span class="logo-tag">PRO</span>
+  </a>
+  <button class="icon-btn" data-theme-toggle aria-label="切換主題">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</header>
+
+<main class="main">
+  <div class="hero">
+    <h1 class="hero-title">IP 多維度風控分析</h1>
+    <p class="hero-sub">整合 10+ 個資料來源：威脅情報 · 地理位置 · VPN偵測 · 開放埠掃描 · 國家制裁 · 歷史攻擊記錄 · AI風險建議</p>
+  </div>
+
+  <!-- API Keys Config -->
+  <div class="api-section">
+    <div class="section-toggle" onclick="toggleSection('apiBody','apiArrow')" role="button" tabindex="0">
+      <div class="section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        API 金鑰設定（選填，啟用更多檢查維度）
+      </div>
+      <span id="apiArrow" style="font-size:11px;color:var(--faint)">▶ 展開</span>
+    </div>
+    <div class="section-body" id="apiBody">
+      <div class="api-grid">
+        <div class="api-field"><label><span class="src-dot" style="background:var(--warn)"></span>PROXYCHECK.IO</label><input id="k_proxycheck" type="password" placeholder="免費 Key 或留空基礎版"></div>
+        <div class="api-field"><label><span class="src-dot" style="background:var(--danger)"></span>ABUSEIPDB</label><input id="k_abuseipdb" type="password" placeholder="需 CORS Proxy 或後端"></div>
+        <div class="api-field"><label><span class="src-dot" style="background:var(--success)"></span>IPQUALITYSCORE</label><input id="k_ipqs" type="password" placeholder="免費 5000次/月"></div>
+        <div class="api-field"><label><span class="src-dot" style="background:var(--primary)"></span>VPNAPI.IO</label><input id="k_vpnapi" type="password" placeholder="免費 1000次/天"></div>
+        <div class="api-field"><label><span class="src-dot" style="background:var(--purple)"></span>SHODAN</label><input id="k_shodan" type="password" placeholder="免費帳號可查開放埠"></div>
+        <div class="api-field"><label><span class="src-dot" style="background:var(--info)"></span>GREYNOISE</label><input id="k_greynoise" type="password" placeholder="免費社群版"></div>
+        <div class="api-field"><label><span class="src-dot" style="background:var(--warn)"></span>IPINFO.IO</label><input id="k_ipinfo" type="password" placeholder="免費 50000次/月"></div>
+        <div class="api-field"><label><span class="src-dot" style="background:var(--success)"></span>IPGEOLOCATION.IO</label><input id="k_ipgeo" type="password" placeholder="免費 1000次/天"></div>
+      </div>
+      <div class="api-links">
+        免費申請：
+        <a href="https://proxycheck.io/" target="_blank">proxycheck.io</a>
+        <a href="https://www.abuseipdb.com/register" target="_blank">AbuseIPDB</a>
+        <a href="https://www.ipqualityscore.com/" target="_blank">IPQS</a>
+        <a href="https://vpnapi.io/" target="_blank">vpnapi.io</a>
+        <a href="https://account.shodan.io/register" target="_blank">Shodan</a>
+        <a href="https://www.greynoise.io/plans/community" target="_blank">GreyNoise</a>
+        <a href="https://ipinfo.io/signup" target="_blank">ipinfo.io</a>
+        <a href="https://ipgeolocation.io/signup" target="_blank">ipgeolocation.io</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-row">
+    <input class="search-input" id="ipInput" type="text" placeholder="輸入 IP 地址（IPv4 / IPv6），或留空自動偵測" autocomplete="off" spellcheck="false">
+    <button class="btn btn-primary" id="checkBtn" onclick="runCheck()">分析 ▶</button>
+  </div>
+  <p class="hint">自動偵測：<a onclick="fillMyIp()">點此填入我的 IP</a>　·　按 Enter 觸發查詢</p>
+
+  <div id="statusBar" class="status hidden">
+    <div class="spinner" id="spinner"></div>
+    <span id="statusTxt">查詢中...</span>
+  </div>
+  <div id="errCard" class="err hidden"></div>
+
+  <!-- Results -->
+  <div id="results" class="hidden">
+    <div class="src-pills" id="srcPills"></div>
+
+    <!-- Main score -->
+    <div class="score-card">
+      <div class="gauge-wrap">
+        <svg width="96" height="96" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r="38" fill="none" stroke="var(--border)" stroke-width="8"/>
+          <circle cx="48" cy="48" r="38" fill="none" id="gaugeArc" stroke="var(--success)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 239" transform="rotate(-90 48 48)" style="transition:stroke-dasharray 1s cubic-bezier(.16,1,.3,1),stroke .4s"/>
+          <text id="gScore" x="48" y="45" class="g-val">--</text>
+          <text x="48" y="61" class="g-lbl">/ 100</text>
+        </svg>
+      </div>
+      <div class="score-body">
+        <div id="scoreLevel" class="score-level">—</div>
+        <div id="scoreDesc" class="score-desc"></div>
+        <div id="scoreBadges" class="badges"></div>
+      </div>
+    </div>
+
+    <!-- Result sub-tabs -->
+    <div class="result-tabs">
+      <div class="rtab active" onclick="switchRTab('rtab-overview',this)">📊 總覽</div>
+      <div class="rtab" onclick="switchRTab('rtab-geo',this)">🌍 地理 & 網路</div>
+      <div class="rtab" onclick="switchRTab('rtab-threat',this)">🛡 威脅情報</div>
+      <div class="rtab" onclick="switchRTab('rtab-infra',this)">🔌 基礎設施</div>
+      <div class="rtab" onclick="switchRTab('rtab-policy',this)">⚖️ 合規 & 政策</div>
+      <div class="rtab" onclick="switchRTab('rtab-ai',this)">🤖 AI 建議</div>
+      <div class="rtab" onclick="switchRTab('rtab-raw',this)">{ } 原始資料</div>
+    </div>
+
+    <!-- Overview tab -->
+    <div class="rpanel active" id="rtab-overview">
+      <div class="breakdown">
+        <div class="bd-title">評分來源分解（加權平均）</div>
+        <div id="bdRows"></div>
+      </div>
+      <div class="flags-grid" id="flagsGrid"></div>
+    </div>
+
+    <!-- Geo tab -->
+    <div class="rpanel" id="rtab-geo">
+      <div class="grid2">
+        <div class="panel"><div class="panel-title">地理位置</div><div class="kv" id="geoKv"></div></div>
+        <div class="panel"><div class="panel-title">網路資訊</div><div class="kv" id="netKv"></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><div class="panel-title">時區 & 語系</div><div class="kv" id="locKv"></div></div>
+        <div class="panel"><div class="panel-title">路由資訊</div><div class="kv" id="routeKv"></div></div>
+      </div>
+    </div>
+
+    <!-- Threat tab -->
+    <div class="rpanel" id="rtab-threat">
+      <div class="grid2">
+        <div class="panel"><div class="panel-title">匿名偵測</div><div class="kv" id="anonKv"></div></div>
+        <div class="panel"><div class="panel-title">濫用記錄</div><div class="kv" id="abuseKv"></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><div class="panel-title">GreyNoise 情報</div><div class="kv" id="gnKv"></div></div>
+        <div class="panel"><div class="panel-title">proxycheck.io</div><div class="kv" id="pcKv"></div></div>
+      </div>
+    </div>
+
+    <!-- Infrastructure tab -->
+    <div class="rpanel" id="rtab-infra">
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-title">Shodan 開放埠</div>
+          <div id="shodanPorts"></div>
+          <div class="kv" id="shodanKv" style="margin-top:.75rem"></div>
+        </div>
+        <div class="panel"><div class="panel-title">基礎設施類型</div><div class="kv" id="infraKv"></div></div>
+      </div>
+    </div>
+
+    <!-- Policy tab -->
+    <div class="rpanel" id="rtab-policy">
+      <div class="grid3">
+        <div class="panel"><div class="panel-title">制裁名單</div><div class="kv" id="sanctionKv"></div></div>
+        <div class="panel"><div class="panel-title">地理限制</div><div class="kv" id="geoRestrictKv"></div></div>
+        <div class="panel"><div class="panel-title">GDPR & 隱私</div><div class="kv" id="gdprKv"></div></div>
+      </div>
+    </div>
+
+    <!-- AI tab -->
+    <div class="rpanel" id="rtab-ai">
+      <div class="panel" style="margin-bottom:.875rem">
+        <div class="panel-title">🤖 AI 風險綜合評估</div>
+        <div id="aiAnalysis" style="font-size:13px;line-height:1.8;color:var(--text)"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">建議應對措施</div>
+        <div id="aiActions" style="font-size:12px;line-height:1.9"></div>
+      </div>
+    </div>
+
+    <!-- Raw tab -->
+    <div class="rpanel" id="rtab-raw">
+      <div style="margin-bottom:.5rem;font-size:12px;color:var(--muted)">所有 API 原始回應</div>
+      <pre class="raw-body open" id="rawBody" style="margin-top:0;border-radius:var(--r-lg);border-top:1px solid var(--border)"></pre>
+    </div>
+  </div>
+
+  <div id="emptyState" class="empty">
+    <div class="empty-ico">🛡️</div>
+    <div class="empty-t">IP 多維度風控分析</div>
+    <div class="empty-d">整合 10+ 個資料來源，涵蓋威脅情報、地理位置、開放埠、國家制裁、GDPR 合規等多個維度</div>
+  </div>
+</main>
+
+<script>
+// ── Theme ──────────────────────────────────────────────────────────
+(function(){
+  const btn=document.querySelector('[data-theme-toggle]'),root=document.documentElement;
+  let m=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  root.setAttribute('data-theme',m);
+  if(btn)btn.addEventListener('click',()=>{
+    m=m==='dark'?'light':'dark';root.setAttribute('data-theme',m);
+    btn.innerHTML=m==='dark'
+      ?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+      :'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  });
+})();
+
+const $=id=>document.getElementById(id);
+const show=id=>$(id).classList.remove('hidden');
+const hide=id=>$(id).classList.add('hidden');
+function kv(k,v,cls=''){return`<div class="kv-row"><span class="kv-k">${k}</span><span class="kv-v ${cls}">${v==null||v===''?'—':v}</span></div>`}
+function flag(ico,name,val,type=''){const c=type==='risk'?'f-risk':type==='warn'?'f-warn':type==='ok'?'f-ok':type==='info'?'f-info':'';return`<div class="flag ${c}"><span class="flag-ico">${ico}</span><div><div class="flag-name">${name}</div><div class="flag-val">${val}</div></div></div>`}
+function badge(t,c='b-gray'){return`<span class="badge ${c}">${t}</span>`}
+function yesno(v,invert=false){const bad=invert?!v:v;return`<span class="kv-v ${bad?'danger':'ok'}">${v?'是 ⚠':'否 ✓'}</span>`}
+
+function toggleSection(bodyId,arrowId){
+  const body=$(bodyId),arrow=$(arrowId);
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  arrow.textContent=open?'▶ 展開':'▼ 收起';
+}
+function switchRTab(id,el){
+  document.querySelectorAll('.rpanel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));
+  $(id).classList.add('active');
+  el.classList.add('active');
+}
+async function fillMyIp(){
+  try{const r=await fetch('https://api64.ipify.org?format=json');$('ipInput').value=(await r.json()).ip;}
+  catch{try{const r=await fetch('https://ipv4.icanhazip.com/');$('ipInput').value=(await r.text()).trim();}catch{}}
+}
+async function safeFetch(url,opts={},ms=7000){
+  const ctrl=new AbortController();
+  const tid=setTimeout(()=>ctrl.abort(),ms);
+  try{const r=await fetch(url,{...opts,signal:ctrl.signal});clearTimeout(tid);if(!r.ok)return null;return await r.json();}
+  catch{clearTimeout(tid);return null;}
+}
+
+// ── Sanctioned / High-risk countries ──────────────────────────────
+const SANCTIONED=['CU','IR','KP','SY','RU','BY','MM','VE','SD','SO','YE','ZW','LY','CF','SS','HT'];
+const HIGH_RISK_CN=['CN','NG','UA','VN','PK','BD','ID','EG','KE','GH'];
+const GDPR_COUNTRIES=['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB'];
+const FIVE_EYES=['US','GB','CA','AU','NZ'];
+const NINE_EYES=['US','GB','CA','AU','NZ','DK','FR','NL','NO'];
+const FOURTEEN_EYES=['US','GB','CA','AU','NZ','DK','FR','NL','NO','DE','BE','IT','SE','ES'];
+
+// ── Main check ────────────────────────────────────────────────────
+async function runCheck(){
+  let ip=$('ipInput').value.trim();
+  $('checkBtn').disabled=true;
+  hide('results');hide('emptyState');hide('errCard');
+  show('statusBar');
+  const spinEl=$('spinner');spinEl.className='spinner';spinEl.style.display='';
+  $('statusTxt').textContent=ip?`查詢 ${ip}...`:'偵測當前 IP...';
+
+  const K={
+    proxycheck:$('k_proxycheck').value.trim(),
+    abuseipdb:$('k_abuseipdb').value.trim(),
+    ipqs:$('k_ipqs').value.trim(),
+    vpnapi:$('k_vpnapi').value.trim(),
+    shodan:$('k_shodan').value.trim(),
+    greynoise:$('k_greynoise').value.trim(),
+    ipinfo:$('k_ipinfo').value.trim(),
+    ipgeo:$('k_ipgeo').value.trim(),
+  };
+
+  try{
+    if(!ip){const r=await fetch('https://api64.ipify.org?format=json');ip=(await r.json()).ip;$('ipInput').value=ip;}
+    $('statusTxt').textContent=`並行查詢中 ${ip}（最多 10 個來源）...`;
+
+    const ipv6=ip.includes(':');
+
+    // Build all queries in parallel
+    const queries={
+      ipapi:    safeFetch(`https://ipapi.co/${ip}/json/`),
+      ipapicom: safeFetch(`https://ip-api.com/json/${ip}?fields=status,message,country,countryCode,regionName,city,zip,lat,lon,timezone,isp,org,as,asname,reverse,mobile,proxy,hosting,query`),
+      ipwho:    safeFetch(`https://ipwho.is/${ip}`),
+      proxycheck: safeFetch(`https://proxycheck.io/v2/${ip}?${K.proxycheck?'key='+K.proxycheck+'&':''}vpn=1&asn=1&risk=1&port=1&seen=1&days=180&tag=ipcheck`),
+      vpnapi:   K.vpnapi ? safeFetch(`https://vpnapi.io/api/${ip}?key=${K.vpnapi}`) : Promise.resolve(null),
+      ipqs:     K.ipqs   ? safeFetch(`https://ipqualityscore.com/api/json/ip/${K.ipqs}/${ip}?strictness=1&allow_public_access_points=true&fast=false&mobile=false`) : Promise.resolve(null),
+      shodan:   K.shodan ? safeFetch(`https://api.shodan.io/shodan/host/${ip}?key=${K.shodan}`) : Promise.resolve(null),
+      greynoise:K.greynoise ? safeFetch(`https://api.greynoise.io/v3/community/${ip}`,{headers:{'key':K.greynoise}}) : Promise.resolve(null),
+      ipinfo:   K.ipinfo ? safeFetch(`https://ipinfo.io/${ip}?token=${K.ipinfo}`) : Promise.resolve(null),
+      ipgeo:    K.ipgeo  ? safeFetch(`https://api.ipgeolocation.io/ipgeo?apiKey=${K.ipgeo}&ip=${ip}&fields=security`) : Promise.resolve(null),
+    };
+
+    const results=await Promise.all(Object.values(queries));
+    const [ipapi,ipapicom,ipwho,proxycheck_raw,vpnapi,ipqs,shodan,greynoise,ipinfo,ipgeo]=results;
+    const pc=proxycheck_raw?proxycheck_raw[ip]:null;
+
+    if(ipapi&&ipapi.error)throw new Error(ipapi.reason||'無效 IP 地址');
+
+    // ── Extract all signals ────────────────────────────────────────
+    const cc = ipapi?.country_code||ipapicom?.countryCode||ipwho?.country_code||ipinfo?.country||'';
+
+    const isVpn   = !!(vpnapi?.security?.vpn||ipqs?.vpn||pc?.type?.toLowerCase().includes('vpn')||(ipwho?.connection?.type||'').toLowerCase()==='vpn');
+    const isTor   = !!(vpnapi?.security?.tor||ipqs?.tor||pc?.type?.toLowerCase().includes('tor')||(ipwho?.connection?.type||'').toLowerCase()==='tor');
+    const isProxy = !!(ipapicom?.proxy||vpnapi?.security?.proxy||ipqs?.proxy||pc?.proxy==='yes');
+    const isRelay = !!(vpnapi?.security?.relay);
+    const isHosting=!!(ipapicom?.hosting);
+    const isMobile=!!(ipapicom?.mobile);
+    const isBot   = !!(ipqs?.bot_status);
+
+    const orgStr=((ipapicom?.org||'')+(ipapicom?.isp||'')+(ipapicom?.as||'')+(ipapi?.org||'')).toLowerCase();
+    const DC=['amazon','aws','google','azure','microsoft','digitalocean','linode','vultr','cloudflare','hetzner','ovh','choopa','cogent','contabo','datacamp','zscaler','alibaba','tencent','huawei','serverius','xtom','leaseweb'];
+    const isDatacenter=DC.some(k=>orgStr.includes(k))||isHosting;
+
+    const risk_pc   = parseInt(pc?.risk)||0;
+    const fraud_ipqs= parseInt(ipqs?.fraud_score)||0;
+    const isMalicious_gn=greynoise?.noise===true&&greynoise?.classification==='malicious';
+    const isNoise_gn=!!(greynoise?.noise);
+
+    const isSanctioned=SANCTIONED.includes(cc);
+    const isHighRisk  =HIGH_RISK_CN.includes(cc);
+    const isGDPR      =GDPR_COUNTRIES.includes(cc);
+    const is5Eyes     =FIVE_EYES.includes(cc);
+    const is14Eyes    =FOURTEEN_EYES.includes(cc);
+
+    // Shodan signals
+    const openPorts  =shodan?.ports||[];
+    const dangerPorts=[22,23,3389,445,135,139,1433,3306,6379,27017,5900,4444,8080,8443];
+    const exposedPorts=openPorts.filter(p=>dangerPorts.includes(p));
+    const vulnCount  =Object.keys(shodan?.vulns||{}).length;
+
+    // ── SCORING ────────────────────────────────────────────────────
+    const comps=[];
+
+    // 1. Heuristic (always)
+    let h=5;
+    if(isTor)h+=60;if(isVpn)h+=40;if(isProxy)h+=30;
+    if(isDatacenter)h+=15;if(isMobile)h-=5;if(isBot)h+=20;
+    comps.push({label:'行為啟發式',score:Math.min(99,Math.max(1,h)),weight:1,src:'built-in'});
+
+    // 2. proxycheck (weight 3 — very reliable for proxy/vpn history)
+    if(risk_pc>0)comps.push({label:'proxycheck.io',score:risk_pc,weight:3,src:'proxycheck'});
+
+    // 3. IPQS fraud score (weight 3 — ML-based)
+    if(fraud_ipqs>0)comps.push({label:'IPQualityScore',score:fraud_ipqs,weight:3,src:'ipqs'});
+
+    // 4. vpnapi signals → score
+    if(vpnapi){
+      let vs=5;
+      if(isVpn)vs+=40;if(isTor)vs+=55;if(isProxy)vs+=35;if(isRelay)vs+=20;
+      comps.push({label:'vpnapi.io',score:Math.min(99,vs),weight:2,src:'vpnapi'});
+    }
+
+    // 5. GreyNoise
+    if(greynoise){
+      const gs=isMalicious_gn?85:isNoise_gn?40:5;
+      comps.push({label:'GreyNoise',score:gs,weight:2,src:'greynoise'});
+    }
+
+    // 6. Shodan (open dangerous ports boost risk)
+    if(shodan){
+      const ss=Math.min(99,5+exposedPorts.length*12+vulnCount*8);
+      comps.push({label:'Shodan 暴露評估',score:ss,weight:1,src:'shodan'});
+    }
+
+    // 7. Country risk modifier
+    const countryRisk=isSanctioned?60:isHighRisk?20:0;
+    if(countryRisk>0)comps.push({label:'國家風險加成',score:countryRisk,weight:1,src:'policy'});
+
+    const totalW=comps.reduce((a,c)=>a+c.weight,0);
+    const finalScore=Math.min(99,Math.max(1,Math.round(comps.reduce((a,c)=>a+c.score*c.weight,0)/totalW)));
+
+    const allData={ipapi,ipapicom,ipwho,'proxycheck.io':proxycheck_raw,vpnapi,ipqs,shodan,greynoise,ipinfo,ipgeo};
+    render(ip,cc,allData,{pc,vpnapi,ipqs,shodan,greynoise,ipinfo,ipgeo,ipapicom,ipapi,ipwho},{isVpn,isTor,isProxy,isRelay,isHosting,isMobile,isDatacenter,isBot,isSanctioned,isHighRisk,isGDPR,is5Eyes,is14Eyes,openPorts,exposedPorts,vulnCount,risk_pc,fraud_ipqs,isMalicious_gn,isNoise_gn,orgStr,cc},finalScore,comps,K);
+    show('results');
+    const dot=document.createElement('div');dot.className=`dot ${finalScore>60?'dot-bad':finalScore>25?'dot-warn':'dot-ok'}`;
+    spinEl.replaceWith(dot);
+    $('statusTxt').textContent=`分析完成 · ${ip} · 風險 ${finalScore}/100 · ${comps.length} 個資料來源`;
+  }catch(err){
+    hide('statusBar');
+    $('errCard').textContent=`❌ ${err.message||'查詢失敗，請確認 IP 格式'}`;
+    show('errCard');show('emptyState');
+  }finally{$('checkBtn').disabled=false;}
+}
+
+function render(ip,cc,allData,d,s,score,comps,K){
+  const{pc,vpnapi,ipqs,shodan,greynoise,ipinfo,ipgeo,ipapicom,ipapi,ipwho}=d;
+  const{isVpn,isTor,isProxy,isRelay,isHosting,isMobile,isDatacenter,isBot,isSanctioned,isHighRisk,isGDPR,is5Eyes,is14Eyes,openPorts,exposedPorts,vulnCount,risk_pc,fraud_ipqs,isMalicious_gn,isNoise_gn,cc:ccx}=s;
+
+  // Source pills
+  const pills=$('srcPills');pills.innerHTML='';
+  const srcMap=[
+    ['ipapi.co',!!d.ipapi],['ip-api.com',!!ipapicom],['ipwho.is',!!ipwho],
+    ['proxycheck.io',!!pc,K.proxycheck],
+    ['vpnapi.io',!!vpnapi,K.vpnapi],['IPQS',!!ipqs,K.ipqs],
+    ['Shodan',!!shodan,K.shodan],['GreyNoise',!!greynoise,K.greynoise],
+    ['ipinfo.io',!!ipinfo,K.ipinfo],['ipgeo.io',!!ipgeo,K.ipgeo],
+  ];
+  srcMap.forEach(([n,ok,k])=>{
+    pills.innerHTML+=`<span class="pill ${ok?'pill-ok':k!==undefined&&k===''?'pill-err':'pill-skip'}">${ok?'✓':k!==undefined&&k===''?'!':'○'} ${n}</span>`;
+  });
+
+  // Gauge
+  const circ=2*Math.PI*38;
+  const arc=$('gaugeArc');
+  arc.setAttribute('stroke-dasharray',`${(score/100)*circ} ${circ}`);
+  arc.setAttribute('stroke',score>60?'var(--danger)':score>30?'var(--warn)':'var(--success)');
+  $('gScore').textContent=score;
+
+  const lvl=score>75?'極高風險':score>60?'高風險':score>40?'中高風險':score>20?'中低風險':'低風險';
+  const lc=score>60?'danger':score>30?'warn':'ok';
+  $('scoreLevel').innerHTML=`<span class="kv-v ${lc}" style="font-size:15px">${lvl}</span>`;
+  $('scoreDesc').textContent=score>60?'多個高可信度來源偵測到威脅，強烈建議拒絕或加強驗證':score>30?'存在風險信號，建議加入 CAPTCHA 或二次驗證':'未發現明顯威脅，可正常放行';
+
+  const bEl=$('scoreBadges');bEl.innerHTML='';
+  const country=ipapi?.country_name||ipapicom?.country||'—';
+  const asn=ipapi?.asn||(ipapicom?.as||'').split(' ')[0]||'—';
+  bEl.innerHTML+=badge(`🌍 ${country}`,'b-blue');
+  if(asn!=='—')bEl.innerHTML+=badge(`📡 ${asn}`,'b-gray');
+  if(isTor)   bEl.innerHTML+=badge('🧅 Tor','b-red');
+  if(isVpn)   bEl.innerHTML+=badge('🔒 VPN','b-yellow');
+  if(isProxy) bEl.innerHTML+=badge('⚡ Proxy','b-red');
+  if(isDatacenter)bEl.innerHTML+=badge('☁️ 數據中心','b-yellow');
+  if(isBot)   bEl.innerHTML+=badge('🤖 Bot','b-red');
+  if(isSanctioned)bEl.innerHTML+=badge('🚫 制裁國','b-red');
+  if(isHighRisk && !isSanctioned)bEl.innerHTML+=badge('⚠️ 高風險地區','b-yellow');
+  if(isMobile)bEl.innerHTML+=badge('📱 移動','b-green');
+  if(is5Eyes) bEl.innerHTML+=badge('👁 Five Eyes','b-purple');
+  if(greynoise?.name)bEl.innerHTML+=badge(`🔍 ${greynoise.name}`,'b-info');
+
+  // Breakdown
+  const bdEl=$('bdRows');bdEl.innerHTML='';
+  comps.forEach(c=>{
+    const pct=Math.min(100,c.score);
+    const col=pct>60?'var(--danger)':pct>30?'var(--warn)':'var(--success)';
+    bdEl.innerHTML+=`<div class="bd-row">
+      <div class="bd-label">${c.label} <span style="font-size:10px;color:var(--faint)">(×${c.weight})</span></div>
+      <div class="bd-bar-bg"><div class="bd-bar" style="width:${pct}%;background:${col}"></div></div>
+      <div class="bd-num" style="color:${col}">${c.score}</div>
+    </div>`;
+  });
+  bdEl.innerHTML+=`<div style="border-top:1px solid var(--divider);margin-top:.5rem;padding-top:.5rem;display:flex;justify-content:space-between;font-size:12px;font-family:var(--mono);font-weight:700">
+    <span style="color:var(--muted)">加權綜合分數</span>
+    <span style="color:${score>60?'var(--danger)':score>30?'var(--warn)':'var(--success)'}">${score} / 100</span>
+  </div>`;
+
+  // Flags (overview)
+  const fEl=$('flagsGrid');fEl.innerHTML='';
+  fEl.innerHTML+=flag('🔒','VPN',       isVpn?'已偵測':'未偵測',    isVpn?'risk':'ok');
+  fEl.innerHTML+=flag('⚡','Proxy',     isProxy?'已偵測':'未偵測',  isProxy?'risk':'ok');
+  fEl.innerHTML+=flag('🧅','Tor 節點',  isTor?'已偵測':'未偵測',    isTor?'risk':'ok');
+  fEl.innerHTML+=flag('☁️','數據中心',  isDatacenter?'是':'否',     isDatacenter?'warn':'ok');
+  fEl.innerHTML+=flag('🤖','Bot 流量',  isBot?'已偵測':'未偵測',    isBot?'risk':'ok');
+  fEl.innerHTML+=flag('🔄','中繼節點',  isRelay?'已偵測':'未偵測',  isRelay?'warn':'ok');
+  fEl.innerHTML+=flag('📱','移動網路',  isMobile?'是':'否',          isMobile?'ok':'');
+  fEl.innerHTML+=flag('🏠','家用寬頻',  (!isDatacenter&&!isProxy&&!isVpn)?'是':'否',(!isDatacenter&&!isProxy&&!isVpn)?'ok':'');
+  fEl.innerHTML+=flag('🚫','制裁國家',  isSanctioned?`${cc} ⚠`:'否', isSanctioned?'risk':'ok');
+  fEl.innerHTML+=flag('⚠️','高風險地區',isHighRisk?`${cc}`:'否',    isHighRisk&&!isSanctioned?'warn':'ok');
+  fEl.innerHTML+=flag('👁','Five Eyes', is5Eyes?`${cc}`:'否',       is5Eyes?'info':'ok');
+  if(shodan)fEl.innerHTML+=flag('🔌','暴露服務埠',exposedPorts.length>0?exposedPorts.length+'個':'無',exposedPorts.length>0?'risk':'ok');
+  if(greynoise)fEl.innerHTML+=flag('📡','掃描活動',isNoise_gn?(isMalicious_gn?'惡意掃描':'已知掃描器'):'無記錄',isMalicious_gn?'risk':isNoise_gn?'warn':'ok');
+  if(vulnCount>0)fEl.innerHTML+=flag('💀','已知漏洞',vulnCount+'個 CVE','risk');
+
+  // GEO tab
+  const g=$('geoKv');g.innerHTML='';
+  g.innerHTML+=kv('IP 地址',ip,'accent');
+  g.innerHTML+=kv('國家/地區',`${ipapi?.country_name||ipapicom?.country||'—'} (${cc})`);
+  g.innerHTML+=kv('城市',ipapi?.city||ipapicom?.city||ipwho?.city||'—');
+  g.innerHTML+=kv('省份/州',ipapi?.region||ipapicom?.regionName||'—');
+  g.innerHTML+=kv('郵遞區號',ipapi?.postal||ipapicom?.zip||'—');
+  g.innerHTML+=kv('座標',(ipapi?.latitude&&ipapi?.longitude)?`${ipapi.latitude}, ${ipapi.longitude}`:'—');
+  g.innerHTML+=kv('大洲',ipapi?.continent_code||'—');
+
+  const n=$('netKv');n.innerHTML='';
+  n.innerHTML+=kv('ASN',ipapi?.asn||(ipapicom?.as||'').split(' ')[0]||'—','accent');
+  n.innerHTML+=kv('ISP',ipapi?.isp||ipapicom?.isp||ipwho?.connection?.isp||ipinfo?.org||'—');
+  n.innerHTML+=kv('組織',ipapi?.org||ipapicom?.org||'—');
+  n.innerHTML+=kv('AS 名稱',ipapicom?.asname||'—');
+  n.innerHTML+=kv('PTR 記錄',ipapicom?.reverse||ipinfo?.reverse||'—');
+  n.innerHTML+=kv('IP 版本',ip.includes(':')?'IPv6':'IPv4');
+  n.innerHTML+=kv('CIDR',ipapi?.network||'—');
+
+  const l=$('locKv');l.innerHTML='';
+  l.innerHTML+=kv('時區',ipapi?.timezone||ipapicom?.timezone||ipwho?.timezone?.id||'—');
+  l.innerHTML+=kv('UTC 偏移',ipapi?.utc_offset||ipwho?.timezone?.utc||'—');
+  l.innerHTML+=kv('語系',ipapi?.languages||'—');
+  l.innerHTML+=kv('貨幣',ipapi?.currency||'—');
+  l.innerHTML+=kv('國際電話碼',ipapi?.country_calling_code||'—');
+  l.innerHTML+=kv('連線類型',ipwho?.connection?.type||pc?.type||'—');
+
+  const ro=$('routeKv');ro.innerHTML='';
+  ro.innerHTML+=kv('移動網路',isMobile?'是':'否',isMobile?'warn':'ok');
+  ro.innerHTML+=kv('數據中心/IDC',isDatacenter?'是':'否',isDatacenter?'warn':'ok');
+  ro.innerHTML+=kv('代管服務',isHosting?'是':'否',isHosting?'warn':'ok');
+  if(ipinfo?.hostname)ro.innerHTML+=kv('主機名',ipinfo.hostname);
+  if(pc?.provider)ro.innerHTML+=kv('服務商',pc.provider);
+
+  // THREAT tab
+  const a=$('anonKv');a.innerHTML='';
+  const pairs=[['VPN',isVpn],['Proxy',isProxy],['Tor',isTor],['中繼 Relay',isRelay],['Bot',isBot]];
+  pairs.forEach(([k,v])=>{
+    const row=document.createElement('div');row.className='kv-row';
+    row.innerHTML=`<span class="kv-k">${k}</span>${yesno(v)}`;a.appendChild(row);
+  });
+  a.innerHTML+=`<hr class="div">`;
+  if(risk_pc>0)a.innerHTML+=kv('proxycheck 風險%',risk_pc+'%',risk_pc>50?'danger':risk_pc>25?'warn':'ok');
+  if(fraud_ipqs>0)a.innerHTML+=kv('IPQS 欺詐分',fraud_ipqs+'%',fraud_ipqs>50?'danger':fraud_ipqs>25?'warn':'ok');
+  if(pc?.lastSeen||pc?.['last seen human'])a.innerHTML+=kv('最後活躍',pc['last seen human']||pc.lastSeen);
+  if(pc?.type)a.innerHTML+=kv('代理類型',pc.type);
+
+  const ab=$('abuseKv');ab.innerHTML='';
+  ab.innerHTML+=kv('AbuseIPDB','需後端代理（CORS限制）','warn');
+  ab.innerHTML+=kv('GreyNoise',greynoise?greynoise.classification||'無分類':'未查詢（需Key）',greynoise?.classification==='malicious'?'danger':greynoise?.classification==='benign'?'ok':'muted');
+  if(greynoise?.noise!==undefined){const row=document.createElement('div');row.className='kv-row';row.innerHTML=`<span class="kv-k">Internet 掃描噪音</span>${yesno(greynoise.noise)}`;ab.appendChild(row);}
+  if(greynoise?.riot!==undefined){const row=document.createElement('div');row.className='kv-row';row.innerHTML=`<span class="kv-k">已知良性服務</span>${yesno(greynoise.riot,true)}`;ab.appendChild(row);}
+  if(greynoise?.name)ab.innerHTML+=kv('識別名稱',greynoise.name,'info');
+  if(greynoise?.message)ab.innerHTML+=kv('說明',greynoise.message);
+
+  const gn=$('gnKv');gn.innerHTML='';
+  if(greynoise){
+    gn.innerHTML+=kv('分類',greynoise.classification||'—',greynoise.classification==='malicious'?'danger':greynoise.classification==='benign'?'ok':'');
+    gn.innerHTML+=kv('掃描活動',greynoise.noise?'是 ⚠':'否 ✓',greynoise.noise?'warn':'ok');
+    gn.innerHTML+=kv('RIOT 可信',greynoise.riot?'是 ✓':'否',greynoise.riot?'ok':'');
+    if(greynoise.link)gn.innerHTML+=`<div class="kv-row"><span class="kv-k">詳細資料</span><a href="${greynoise.link}" target="_blank" style="font-size:12px;color:var(--primary)">查看 ↗</a></div>`;
+  }else{gn.innerHTML+=kv('狀態','未查詢（填入 GreyNoise Key 啟用）','warn');}
+
+  const pcPanel=$('pcKv');pcPanel.innerHTML='';
+  if(pc){
+    pcPanel.innerHTML+=kv('代理偵測',pc.proxy==='yes'?'是 ⚠':'否 ✓',pc.proxy==='yes'?'danger':'ok');
+    pcPanel.innerHTML+=kv('類型',pc.type||'—');
+    pcPanel.innerHTML+=kv('風險分數',(pc.risk||0)+'%',(pc.risk||0)>50?'danger':(pc.risk||0)>25?'warn':'ok');
+    pcPanel.innerHTML+=kv('服務商',pc.provider||'—');
+    if(pc['last seen human'])pcPanel.innerHTML+=kv('最後活躍',pc['last seen human']);
+    if(pc.port)pcPanel.innerHTML+=kv('代理埠',pc.port);
+  }else{pcPanel.innerHTML+=kv('狀態','已查詢（免費版無 Key）');}
+
+  // INFRA tab
+  const sp=$('shodanPorts');sp.innerHTML='';
+  const sk=$('shodanKv');sk.innerHTML='';
+  if(shodan){
+    if(openPorts.length>0){
+      const portList=document.createElement('div');portList.className='port-list';
+      openPorts.slice(0,30).forEach(p=>{
+        portList.innerHTML+=`<span class="port-tag ${dangerPorts.includes(p)?'':'safe'}">${p}</span>`;
+      });
+      sp.appendChild(portList);
+    }else{sp.innerHTML='<span style="font-size:12px;color:var(--muted)">無開放埠記錄</span>';}
+    sk.innerHTML+=kv('開放埠數',openPorts.length);
+    sk.innerHTML+=kv('危險埠數',exposedPorts.length,exposedPorts.length>0?'danger':'ok');
+    sk.innerHTML+=kv('已知漏洞',vulnCount>0?vulnCount+' CVEs':0,vulnCount>0?'danger':'ok');
+    sk.innerHTML+=kv('最後掃描',shodan.last_update||'—');
+    if(shodan.hostnames?.length)sk.innerHTML+=kv('主機名',shodan.hostnames[0]);
+    if(shodan.tags?.length)sk.innerHTML+=kv('標籤',shodan.tags.join(', '),'warn');
+  }else{sp.innerHTML='<span style="font-size:12px;color:var(--muted)">未查詢（填入 Shodan Key 啟用）</span>';}
+
+  const ik=$('infraKv');ik.innerHTML='';
+  ik.innerHTML+=kv('數據中心/IDC',isDatacenter?'是':'否',isDatacenter?'warn':'ok');
+  ik.innerHTML+=kv('代管/Hosting',isHosting?'是':'否',isHosting?'warn':'ok');
+  ik.innerHTML+=kv('移動網路',isMobile?'是':'否');
+  ik.innerHTML+=kv('家用寬頻',(!isDatacenter&&!isHosting&&!isMobile)?'可能是':'否');
+  ik.innerHTML+=kv('組織',ipapicom?.org||ipapi?.org||'—');
+  ik.innerHTML+=kv('連線類型',ipwho?.connection?.type||ipgeo?.security?.connection_type||'—');
+  if(ipgeo?.security?.threat_level)ik.innerHTML+=kv('ipgeo 威脅等級',ipgeo.security.threat_level,ipgeo.security.threat_level!=='low'?'warn':'ok');
+
+  // POLICY tab
+  const sanctioned_full={CU:'古巴',IR:'伊朗',KP:'北韓',SY:'敘利亞',RU:'俄羅斯',BY:'白俄羅斯',MM:'緬甸',VE:'委內瑞拉',SD:'蘇丹',SO:'索馬利亞',YE:'葉門',ZW:'津巴布韋',LY:'利比亞',CF:'中非共和國',SS:'南蘇丹',HT:'海地'};
+  const sc=$('sanctionKv');sc.innerHTML='';
+  sc.innerHTML+=kv('OFAC 制裁',isSanctioned?`${sanctioned_full[cc]||cc} ⚠`:'不在名單內',isSanctioned?'danger':'ok');
+  sc.innerHTML+=kv('UN 制裁',isSanctioned?'可能受影響':'無','');
+  sc.innerHTML+=kv('高風險地區',isHighRisk?'是 ⚠':'否',isHighRisk?'warn':'ok');
+  sc.innerHTML+=`<hr class="div">`;
+  sc.innerHTML+=kv('國家代碼',cc||'—');
+  sc.innerHTML+=kv('風險等級',isSanctioned?'制裁國':isHighRisk?'高風險':'正常',isSanctioned?'danger':isHighRisk?'warn':'ok');
+
+  const gr=$('geoRestrictKv');gr.innerHTML='';
+  gr.innerHTML+=kv('中國大陸',cc==='CN'?'是 ⚠':'否',cc==='CN'?'warn':'ok');
+  gr.innerHTML+=kv('俄羅斯',cc==='RU'?'是 ⚠':'否',cc==='RU'?'warn':'ok');
+  gr.innerHTML+=kv('北韓',cc==='KP'?'是 ⚠':'否',cc==='KP'?'danger':'ok');
+  gr.innerHTML+=kv('14眼聯盟',is14Eyes?cc:'否',is14Eyes?'warn':'ok');
+  gr.innerHTML+=kv('5眼聯盟',is5Eyes?cc:'否',is5Eyes?'info':'ok');
+
+  const gdprEl=$('gdprKv');gdprEl.innerHTML='';
+  gdprEl.innerHTML+=kv('GDPR 適用',isGDPR?'是（歐盟/EEA）':'否',isGDPR?'info':'');
+  gdprEl.innerHTML+=kv('資料傳輸',isGDPR?'受 GDPR 保護':'標準規範','');
+  gdprEl.innerHTML+=kv('隱私投訴',isGDPR?'可向 DPA 投訴':'依當地法律','');
+
+  // AI Analysis tab
+  const risks_summary=[];
+  if(isTor)risks_summary.push('Tor 匿名網路');
+  if(isVpn)risks_summary.push('VPN 服務');
+  if(isProxy)risks_summary.push('代理伺服器');
+  if(isBot)risks_summary.push('Bot 流量');
+  if(isSanctioned)risks_summary.push(`制裁國家（${cc}）`);
+  if(isMalicious_gn)risks_summary.push('GreyNoise 惡意掃描');
+  if(exposedPorts.length>0)risks_summary.push(`${exposedPorts.length}個高危服務埠暴露`);
+  if(vulnCount>0)risks_summary.push(`${vulnCount}個已知CVE漏洞`);
+  if(isDatacenter)risks_summary.push('數據中心IP（非家用）');
+
+  const aiEl=$('aiAnalysis');
+  aiEl.innerHTML=`
+    <div style="margin-bottom:.75rem">
+      <strong>IP 地址：</strong><code style="font-family:var(--mono);color:var(--primary)">${ip}</code>
+      來自 <strong>${ipapi?.country_name||ipapicom?.country||cc||'未知'}</strong>
+      (${ipapi?.org||ipapicom?.isp||'—'})，
+      綜合風險評分 <strong style="color:${score>60?'var(--danger)':score>30?'var(--warn)':'var(--success)'}">${score}/100</strong>（${lvl}）。
+    </div>
+    ${risks_summary.length>0
+      ?`<div style="margin-bottom:.75rem">
+          <strong>⚠ 偵測到以下風險信號：</strong>
+          <ul style="margin:.5rem 0 0 1.25rem;color:var(--muted)">${risks_summary.map(r=>`<li>${r}</li>`).join('')}</ul>
+        </div>`
+      :'<div style="margin-bottom:.75rem;color:var(--success)">✅ 未偵測到明顯風險信號</div>'
+    }
+    <div style="margin-bottom:.5rem"><strong>資料來源覆蓋：</strong>
+      ${comps.map(c=>`<code style="font-family:var(--mono);font-size:11px;background:var(--offset);padding:1px 5px;border-radius:3px;margin-right:4px">${c.label}</code>`).join('')}
+    </div>
+    <div style="color:var(--muted);font-size:12px;margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--divider)">
+      <strong>注意：</strong>本工具基於公開 API 資料，評分僅供參考，非確定性判斷。建議結合業務行為數據進行最終決策。
+    </div>
+  `;
+
+  const actEl=$('aiActions');
+  const actions=[];
+  if(score>75){
+    actions.push({icon:'🚫',title:'建議直接拒絕',desc:'風險分數極高，強烈建議阻擋此 IP 的請求'});
+    actions.push({icon:'📝',title:'記錄並監控',desc:'將此 IP 加入黑名單並記錄所有請求日誌'});
+  }else if(score>40){
+    actions.push({icon:'🔐',title:'強制雙因素驗證',desc:'要求用戶完成 2FA 或 Email 驗證'});
+    actions.push({icon:'🧩',title:'加入 CAPTCHA',desc:'顯示人機驗證挑戰，排除自動化攻擊'});
+    actions.push({icon:'⏱',title:'限制請求頻率',desc:'對此 IP 實施較嚴格的 Rate Limiting'});
+  }else{
+    actions.push({icon:'✅',title:'可正常放行',desc:'風險評分在正常範圍，無需額外驗證'});
+    actions.push({icon:'📊',title:'持續監控',desc:'建議記錄行為日誌，異常時觸發重新評估'});
+  }
+  if(isSanctioned)actions.push({icon:'⚖️',title:'合規審查',desc:`此 IP 來自制裁國家（${cc}），需確認是否符合您的合規政策`});
+  if(isGDPR)actions.push({icon:'🇪🇺',title:'GDPR 合規',desc:'此 IP 來自歐盟/EEA，處理其數據需符合 GDPR 規定'});
+  if(is5Eyes)actions.push({icon:'👁',title:'Five Eyes 注意',desc:`此 IP 位於五眼聯盟國家（${cc}），數據可能受監控法律影響`});
+  actEl.innerHTML=actions.map(a=>`
+    <div style="display:flex;gap:.625rem;margin-bottom:.625rem;padding:.625rem;background:var(--surface2);border-radius:var(--r-lg);border:1px solid var(--border)">
+      <span style="font-size:18px;flex-shrink:0">${a.icon}</span>
+      <div><div style="font-weight:600;margin-bottom:.125rem">${a.title}</div><div style="color:var(--muted);font-size:11px">${a.desc}</div></div>
+    </div>`).join('');
+
+  // Raw
+  $('rawBody').textContent=JSON.stringify(allData,null,2);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  $('ipInput').addEventListener('keydown',e=>{if(e.key==='Enter')runCheck();});
+  $('apiBody').previousElementSibling?.addEventListener('keydown',e=>{if(e.key==='Enter')toggleSection('apiBody','apiArrow');});
+});
+</script>
+</body>
+</html>

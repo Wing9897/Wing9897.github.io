@@ -1,36 +1,43 @@
 # Wing9897 Tools Hub
 
-歡迎來到 **Wing9897 Tools Hub**！這是多個簡單的工具存放的空間，提供二維碼生成與映射、HTTP 請求相關的實用工具，幫助你更高效地完成任務。
+**Wing9897 Tools Hub** 是單一前端應用。所有工具都在同一個應用裡，從工作台進入，不再是各自獨立的 HTML 檔。
 
-## 核心思想
-1. 工具可以離線操作
-2. 直接使用前端進行人機交互而無須與服務器互動
-3. 服務器只需要充當存放工具的空間
+線上網站：[Wing9897.github.io](https://wing9897.github.io/)
 
-## 如何使用
-1. 訪問 [Wing9897.github.io](https://wing9897.github.io/)。
-2. 在首頁點擊對應按鈕，跳轉到所需的工具頁面。
-3. 根據頁面提示輸入數據，體驗工具功能。
-4. 有任何建議？歡迎提交 [Issue](https://github.com/Wing9897/Wing9897.github.io/issues)！
+## 本地開發
 
+在專案目錄執行：
 
-## 本地運行
-1. 克隆此倉庫：
-   ```bash
-   git clone https://github.com/Wing9897/Wing9897.github.io.git
-   ```
-2. 進入項目目錄：
-   ```bash
-   cd Wing9897.github.io
-   ```
-3. 使用瀏覽器打開 `index.html`，或使用本地服務器（如 VS Code 的 Live Server 插件）預覽。
+```bash
+npm install
+npm run dev
+```
 
-## 貢獻
-歡迎提交 Pull Request 或建議，讓這個工具包更完善！
+## 正式建置
 
-## 聯繫方式
-- GitHub: [Wing9897](https://github.com/Wing9897)
+```bash
+npm run build
+npm run preview
+```
 
----
+`npm run build` 會把產物寫到倉庫根目錄的 `dist/`。
 
-感謝使用 Wing9897 Tools Hub！
+## 部署
+
+線上網站由 GitHub Actions 從 `dist/` 發布。推送預設分支 `main` 會觸發這個工作流程，也可以在 Actions 頁面手動執行。
+
+此倉庫的 GitHub Pages 來源必須設為 GitHub Actions。
+
+`upload_git.bat` 會提交並推送目前所在分支。人在 `main` 上執行它時，推送就會觸發上述工作流程。
+
+## 離線與 PWA
+
+應用殼可以安裝到裝置上。交易所、IP 情報與鏈上 RPC 呼叫仍需要網路。
+
+## 建議
+
+有任何建議，歡迎提交 [Issue](https://github.com/Wing9897/Wing9897.github.io/issues)，也歡迎 Pull Request。
+
+## 聯絡方式
+
+- GitHub：[Wing9897](https://github.com/Wing9897)

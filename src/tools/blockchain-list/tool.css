@@ -1,0 +1,180 @@
+.bl-tool {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.bl-intro {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.bl-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.bl-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.bl-section h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--line-tight);
+}
+
+.bl-sort {
+  max-width: 220px;
+}
+
+.bl-name {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.bl-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.bl-name-text {
+  min-width: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+.bl-symbol,
+.bl-zh,
+.bl-note,
+.bl-meta {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-xs);
+}
+
+.bl-zh,
+.bl-note,
+.bl-meta {
+  display: block;
+}
+
+.bl-rpc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.bl-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.bl-contracts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.bl-contract {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.bl-copy {
+  min-height: var(--control-h);
+}
+
+.bl-tool .ui-table {
+  table-layout: auto;
+}
+
+.bl-tool .ui-table td {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  vertical-align: top;
+}
+
+.bl-cell-label {
+  display: none;
+}
+
+.bl-foot {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.bl-foot h2 {
+  margin: 0 0 var(--space-1);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+}
+
+.bl-foot p {
+  margin: 0;
+}
+
+.bl-disclaimer {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .bl-foot {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .bl-nav .ui-btn,
+  .bl-copy {
+    min-height: 44px;
+  }
+
+  .bl-logo {
+    width: 18px;
+    height: 18px;
+  }
+
+  .bl-cell-label {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .bl-sort {
+    max-width: none;
+  }
+}

@@ -1,0 +1,151 @@
+.ph-tool {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.ph-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.ph-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.ph-card h2,
+.ph-card h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--line-tight);
+}
+
+.ph-card h3 {
+  font-size: var(--text-md);
+}
+
+.ph-muted {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.ph-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ph-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ph-actions .ui-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.ph-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ph-links a {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-h);
+  color: var(--color-accent-strong);
+  overflow-wrap: anywhere;
+}
+
+.ph-status {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.ph-status div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: baseline;
+}
+
+.ph-status dt {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.ph-status dd {
+  margin: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.ph-ok {
+  color: var(--color-success);
+}
+
+.ph-hash {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: var(--line-normal);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.ph-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.ph-qr img {
+  width: 150px;
+  height: 150px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.ph-notice {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.ph-notice a {
+  color: inherit;
+}
+
+@media (min-width: 768px) {
+  .ph-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .ph-actions .ui-btn,
+  .ph-links a {
+    min-height: 44px;
+  }
+}

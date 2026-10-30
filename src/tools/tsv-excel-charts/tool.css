@@ -1,0 +1,149 @@
+.tsv-tool {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+.tsv-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.tsv-tool h2 {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-tight);
+}
+
+.tsv-meta {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.tsv-tool .ui-segmented {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.tsv-input .ui-textarea {
+  min-height: 200px;
+  font-family: var(--font-mono);
+  white-space: pre;
+  overflow: auto;
+}
+
+.tsv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.tsv-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-3);
+  align-items: end;
+  min-width: 0;
+}
+
+.tsv-preview {
+  max-height: 300px;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.tsv-preview:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.tsv-preview table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.tsv-preview th,
+.tsv-preview td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tsv-preview th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tsv-slot {
+  position: relative;
+  width: 100%;
+  height: 450px;
+  min-width: 0;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.tsv-frame {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+}
+
+.tsv-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .tsv-tool .ui-segmented {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .tsv-tool .ui-segmented button,
+  .tsv-actions .ui-btn {
+    width: 100%;
+  }
+
+  .tsv-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tsv-slot {
+    height: 320px;
+  }
+}

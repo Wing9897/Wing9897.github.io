@@ -1,0 +1,133 @@
+.jwt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.jwt-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.jwt-card h2,
+.jwt-stack h3,
+.jwt-part h3 {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--line-tight);
+}
+
+.jwt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.jwt-actions > * {
+  flex: 1 1 12rem;
+}
+
+.jwt-note,
+.jwt-muted {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--line-normal);
+}
+
+.jwt-output {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.jwt-token,
+.jwt-code,
+.jwt-mono textarea,
+.jwt-mono input {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.jwt-token,
+.jwt-code {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.jwt-code {
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+}
+
+.jwt-ok {
+  margin: 0;
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
+}
+
+.jwt-bad {
+  margin: 0;
+  color: var(--color-danger);
+  font-weight: var(--font-weight-semibold);
+}
+
+.jwt-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.jwt-part {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-left: 4px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.jwt-part p {
+  margin: 0;
+  word-break: break-all;
+}
+
+.jwt-part--header {
+  border-left-color: var(--color-warning);
+}
+
+.jwt-part--payload {
+  border-left-color: var(--color-info);
+}
+
+.jwt-part--signature {
+  border-left-color: var(--color-danger);
+}
+
+.jwt-list {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+@media (max-width: 767px) {
+  .jwt-actions > * {
+    flex-basis: 100%;
+  }
+}
